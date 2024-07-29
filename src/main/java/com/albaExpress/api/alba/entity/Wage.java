@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
-@ToString(exclude = "")
+@ToString
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor

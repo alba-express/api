@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@ToString(exclude = "")
+@ToString
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,7 +23,7 @@ public class BonusLog {
     @Id
     @GenericGenerator(strategy = "uuid2", name = "uuid-generator")
     @GeneratedValue(generator = "uuid-generator")
-    @Column(name = "slave_id")
+    @Column(name = "bonus_id")
     private String id;
 
     @Column(name = "bonus_amount")
