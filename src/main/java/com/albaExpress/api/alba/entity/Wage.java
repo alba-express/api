@@ -5,9 +5,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 @Getter
 @ToString(exclude = "")
@@ -17,20 +15,29 @@ import java.util.List;
 @Builder
 
 @Entity
-@Table(name = "tbl_bonus_log")
-public class BonusLog {
+@Table(name = "tbl_wage")
+public class Wage {
 
     @Id
     @GenericGenerator(strategy = "uuid2", name = "uuid-generator")
     @GeneratedValue(generator = "uuid-generator")
-    @Column(name = "slave_id")
+    @Column(name = "wage_id")
     private String id;
 
-    @Column(name = "bonus_amount")
-    private int bonusAmount;
+    @Column(name = "wage_insurance")
+    private boolean wageInsurance;
 
-    @Column(name = "bonus_day")
-    private LocalDateTime bonusDay;
+    @Column(name = "wage_type")
+    private boolean wageType;
+
+    @Column(name = "wage_amount")
+    private int wageAmount;
+
+    @Column(name = "wage_update_date")
+    private LocalDate wageUpdateDate;
+
+    @Column(name = "wage_end_date")
+    private LocalDate wageEndDate;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
