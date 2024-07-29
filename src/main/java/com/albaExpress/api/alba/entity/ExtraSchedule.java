@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,25 +18,26 @@ import java.util.List;
 @Builder
 
 @Entity
-@Table(name = "tbl_bonus_log")
-public class BonusLog {
+@Table(name = "tbl_extra_schedule")
+public class ExtraSchedule {
 
     @Id
     @GenericGenerator(strategy = "uuid2", name = "uuid-generator")
     @GeneratedValue(generator = "uuid-generator")
-    @Column(name = "slave_id")
+    @Column(name = "extra_schedule_id")
     private String id;
 
-    @Column(name = "bonus_amount")
-    private int bonusAmount;
+    @Column(name = "extra_schedule_date")
+    private LocalDate extraScheduleDate;
 
-    @Column(name = "bonus_day")
-    private LocalDateTime bonusDay;
+    @Column(name = "extra_schedule_start")
+    private LocalTime extraScheduleStart;
+
+    @Column(name = "extra_schedule_end")
+    private LocalTime extraScheduleEnd;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "slave_id")
     private Slave slave;
-
-
 }
