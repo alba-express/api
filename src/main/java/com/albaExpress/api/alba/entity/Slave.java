@@ -52,10 +52,10 @@ public class Slave {
     @OneToMany(mappedBy = "slave", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<BonusLog> bonusLogList = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "slave", orphanRemoval = true, cascade = CascadeType.ALL)
-//    private List<Wage> wageList = new ArrayList<>();
-//
-//
+    @OneToMany(mappedBy = "slave", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Wage> wageList = new ArrayList<>();
+
+
 //    @OneToMany(mappedBy = "slave", orphanRemoval = true, cascade = CascadeType.ALL)
 //    private List<SalaryLog> salaryLogList = new ArrayList<>();
 //
