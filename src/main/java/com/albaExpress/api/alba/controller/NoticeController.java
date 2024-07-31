@@ -1,5 +1,6 @@
 package com.albaExpress.api.alba.controller;
 
+import com.albaExpress.api.alba.dto.request.NoticeSaveDto;
 import com.albaExpress.api.alba.entity.Notice;
 import com.albaExpress.api.alba.service.NoticeService;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +20,15 @@ public class NoticeController {
     @GetMapping("/notice")
     public ResponseEntity<?> getList() {
 
-        return null;
-//                ResponseEntity.ok().body();
+        return ResponseEntity.ok().body("공지사항 조회");
     }
 
     // 등록 요청
     @PostMapping("/notice-register")
-    public ResponseEntity<?> post(@RequestBody Notice notice) {
-        noticeService.saveNotice(notice, notice.getId());
+    public ResponseEntity<?> post(@RequestBody NoticeSaveDto dto, Notice notice) {
+
+        noticeService.saveNotice(dto, notice);
+//        noticeService.saveNotice(dto, notice.getId());
         return ResponseEntity.ok().body("공지사항 등록");
     }
 
