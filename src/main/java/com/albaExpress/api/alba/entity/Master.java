@@ -41,6 +41,7 @@ public class Master {
     @Column(name = "email_verified")
     private boolean emailVerified;
 
+    @Setter
     @Column(name = "master_created_at")
     private LocalDateTime masterCreatedAt;
 

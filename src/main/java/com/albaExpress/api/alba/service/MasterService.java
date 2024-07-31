@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class MasterService {
     @Autowired
@@ -33,6 +35,7 @@ public class MasterService {
             // 기존 사용자 업데이트
             master.setMasterPassword(passwordEncoder.encode(masterDto.getPassword()));
             master.setMasterName(masterDto.getName());
+            master.setMasterCreatedAt(LocalDateTime.now()); // 회원가입 시점의 시간 설정
         }
 
         return masterRepository.save(master);
