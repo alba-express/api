@@ -25,14 +25,17 @@ public class NoticeController {
 
     // 등록 요청
     @PostMapping("/notice-register")
-    public ResponseEntity<?> post(@RequestBody NoticeSaveDto dto, Notice notice) {
-
-        noticeService.saveNotice(dto, notice);
-//        noticeService.saveNotice(dto, notice.getId());
+    public ResponseEntity<?> post(@RequestBody NoticeSaveDto dto) {
+        noticeService.saveNotice(dto, dto.getId());
         return ResponseEntity.ok().body("공지사항 등록");
     }
 
     // 수정 요청
+    @PatchMapping
+    public ResponseEntity<?> modify(@RequestBody NoticeSaveDto dto) {
+        noticeService.modifyNotice(dto, dto.getId());
+        return ResponseEntity.ok().body("공지사항 수정");
+    }
 
     // 삭제 요청
     @DeleteMapping
