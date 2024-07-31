@@ -1,5 +1,6 @@
 package com.albaExpress.api.alba.service;
 
+import com.albaExpress.api.alba.entity.Notice;
 import com.albaExpress.api.alba.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,4 +16,15 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
 
 
+    // 등록
+    public void saveNotice(Notice notice, String id) {
+        noticeRepository.save(notice);
+    }
+
+    // 수정
+
+    // 삭제
+    public void deleteNotice(String id) {
+        noticeRepository.deleteById(id);
+    }
 }
