@@ -25,12 +25,15 @@ public class Master {
     @Column(name = "master_id")
     private String id;
 
+    @Setter
     @Column(name = "master_email", nullable = false, unique = true)
     private String masterEmail;
 
+    @Setter
     @Column(name = "master_password")
     private String masterPassword;
 
+    @Setter
     @Column(name = "master_name")
     private String masterName;
 
