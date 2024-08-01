@@ -5,6 +5,7 @@ import com.albaExpress.api.alba.entity.Notice;
 import com.albaExpress.api.alba.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class NoticeController {
 
+    @Autowired
     private final NoticeService noticeService;
 
     // 전체 조회 요청
@@ -27,6 +29,7 @@ public class NoticeController {
     @PostMapping("/notice-register")
     public ResponseEntity<?> post(@RequestBody NoticeSaveDto dto) {
         noticeService.saveNotice(dto, dto.getId());
+        log.info("dto : {}", dto);
         return ResponseEntity.ok().body("공지사항 등록");
     }
 
@@ -38,9 +41,10 @@ public class NoticeController {
     }
 
     // 삭제 요청
-    @DeleteMapping
-    public ResponseEntity<?> delete(@PathVariable String id) {
-        noticeService.deleteNotice(id);
+    @DeleteMapping("/{noticeId}")
+    public ResponseEntity<?> delete(@PathVariable String noticeId) {
+        noticeService.deleteNotice(noticeId);
+        log.info("noticeId : {}", noticeId);
         return ResponseEntity.ok().body("공지사항 삭제");
     }
 

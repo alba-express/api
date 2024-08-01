@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .cors().and()  // CORS 설정 활성화
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()  // 인증 관련 경로는 모든 사용자에게 허용합니다.
+                .antMatchers("/**").permitAll()  // 모든 사용자에게 허용(임시허용)
                 .anyRequest().authenticated();
 
         return http.build();

@@ -27,13 +27,18 @@ public class NoticeSaveDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
 
+    private String workplaceId;
 
     public Notice toEntity() {
+        Workplace workplace = new Workplace();
+        workplace.setId(String.valueOf(this.workplaceId));
+
         return Notice.builder()
                 .id(this.id)
                 .noticeTitle(this.title)
                 .noticeContent(this.content)
                 .noticeCreatedAt(this.createdAt)
+                .workplace(workplace)
                 .build();
     }
 
