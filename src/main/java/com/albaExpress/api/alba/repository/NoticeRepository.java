@@ -7,3 +7,4 @@ import org.springframework.data.repository.CrudRepository;
 public interface NoticeRepository extends JpaRepository<Notice, String> {
 
 }
+
