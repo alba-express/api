@@ -2,8 +2,10 @@ package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.LoginRequest;
 import com.albaExpress.api.alba.dto.request.MasterRequestDto;
+import com.albaExpress.api.alba.dto.request.ResetPasswordRequestDto;
 import com.albaExpress.api.alba.dto.request.VerificationCodeRequestDto;
 import com.albaExpress.api.alba.entity.Master;
+import com.albaExpress.api.alba.repository.MasterRepository;
 import com.albaExpress.api.alba.service.MasterService;
 import com.albaExpress.api.alba.service.EmailVerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,12 @@ public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private MasterRepository masterRepository;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody MasterRequestDto masterDto) {
@@ -79,6 +88,18 @@ public class AuthController {
         } catch (Exception e) {
             logger.error("Login failed for email: {} with error: {}", loginRequest.getEmail(), e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\":\"Invalid email or password\"}");
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequestDto resetPasswordRequestDto) {
+        try {
+            Master master = masterService.findByMasterEmail(resetPasswordRequestDto.getEmail());
+            master.setMasterPassword(passwordEncoder.encode(resetPasswordRequestDto.getPassword()));
+            masterRepository.save(master);
+            return ResponseEntity.ok("{\"message\":\"Password reset successful\"}");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
         }
     }
 }
