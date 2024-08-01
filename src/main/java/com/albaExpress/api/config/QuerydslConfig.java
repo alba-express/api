@@ -8,13 +8,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 @Configuration
-public class QuerydslConfig {
+public class QueryDslConfig {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    private EntityManager em;
 
-    @Bean
+    @Bean // 외부라이브러리를 스프링 컨테이너에 관리시키는 설정
     public JPAQueryFactory jpaQueryFactory() {
-        return new JPAQueryFactory(entityManager);
+        return new JPAQueryFactory(em);
     }
+
 }
