@@ -1,16 +1,41 @@
 package com.albaExpress.api.config;
 
+import com.albaExpress.api.alba.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .csrf().disable()
+                .authorizeRequests()
+
+                .antMatchers("/api/auth/**").permitAll()  // 인증 관련 경로는 모든 사용자에게 허용합니다.
+                .antMatchers("/**").permitAll()  // 모든 사용자에게 허용(임시허용)
+                .anyRequest().authenticated();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -18,15 +43,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable()  // 개발 중에는 CSRF 보호를 비활성화할 수 있습니다. 필요에 따라 설정하십시오.
-                .cors().and()  // CORS 설정 활성화
-                .authorizeRequests()
-                .antMatchers("/api/auth/**").permitAll()  // 인증 관련 경로는 모든 사용자에게 허용합니다.
-                .antMatchers("/**").permitAll()  // 모든 사용자에게 허용(임시허용)
-                .anyRequest().authenticated();
-
-        return http.build();
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 }

@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
+@Setter
 @Entity
 @Table(name = "tbl_schedule_log")
 public class ScheduleLog {
@@ -25,14 +25,16 @@ public class ScheduleLog {
     @Column(name = "schedule_log_id")
     private String id;
 
-    @Column(name = "bonus_amount")
-    private int bonusAmount;
 
-    @Column(name = "bonus_day")
-    private LocalDateTime bonusDay;
+    @Column(name = "schedule_log_start")
+    private LocalDateTime scheduleLogStart;
+
+    @Column(name = "schedule_log_end")
+    private LocalDateTime scheduleLogEnd;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "slave_id")
     private Slave slave;
+
 }
