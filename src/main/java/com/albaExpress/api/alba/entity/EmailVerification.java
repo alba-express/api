@@ -28,7 +28,7 @@ public class EmailVerification {
 
     private int emailVerificationCode;
 
-    private LocalTime emailVerificationExpiryTime;
+    private LocalTime emailVerificationExpiryDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "master_id")

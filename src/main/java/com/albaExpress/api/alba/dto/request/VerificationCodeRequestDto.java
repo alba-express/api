@@ -1,9 +1,9 @@
 package com.albaExpress.api.alba.dto.request;
+
 import lombok.Data;
 
 @Data
-public class MasterRequestDto {
+public class VerificationCodeRequestDto {
     private String email;
-    private String password;
-    private String name;
+    private int code;
 }

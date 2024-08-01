@@ -23,6 +23,7 @@ public class Workplace {
     @GenericGenerator(strategy = "uuid2", name = "uuid-generator")
     @GeneratedValue(generator = "uuid-generator")
     @Column(name = "workplace_id", nullable = false)
+    @Setter
     private String id;
 
     @Column(name = "workplace_name", nullable = false)
