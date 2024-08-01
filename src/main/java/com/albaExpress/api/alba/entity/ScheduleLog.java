@@ -37,7 +37,4 @@ public class ScheduleLog {
     @JoinColumn(name = "slave_id")
     private Slave slave;
 
-    @OneToOne
-    @JoinColumn(name = "tbl_slave", referencedColumnName = "slave_phone_number")
-    private Slave slavePhoneNumber;
 }

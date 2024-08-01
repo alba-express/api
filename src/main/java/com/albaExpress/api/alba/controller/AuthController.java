@@ -3,7 +3,9 @@ package com.albaExpress.api.alba.controller;
 import com.albaExpress.api.alba.dto.request.LoginRequest;
 import com.albaExpress.api.alba.dto.request.MasterRequestDto;
 import com.albaExpress.api.alba.dto.request.VerificationCodeRequestDto;
+import com.albaExpress.api.alba.dto.request.ResetPasswordRequestDto;
 import com.albaExpress.api.alba.entity.Master;
+import com.albaExpress.api.alba.repository.MasterRepository;
 import com.albaExpress.api.alba.service.MasterService;
 import com.albaExpress.api.alba.service.EmailVerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +15,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,53 +37,109 @@ public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private MasterRepository masterRepository;
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody MasterRequestDto masterDto) {
         try {
             Master savedUser = masterService.registerOrUpdateUser(masterDto);
             return ResponseEntity.ok(savedUser);
         } catch (IllegalArgumentException e) {
-            logger.error("Error during registration: {}", e.getMessage());
+            logger.error("회원가입 중 오류 발생: {}", e.getMessage());
             return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
         }
     }
 
     @PostMapping("/check-email")
-    public ResponseEntity<?> checkEmailAndSendCode(@RequestParam String email) {
-        boolean exists = masterService.emailExists(email);
-        if (!exists) {
-            emailVerificationService.sendVerificationCode(email);
-            return ResponseEntity.ok("{\"message\":\"Verification code sent\"}");
-        } else {
-            return ResponseEntity.badRequest().body("{\"message\":\"Email already in use\"}");
+    public ResponseEntity<?> checkEmailForRegistration(@RequestParam String email) {
+        try {
+            Optional<Master> optionalMaster = masterService.findByMasterEmailOptional(email);
+            if (optionalMaster.isPresent()) {
+                Master master = optionalMaster.get();
+                if (master.isEmailVerified()) {
+                    return ResponseEntity.badRequest().body("{\"message\":\"이미 사용 중인 이메일입니다.\"}");
+                } else {
+                    emailVerificationService.sendVerificationCode(email);
+                    return ResponseEntity.ok("{\"message\":\"인증 코드가 재전송되었습니다.\"}");
+                }
+            } else {
+                emailVerificationService.sendVerificationCode(email);
+                return ResponseEntity.ok("{\"message\":\"인증 코드가 이메일로 전송되었습니다.\"}");
+            }
+        } catch (IllegalArgumentException e) {
+            logger.error("이메일 확인 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
+    @PostMapping("/check-email-exists")
+    public ResponseEntity<?> checkEmailForPasswordReset(@RequestParam String email) {
+        try {
+            Optional<Master> optionalMaster = masterService.findByMasterEmailOptional(email);
+            if (optionalMaster.isPresent()) {
+                emailVerificationService.sendVerificationCode(email);
+                return ResponseEntity.ok("{\"message\":\"인증 코드가 이메일로 전송되었습니다.\"}");
+            } else {
+                return ResponseEntity.badRequest().body("{\"message\":\"존재하지 않는 이메일입니다.\"}");
+            }
+        } catch (IllegalArgumentException e) {
+            logger.error("이메일 확인 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
         }
     }
 
     @PostMapping("/send-verification-code")
     public ResponseEntity<?> sendVerificationCode(@RequestBody VerificationCodeRequestDto requestDto) {
-        emailVerificationService.sendVerificationCode(requestDto.getEmail());
-        return ResponseEntity.ok("{\"message\":\"Verification code sent\"}");
+        try {
+            emailVerificationService.sendVerificationCode(requestDto.getEmail());
+            return ResponseEntity.ok("{\"message\":\"인증 코드가 이메일로 전송되었습니다.\"}");
+        } catch (IllegalArgumentException e) {
+            logger.error("인증 코드 전송 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
+        }
     }
 
     @PostMapping("/verify-code")
-    public ResponseEntity<Boolean> verifyCode(@RequestBody VerificationCodeRequestDto requestDto) {
+    public ResponseEntity<?> verifyCode(@RequestBody VerificationCodeRequestDto requestDto) {
         boolean isValid = emailVerificationService.verifyCode(requestDto);
-        return ResponseEntity.ok(isValid);
+        if (isValid) {
+            return ResponseEntity.ok("{\"message\":\"인증이 완료되었습니다.\"}");
+        } else {
+            return ResponseEntity.badRequest().body("{\"message\":\"인증 코드가 잘못되었거나 만료되었습니다.\"}");
+        }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
-        logger.info("Login attempt with email: {}", loginRequest.getEmail());
+        logger.info("로그인 시도 중: {}", loginRequest.getEmail());
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            logger.info("Login successful for email: {}", loginRequest.getEmail());
-            return ResponseEntity.ok("{\"message\":\"Login successful\"}");
+            logger.info("로그인 성공: {}", loginRequest.getEmail());
+            return ResponseEntity.ok("{\"message\":\"로그인 성공\"}");
         } catch (Exception e) {
-            logger.error("Login failed for email: {} with error: {}", loginRequest.getEmail(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\":\"Invalid email or password\"}");
+            logger.error("로그인 실패: {} 오류: {}", loginRequest.getEmail(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\":\"이메일 또는 비밀번호가 잘못되었습니다.\"}");
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequestDto resetPasswordRequestDto) {
+        try {
+            Master master = masterRepository.findByMasterEmail(resetPasswordRequestDto.getEmail())
+                    .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 사용자를 찾을 수 없습니다."));
+            master.setMasterPassword(passwordEncoder.encode(resetPasswordRequestDto.getPassword()));
+            masterRepository.save(master);
+            return ResponseEntity.ok("{\"message\":\"비밀번호가 성공적으로 변경되었습니다.\"}");
+        } catch (IllegalArgumentException e) {
+            logger.error("비밀번호 변경 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
         }
     }
 }

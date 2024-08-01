@@ -1,6 +1,6 @@
 package com.albaExpress.api.alba.service;
-
 import com.albaExpress.api.alba.dto.request.MasterRequestDto;
+import com.albaExpress.api.alba.dto.request.ResetPasswordRequestDto;
 import com.albaExpress.api.alba.entity.Master;
 import com.albaExpress.api.alba.repository.MasterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,17 +16,18 @@ public class MasterService {
 
     private static final Logger logger = LoggerFactory.getLogger(MasterService.class);
 
-    private final MasterRepository masterRepository;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private MasterRepository masterRepository;
 
     @Autowired
-    public MasterService(MasterRepository masterRepository, PasswordEncoder passwordEncoder) {
-        this.masterRepository = masterRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private PasswordEncoder passwordEncoder;
 
     public boolean emailExists(String email) {
         return masterRepository.findByMasterEmail(email).isPresent();
+    }
+
+    public Optional<Master> findByMasterEmailOptional(String email) {
+        return masterRepository.findByMasterEmail(email);
     }
 
     public Master findByMasterEmail(String email) {
@@ -60,5 +61,12 @@ public class MasterService {
         }
 
         return masterRepository.save(master);
+    }
+
+    public void resetPassword(ResetPasswordRequestDto resetPasswordRequestDto) {
+        Master master = masterRepository.findByMasterEmail(resetPasswordRequestDto.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + resetPasswordRequestDto.getEmail()));
+        master.setMasterPassword(passwordEncoder.encode(resetPasswordRequestDto.getPassword()));
+        masterRepository.save(master);
     }
 }

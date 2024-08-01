@@ -19,7 +19,7 @@ public class NoticeService {
 
 
     // 등록
-    public void saveNotice(NoticeSaveDto dto, Notice notice) {
+    public void saveNotice(NoticeSaveDto dto, String id) {
         Notice newNotice = dto.toEntity();
         noticeRepository.save(newNotice);
     }

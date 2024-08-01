@@ -5,6 +5,7 @@ import com.albaExpress.api.alba.entity.Notice;
 import com.albaExpress.api.alba.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,19 +26,29 @@ public class NoticeController {
 
     // 등록 요청
     @PostMapping("/notice-register")
-    public ResponseEntity<?> post(@RequestBody NoticeSaveDto dto, Notice notice) {
-
-        noticeService.saveNotice(dto, notice);
-//        noticeService.saveNotice(dto, notice.getId());
-        return ResponseEntity.ok().body("공지사항 등록");
+    public ResponseEntity<?> post(@RequestBody NoticeSaveDto dto) {
+        try {
+            noticeService.saveNotice(dto, dto.getId());
+            log.info("dto : {}", dto);
+            return ResponseEntity.ok().body("공지사항 등록");
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        }
     }
 
     // 수정 요청
+    @PatchMapping("/{noticeId}")
+    public ResponseEntity<?> modify(@RequestBody NoticeSaveDto dto, @PathVariable String noticeId) {
+        noticeService.modifyNotice(dto, noticeId);
+        return ResponseEntity.ok().body("공지사항 수정");
+    }
 
     // 삭제 요청
-    @DeleteMapping
-    public ResponseEntity<?> delete(@PathVariable String id) {
-        noticeService.deleteNotice(id);
+    @DeleteMapping("/{noticeId}")
+    public ResponseEntity<?> delete(@PathVariable String noticeId) {
+        noticeService.deleteNotice(noticeId);
+        log.info("noticeId : {}", noticeId);
         return ResponseEntity.ok().body("공지사항 삭제");
     }
 
