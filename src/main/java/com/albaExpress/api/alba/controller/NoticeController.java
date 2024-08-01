@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class NoticeController {
 
-    @Autowired
     private final NoticeService noticeService;
 
     // 전체 조회 요청
@@ -28,15 +27,20 @@ public class NoticeController {
     // 등록 요청
     @PostMapping("/notice-register")
     public ResponseEntity<?> post(@RequestBody NoticeSaveDto dto) {
-        noticeService.saveNotice(dto, dto.getId());
-        log.info("dto : {}", dto);
-        return ResponseEntity.ok().body("공지사항 등록");
+        try {
+            noticeService.saveNotice(dto, dto.getId());
+            log.info("dto : {}", dto);
+            return ResponseEntity.ok().body("공지사항 등록");
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        }
     }
 
     // 수정 요청
-    @PatchMapping
-    public ResponseEntity<?> modify(@RequestBody NoticeSaveDto dto) {
-        noticeService.modifyNotice(dto, dto.getId());
+    @PatchMapping("/{noticeId}")
+    public ResponseEntity<?> modify(@RequestBody NoticeSaveDto dto, @PathVariable String noticeId) {
+        noticeService.modifyNotice(dto, noticeId);
         return ResponseEntity.ok().body("공지사항 수정");
     }
 
