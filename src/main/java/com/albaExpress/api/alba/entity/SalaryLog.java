@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 
 @Entity
-@Table(name = "tbl_schedule_log")
+@Table(name = "tbl_salary_log")
 public class SalaryLog {
     @Id
     @GenericGenerator(strategy = "uuid2", name = "uuid-generator")
