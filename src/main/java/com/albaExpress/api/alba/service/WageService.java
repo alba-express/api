@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -15,13 +16,22 @@ import java.util.List;
 @Slf4j
 public class WageService {
 
-    private SalaryLogRepository salaryLogRepository;
+    private final SalaryLogRepository salaryLogRepository;
 
 
-    public List<SalaryLog> getSalaryLogInWorkplace(String workplaceId) {
+    public int getSalaryLogInWorkplace(String workplaceId, YearMonth ym) {
 
-        List<SalaryLog> LogList = salaryLogRepository.getLogListByWorkplace(workplaceId);
+        List<SalaryLog> logList = salaryLogRepository.getLogListByWorkplace(workplaceId);
+        int salaryAmount = 0;
 
-        return LogList;
+        for (SalaryLog salaryLog : logList) {
+
+            if (salaryLog.getSalaryMonth().getYear() == ym.getYear() && salaryLog.getSalaryMonth().getMonthValue() == ym.getMonthValue()) {
+                salaryAmount += salaryLog.getSalaryAmount();
+
+            }
+        }
+        log.info("service에서 controller가기전 결과물: {}", salaryAmount);
+        return salaryAmount;
     }
 }
