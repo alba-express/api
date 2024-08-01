@@ -1,5 +1,6 @@
 package com.albaExpress.api.alba.entity;
 
+import com.albaExpress.api.alba.dto.request.NoticeSaveDto;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -39,5 +40,11 @@ public class Notice {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workplace_id")
     private Workplace workplace;
+
+    public void changeNotice(NoticeSaveDto dto) {
+        this.noticeTitle = dto.getTitle();
+        this.noticeContent = dto.getContent();
+        this.noticeCreatedAt = LocalDateTime.now();
+    }
 
 }
