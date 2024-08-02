@@ -21,19 +21,17 @@ public class WageService {
 
     public SalaryLogWorkplaceResponseDto getSalaryLogInWorkplace(String workplaceId, YearMonth ym) {
 
-        List<SalaryLogSlaveResponseDto> logList = salaryLogRepository.getLogListByWorkplace(workplaceId);
+        List<SalaryLogSlaveResponseDto> logList = salaryLogRepository.getLogListByWorkplace(workplaceId, ym);
         long salaryAmount = 0L;
 
         for (SalaryLogSlaveResponseDto salaryLog : logList) {
 
-            if (salaryLog.getSalaryDate().getYear() == ym.getYear() && salaryLog.getSalaryDate().getMonthValue() == ym.getMonthValue()) {
-                salaryAmount += salaryLog.getSalaryAmount();
-//                log.info("반복문 내에서의 누적급여량: {}", salaryAmount);
-            }
+            salaryAmount += salaryLog.getTotalAmount();
         }
         log.info("service에서 controller가기전 결과물: {}", salaryAmount);
         return SalaryLogWorkplaceResponseDto.builder()
                 .salaryAmount(salaryAmount)
+                .logList(logList)
                 .build();
     }
 }

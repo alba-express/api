@@ -36,14 +36,4 @@ public class SalaryLog {
     @JoinColumn(name = "slave_id")
     private Slave slave;
 
-
-    public static SalaryLogSlaveResponseDto toDto(SalaryLog log) {
-        return SalaryLogSlaveResponseDto.builder()
-                .salaryAmount(log.salaryAmount)
-                .salaryDate(log.getSalaryMonth())
-                .slaveId(log.slave.getId())
-                .slaveName(log.slave.getSlaveName())
-                .build();
-    }
-
 }
