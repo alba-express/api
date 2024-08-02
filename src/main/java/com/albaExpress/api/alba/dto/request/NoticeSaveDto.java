@@ -24,8 +24,8 @@ public class NoticeSaveDto {
     private String title;
     private String content;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime createdAt;
+//    @JsonFormat(pattern = "yyyy-MM-dd")
+//    private LocalDateTime createdAt;
 
     private String workplaceId;
 
@@ -37,7 +37,7 @@ public class NoticeSaveDto {
                 .id(this.id)
                 .noticeTitle(this.title)
                 .noticeContent(this.content)
-                .noticeCreatedAt(this.createdAt)
+//                .noticeCreatedAt(this.createdAt)
                 .workplace(workplace)
                 .build();
     }
