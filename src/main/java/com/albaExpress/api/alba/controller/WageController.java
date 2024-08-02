@@ -1,16 +1,12 @@
 package com.albaExpress.api.alba.controller;
 
-import com.albaExpress.api.alba.entity.SalaryLog;
+import com.albaExpress.api.alba.dto.request.SalaryAmountRequestDto;
+import com.albaExpress.api.alba.dto.response.SalaryLogWorkplaceResponseDto;
 import com.albaExpress.api.alba.service.WageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/wage")
@@ -20,12 +16,11 @@ public class WageController {
 
     private final WageService wageService;
 
-    @GetMapping("/workplace")
-    public ResponseEntity<?> wageMainGet(@RequestParam String workplaceId) {
+    @PostMapping("/workplace")
+    public ResponseEntity<?> wageMainPost(@RequestBody SalaryAmountRequestDto reqDto) {
         log.info("요청들어옴!");
-        List<SalaryLog> salaryLogList = wageService.getSalaryLogInWorkplace(workplaceId);
+        SalaryLogWorkplaceResponseDto resDto = wageService.getSalaryLogInWorkplace(reqDto.getWorkplaceId(), reqDto.getYm());
 
-
-        return ResponseEntity.ok().body(salaryLogList);
+        return ResponseEntity.ok().body(resDto);
     }
 }

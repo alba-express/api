@@ -20,27 +20,35 @@ public class ScheduleLogService {
 
     private final SlaveRepository slaveRepository;
 
-//    public ScheduleLog checkIn(ScheduleLog scheduleLog) {
-//        scheduleLog.setScheduleLogStart(LocalDateTime.now());
-//        return scheduleLogRepository.save(scheduleLog);
-//    }
-//
-//    public ScheduleLog checkOut(String id) {
-//        Optional<ScheduleLog> optionalScheduleLog = scheduleLogRepository.findById(id);
-//        if (optionalScheduleLog.isPresent()) {
-//            ScheduleLog scheduleLog = optionalScheduleLog.get();
-//            scheduleLog.setScheduleLogEnd(LocalDateTime.now());
-//            return scheduleLogRepository.save(scheduleLog);
-//        } else {
-//            throw new RuntimeException("로그를 찾을 수 없습니다.");
-//        }
-//    }
-
+    // 전화번호 검증
     public Slave verifyPhoneNumber(String phoneNumber, String workplaceId) {
         Slave slave = slaveRepository.getSlaveByPhoneNumber(phoneNumber, workplaceId);
 
-
-
         return slave;
+    }
+
+    // 출퇴근 기록
+    public ScheduleLog checkIn(String slaveId) throws Exception {
+        Slave findSlave = slaveRepository.findById(slaveId).orElse(null);
+        if (findSlave != null) {
+            ScheduleLog scheduleLog = ScheduleLog.builder()
+                    .scheduleLogStart(LocalDateTime.now())
+                    .slave(findSlave)
+                    .build();
+            return scheduleLogRepository.save(scheduleLog);
+        } else {
+            throw new Exception("존재하지 않는 slaveId입니다.");
+        }
+    }
+
+    public ScheduleLog checkOut(String logId) throws Exception {
+        Optional<ScheduleLog> optionalScheduleLog = scheduleLogRepository.findById(logId);
+        if (optionalScheduleLog.isPresent()) {
+            ScheduleLog scheduleLog = optionalScheduleLog.get();
+            scheduleLog.setScheduleLogEnd(LocalDateTime.now());
+            return scheduleLogRepository.save(scheduleLog);
+        } else {
+            throw new Exception("로그를 찾을 수 없습니다.");
+        }
     }
 }

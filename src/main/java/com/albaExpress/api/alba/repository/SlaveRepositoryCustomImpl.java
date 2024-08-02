@@ -24,4 +24,11 @@ public class SlaveRepositoryCustomImpl implements SlaveRepositoryCustom{
                 .fetchOne();
 
     }
+
+    public Slave getSlaveById(String id) {
+        return factory.select(slave)
+                .from(slave)
+                .where(slave.id.eq(id))
+                .fetchOne();
+    }
 }

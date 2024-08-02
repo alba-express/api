@@ -1,13 +1,14 @@
 package com.albaExpress.api.alba.service;
 
+import com.albaExpress.api.alba.dto.response.SalaryLogSlaveResponseDto;
+import com.albaExpress.api.alba.dto.response.SalaryLogWorkplaceResponseDto;
 import com.albaExpress.api.alba.entity.SalaryLog;
 import com.albaExpress.api.alba.repository.SalaryLogRepository;
-import com.albaExpress.api.alba.repository.ScheduleLogRepository;
-import com.albaExpress.api.alba.repository.WageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -15,13 +16,22 @@ import java.util.List;
 @Slf4j
 public class WageService {
 
-    private SalaryLogRepository salaryLogRepository;
+    private final SalaryLogRepository salaryLogRepository;
 
 
-    public List<SalaryLog> getSalaryLogInWorkplace(String workplaceId) {
+    public SalaryLogWorkplaceResponseDto getSalaryLogInWorkplace(String workplaceId, YearMonth ym) {
 
-        List<SalaryLog> LogList = salaryLogRepository.getLogListByWorkplace(workplaceId);
+        List<SalaryLogSlaveResponseDto> logList = salaryLogRepository.getLogListByWorkplace(workplaceId, ym);
+        long salaryAmount = 0L;
 
-        return LogList;
+        for (SalaryLogSlaveResponseDto salaryLog : logList) {
+
+            salaryAmount += salaryLog.getTotalAmount();
+        }
+        log.info("service에서 controller가기전 결과물: {}", salaryAmount);
+        return SalaryLogWorkplaceResponseDto.builder()
+                .salaryAmount(salaryAmount)
+                .logList(logList)
+                .build();
     }
 }
