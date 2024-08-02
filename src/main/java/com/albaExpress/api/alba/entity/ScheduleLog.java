@@ -1,4 +1,5 @@
 package com.albaExpress.api.alba.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -35,6 +36,7 @@ public class ScheduleLog {
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "slave_id")
+    @JsonIgnore
     private Slave slave;
 
 }
