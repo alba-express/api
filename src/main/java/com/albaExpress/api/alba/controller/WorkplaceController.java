@@ -1,5 +1,6 @@
 package com.albaExpress.api.alba.controller;
 
+import com.albaExpress.api.alba.dto.request.WorkplaceModifyDto;
 import com.albaExpress.api.alba.dto.request.WorkplacePostDto;
 import com.albaExpress.api.alba.dto.response.WorkplaceListDto;
 import com.albaExpress.api.alba.entity.Master;
@@ -10,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/workplace")
@@ -54,7 +57,7 @@ public class WorkplaceController {
                     .workplacePassword(registeredWorkplace.getWorkplacePassword())
                     .workplaceSize(registeredWorkplace.isWorkplaceSize())
 //                    .workplaceCreatedAt(registeredWorkplace.getWorkplaceCreatedAt())
-                    .masterId(String.valueOf(registeredWorkplace.getMaster())) // Optional: 수정 필요
+                    .masterId(String.valueOf(registeredWorkplace.getMaster().getId())) // Optional: 수정 필요
                     .build();
             return ResponseEntity.ok(workplaceListDto);
         } else {
@@ -64,16 +67,24 @@ public class WorkplaceController {
     }
 
     // 사업장 수정
-    @PostMapping("/modify")
-    public ResponseEntity<?> workplaceUpdate() {
+    @PutMapping("/modify")
+    public ResponseEntity<?> workplaceUpdate(@Valid @RequestBody WorkplaceModifyDto dto) {
+        log.info("/workplace/modify : PUT");
+        log.debug("parameter - {}", dto);
 
-        return ResponseEntity.ok().body("수정");
+        WorkplaceListDto workplaceListDto = workplaceService.modify(dto);
+
+        return ResponseEntity.ok().body(workplaceListDto);
     }
 
-    // 사업장 삭제
-    @DeleteMapping("/delete/{mid}")
-    public ResponseEntity<?> workplaceDelete() {
+    // 사업장 삭제 - 사업장 삭제하면 사업장 아이디가 삭제 ? 사장 아이디가 삭제 ?
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> workplaceDelete(@PathVariable("id") String id) {
+        log.info("/workplace/delete/ : DELETE");
+        log.info("workplaceId : {}", id);
 
-        return ResponseEntity.ok().body("삭제");
+        WorkplaceListDto removed = workplaceService.delete(id);
+
+        return ResponseEntity.ok().body(removed != null ? "삭제 완료" : "삭제 실패");
     }
 }

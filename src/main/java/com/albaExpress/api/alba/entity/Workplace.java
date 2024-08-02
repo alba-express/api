@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
+@Getter @Setter
 @ToString(exclude = {"slaveList", "noticeList", "master"})
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
@@ -65,24 +65,4 @@ public class Workplace {
     @OneToMany(mappedBy = "workplace", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Notice> noticeList = new ArrayList<>();
 
-    // 상호명과 주소만 넣어 사업장 정보 전체 조회하는 부분 생성자
-//    public Workplace(String id, String workplaceName, String workplaceAddressCity, String workplaceAddressStreet, String workplaceAddressDetail) {
-//        this.id = id;
-//        this.workplaceName = workplaceName;
-//        this.workplaceAddressCity = workplaceAddressCity;
-//        this.workplaceAddressStreet = workplaceAddressStreet;
-//        this.workplaceAddressDetail = workplaceAddressDetail;
-//    }
-//
-//    // 사업장 등록 시 필요한 정보만 담는 생성자
-//    public Workplace(String id, String workplaceName, String businessNo, String workplaceAddressCity, String workplaceAddressStreet, String workplaceAddressDetail, String workplacePassword, boolean workplaceSize) {
-//        this.id = id;
-//        this.workplaceName = workplaceName;
-//        this.businessNo = businessNo;
-//        this.workplaceAddressCity = workplaceAddressCity;
-//        this.workplaceAddressStreet = workplaceAddressStreet;
-//        this.workplaceAddressDetail = workplaceAddressDetail;
-//        this.workplacePassword = workplacePassword;
-//        this.workplaceSize = workplaceSize;
-//    }
 }
