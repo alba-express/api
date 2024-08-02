@@ -1,11 +1,16 @@
 package com.albaExpress.api.alba.controller;
 
+import com.albaExpress.api.alba.dto.request.LoginRequest;
 import com.albaExpress.api.alba.dto.request.NoticeSaveDto;
 import com.albaExpress.api.alba.entity.Notice;
+import com.albaExpress.api.alba.entity.Workplace;
 import com.albaExpress.api.alba.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,14 +24,17 @@ public class NoticeController {
 
     // 전체 조회 요청
     @GetMapping("/notice")
-    public ResponseEntity<?> getList() {
+    public ResponseEntity<Page<Notice>> getList(@RequestParam(defaultValue = "1") int page,
+                                                String id) {
 
-        return ResponseEntity.ok().body("공지사항 조회");
+        Page<Notice> noticePage = noticeService.getNotices(page, id);
+
+        return ResponseEntity.ok().body(noticePage);
     }
 
     // 등록 요청
     @PostMapping("/notice-register")
-    public ResponseEntity<?> post(@RequestBody NoticeSaveDto dto) {
+    public ResponseEntity<?> post(@RequestBody NoticeSaveDto dto ) {
         try {
             noticeService.saveNotice(dto, dto.getId());
             log.info("dto : {}", dto);
