@@ -1,5 +1,7 @@
 package com.albaExpress.api.alba.service;
 
+import com.albaExpress.api.alba.dto.response.SalaryLogSlaveResponseDto;
+import com.albaExpress.api.alba.dto.response.SalaryLogWorkplaceResponseDto;
 import com.albaExpress.api.alba.entity.SalaryLog;
 import com.albaExpress.api.alba.repository.SalaryLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,20 +19,21 @@ public class WageService {
     private final SalaryLogRepository salaryLogRepository;
 
 
-    public int getSalaryLogInWorkplace(String workplaceId, YearMonth ym) {
+    public SalaryLogWorkplaceResponseDto getSalaryLogInWorkplace(String workplaceId, YearMonth ym) {
 
-        List<SalaryLog> logList = salaryLogRepository.getLogListByWorkplace(workplaceId);
-        int salaryAmount = 0;
+        List<SalaryLogSlaveResponseDto> logList = salaryLogRepository.getLogListByWorkplace(workplaceId);
+        long salaryAmount = 0L;
 
-        for (SalaryLog salaryLog : logList) {
+        for (SalaryLogSlaveResponseDto salaryLog : logList) {
 
-            if (salaryLog.getSalaryMonth().getYear() == ym.getYear() && salaryLog.getSalaryMonth().getMonthValue() == ym.getMonthValue()) {
+            if (salaryLog.getSalaryDate().getYear() == ym.getYear() && salaryLog.getSalaryDate().getMonthValue() == ym.getMonthValue()) {
                 salaryAmount += salaryLog.getSalaryAmount();
-
+//                log.info("반복문 내에서의 누적급여량: {}", salaryAmount);
             }
         }
         log.info("service에서 controller가기전 결과물: {}", salaryAmount);
-
-        return salaryAmount;
+        return SalaryLogWorkplaceResponseDto.builder()
+                .salaryAmount(salaryAmount)
+                .build();
     }
 }
