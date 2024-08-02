@@ -1,4 +1,5 @@
 package com.albaExpress.api.alba.entity;
+import com.albaExpress.api.alba.dto.response.SalaryLogSlaveResponseDto;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -28,13 +29,11 @@ public class SalaryLog {
     private LocalDate salaryMonth;
 
     @Column(name = "salary_amount")
-    private int salaryAmount;
+    private long salaryAmount;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "slave_id")
     private Slave slave;
-
-
 
 }
