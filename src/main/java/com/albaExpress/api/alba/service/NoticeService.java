@@ -2,8 +2,10 @@ package com.albaExpress.api.alba.service;
 
 import com.albaExpress.api.alba.dto.request.NoticeSaveDto;
 import com.albaExpress.api.alba.entity.Notice;
+import com.albaExpress.api.alba.entity.Workplace;
 import com.albaExpress.api.alba.repository.NoticeRepository;
 import com.albaExpress.api.alba.repository.NoticeRepositoryCustom;
+import com.albaExpress.api.alba.repository.WorkplaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,8 @@ import java.util.stream.Collectors;
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
+
+    private final WorkplaceRepository workplaceRepository;
 
     // 전체 조회
     public Page<Notice> getNotices(int pageNo, String id) {
@@ -44,10 +48,13 @@ public class NoticeService {
     public void saveNotice(NoticeSaveDto dto, String id) {
 
         // 로그인한 회원 정보 조회
-
+        Workplace workplace = workplaceRepository.findById(id).orElseThrow();
 
         Notice newNotice = dto.toEntity();
-        noticeRepository.save(newNotice);
+        newNotice.setWorkplace(workplace);
+
+        Notice savedNotice = noticeRepository.save(newNotice);
+        log.info("saved notice: {}", savedNotice);
     }
 
     // 수정

@@ -34,7 +34,9 @@ public class NoticeController {
 
     // 등록 요청
     @PostMapping("/notice-register")
-    public ResponseEntity<?> post(@RequestBody NoticeSaveDto dto ) {
+    public ResponseEntity<?> post(@RequestBody NoticeSaveDto dto, String id ) {
+
+
         try {
             noticeService.saveNotice(dto, dto.getId());
             log.info("dto : {}", dto);
