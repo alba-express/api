@@ -23,28 +23,12 @@ public class TokenProvider {
 
     public String createToken(Master master) {
         return Jwts.builder()
-                .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()), SignatureAlgorithm.HS512)
-                .setIssuer("albaExpress")
+                .setSubject(master.getId())
+                .claim("email", master.getMasterEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)))
-                .setSubject(master.getId())
-                .claim("name", master.getMasterName())
+                .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()), SignatureAlgorithm.HS512)
                 .compact();
-    }
-
-    public TokenUserInfo validateAndGetTokenInfo(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        log.info("claims: {}", claims);
-
-        return TokenUserInfo.builder()
-                .id(claims.getSubject())
-                .name(claims.get("name", String.class))
-                .build();
     }
 
     public boolean validateToken(String token) {
@@ -60,6 +44,19 @@ public class TokenProvider {
         }
     }
 
+    public TokenUserInfo validateAndGetTokenInfo(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return TokenUserInfo.builder()
+                .id(claims.getSubject())
+                .email(claims.get("email", String.class))
+                .build();
+    }
+
     @Getter @ToString
     @EqualsAndHashCode
     @NoArgsConstructor
@@ -67,6 +64,6 @@ public class TokenProvider {
     @Builder
     public static class TokenUserInfo {
         private String id;
-        private String name;
+        private String email;
     }
 }
