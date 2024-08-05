@@ -20,7 +20,7 @@ public class NoticeListDto {
     private LocalDateTime createdAt;
 
     public NoticeListDto(Notice notice) {
-        this.id = notice.getId().toString();
+        this.id = notice.getId();
         this.title = notice.getNoticeTitle();
         this.createdAt = notice.getNoticeCreatedAt();
     }
