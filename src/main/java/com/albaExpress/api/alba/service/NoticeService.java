@@ -1,10 +1,10 @@
 package com.albaExpress.api.alba.service;
 
 import com.albaExpress.api.alba.dto.request.NoticeSaveDto;
+import com.albaExpress.api.alba.dto.response.NoticeListDto;
 import com.albaExpress.api.alba.entity.Notice;
 import com.albaExpress.api.alba.entity.Workplace;
 import com.albaExpress.api.alba.repository.NoticeRepository;
-import com.albaExpress.api.alba.repository.NoticeRepositoryCustom;
 import com.albaExpress.api.alba.repository.WorkplaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -29,18 +31,27 @@ public class NoticeService {
     private final WorkplaceRepository workplaceRepository;
 
     // 전체 조회
-    public Page<Notice> getNotices(int pageNo, String id) {
+    public Map<String, Object> getNotices(int pageNo, String id) {
 
         Pageable pageable = PageRequest.of(pageNo - 1, 5);
 
         Page<Notice> noticePage = noticeRepository.findNotices(id, pageable);
 
         List<Notice> noticeList = noticePage.getContent();
+        log.info("noticeList ={}", noticeList );
 
-        log.info(noticeList.toString());
+        List<NoticeListDto> listDtoList = noticeList
+                .stream()
+                .map(NoticeListDto::new)
+                .collect(Collectors.toList());
 
+        int totalPages = noticePage.getTotalPages();
 
-        return noticeRepository.findAll(pageable);
+        Map<String, Object> map = new HashMap<>();
+        map.put("totalPages", totalPages);
+        map.put("noticeList", listDtoList);
+
+        return map;
     }
 
 
