@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -96,13 +98,13 @@ public class AuthController {
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
         logger.info("로그인 시도 중: {}", loginRequest.getEmail());
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            Authentication authentication = masterService.authenticate(loginRequest);
             String token = tokenProvider.createToken(((CustomUserDetails) authentication.getPrincipal()).getMaster());
             logger.info("로그인 성공: {}", loginRequest.getEmail());
             return ResponseEntity.ok("{\"message\":\"로그인 성공\", \"token\":\"" + token + "\"}");
+        } catch (IllegalArgumentException e) {
+            logger.error("로그인 실패: {} 오류: {}", loginRequest.getEmail(), e.getMessage());
+            return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
         } catch (Exception e) {
             logger.error("로그인 실패: {} 오류: {}", loginRequest.getEmail(), e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\":\"이메일 또는 비밀번호가 잘못되었습니다.\"}");
@@ -116,6 +118,18 @@ public class AuthController {
             return ResponseEntity.ok("{\"message\":\"비밀번호가 성공적으로 변경되었습니다.\"}");
         } catch (IllegalArgumentException e) {
             logger.error("비밀번호 변경 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
+    @PostMapping("/retire")
+    public ResponseEntity<?> retireUser(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        try {
+            masterService.retireUser(email);
+            return ResponseEntity.ok("{\"message\":\"회원 탈퇴가 완료되었습니다.\"}");
+        } catch (IllegalArgumentException e) {
+            logger.error("회원 탈퇴 중 오류 발생: {}", e.getMessage());
             return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
         }
     }
