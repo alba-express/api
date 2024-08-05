@@ -46,21 +46,16 @@ public class MasterService {
         Optional<Master> optionalMaster = masterRepository.findByMasterEmail(masterDto.getEmail());
         Master master;
         if (optionalMaster.isEmpty()) {
-            logger.info("Registering new user with email: {}", masterDto.getEmail());
-            // 새로 등록
-            master = Master.builder()
-                    .masterEmail(masterDto.getEmail())
-                    .masterPassword(passwordEncoder.encode(masterDto.getPassword()))
-                    .masterName(masterDto.getName())
-                    .emailVerified(true) // 이메일 인증 완료 후 회원가입 진행
-                    .masterCreatedAt(LocalDateTime.now()) // 현재 시간으로 설정
-                    .build();
+            throw new IllegalArgumentException("Email not verified or user not found");
         } else {
             logger.info("Updating existing user with email: {}", masterDto.getEmail());
             // 기존 사용자 업데이트
             master = optionalMaster.get();
             master.setMasterPassword(passwordEncoder.encode(masterDto.getPassword()));
             master.setMasterName(masterDto.getName());
+            if (master.getMasterCreatedAt() == null) {
+                master.setMasterCreatedAt(LocalDateTime.now());
+            }
         }
 
         return masterRepository.save(master);
@@ -69,6 +64,8 @@ public class MasterService {
     public void resetPassword(ResetPasswordRequestDto resetPasswordRequestDto) {
         Master master = masterRepository.findByMasterEmail(resetPasswordRequestDto.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + resetPasswordRequestDto.getEmail()));
+
+        // 비밀번호 업데이트
         master.setMasterPassword(passwordEncoder.encode(resetPasswordRequestDto.getPassword()));
         masterRepository.save(master);
     }

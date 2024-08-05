@@ -1,24 +1,29 @@
 package com.albaExpress.api.alba.security;
 
 import com.albaExpress.api.alba.entity.Master;
-import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
-@Getter
 public class CustomUserDetails implements UserDetails {
 
     private final Master master;
+    private final List<GrantedAuthority> authorities;
 
-    public CustomUserDetails(Master master) {
+    public CustomUserDetails(Master master, List<GrantedAuthority> authorities) {
         this.master = master;
+        this.authorities = authorities;
+    }
+
+    public Master getMaster() {
+        return master;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null; // 권한 정보를 반환하지 않음
+        return authorities;
     }
 
     @Override
@@ -48,6 +53,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return master.isEmailVerified();
+        return true;
     }
 }

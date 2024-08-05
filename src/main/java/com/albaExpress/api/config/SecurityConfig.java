@@ -1,7 +1,7 @@
 package com.albaExpress.api.config;
 
-import com.albaExpress.api.alba.security.JwtAuthFilter;
 import com.albaExpress.api.alba.security.CustomUserDetailsService;
+import com.albaExpress.api.alba.security.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

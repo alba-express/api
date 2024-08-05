@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -54,19 +52,19 @@ public class AuthController {
     @PostMapping("/check-email")
     public ResponseEntity<?> checkEmailAndSendCode(@RequestParam String email) {
         try {
-            Optional<Master> optionalMaster = masterService.findByMasterEmailOptional(email);
-            if (optionalMaster.isPresent()) {
-                Master master = optionalMaster.get();
-                if (master.isEmailVerified()) {
-                    return ResponseEntity.badRequest().body("{\"message\":\"이미 사용 중인 이메일입니다.\"}");
-                } else {
-                    emailVerificationService.sendVerificationCode(email);
-                    return ResponseEntity.ok("{\"message\":\"인증 코드가 재전송되었습니다.\"}");
-                }
-            } else {
-                emailVerificationService.sendVerificationCode(email);
-                return ResponseEntity.ok("{\"message\":\"인증 코드가 이메일로 전송되었습니다.\"}");
-            }
+            emailVerificationService.sendVerificationCode(email, false);
+            return ResponseEntity.ok("{\"message\":\"인증 코드가 이메일로 전송되었습니다.\"}");
+        } catch (IllegalArgumentException e) {
+            logger.error("이메일 확인 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
+    @PostMapping("/check-email-exists")
+    public ResponseEntity<?> checkEmailExists(@RequestParam String email) {
+        try {
+            emailVerificationService.sendVerificationCode(email, true);
+            return ResponseEntity.ok("{\"message\":\"인증 코드가 이메일로 전송되었습니다.\"}");
         } catch (IllegalArgumentException e) {
             logger.error("이메일 확인 중 오류 발생: {}", e.getMessage());
             return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
@@ -76,7 +74,7 @@ public class AuthController {
     @PostMapping("/send-verification-code")
     public ResponseEntity<?> sendVerificationCode(@RequestBody VerificationCodeRequestDto requestDto) {
         try {
-            emailVerificationService.sendVerificationCode(requestDto.getEmail());
+            emailVerificationService.sendVerificationCode(requestDto.getEmail(), false);
             return ResponseEntity.ok("{\"message\":\"인증 코드가 이메일로 전송되었습니다.\"}");
         } catch (IllegalArgumentException e) {
             logger.error("인증 코드 전송 중 오류 발생: {}", e.getMessage());
@@ -102,12 +100,7 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            Master master = userDetails.getMaster();
-
-            String token = tokenProvider.createToken(master);
-
+            String token = tokenProvider.createToken(((CustomUserDetails) authentication.getPrincipal()).getMaster());
             logger.info("로그인 성공: {}", loginRequest.getEmail());
             return ResponseEntity.ok("{\"message\":\"로그인 성공\", \"token\":\"" + token + "\"}");
         } catch (Exception e) {
