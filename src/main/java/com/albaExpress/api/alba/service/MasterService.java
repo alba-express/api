@@ -1,4 +1,5 @@
 package com.albaExpress.api.alba.service;
+
 import com.albaExpress.api.alba.dto.request.MasterRequestDto;
 import com.albaExpress.api.alba.dto.request.ResetPasswordRequestDto;
 import com.albaExpress.api.alba.entity.Master;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -51,6 +53,7 @@ public class MasterService {
                     .masterPassword(passwordEncoder.encode(masterDto.getPassword()))
                     .masterName(masterDto.getName())
                     .emailVerified(true) // 이메일 인증 완료 후 회원가입 진행
+                    .masterCreatedAt(LocalDateTime.now()) // 현재 시간으로 설정
                     .build();
         } else {
             logger.info("Updating existing user with email: {}", masterDto.getEmail());
