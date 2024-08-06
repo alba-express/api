@@ -72,7 +72,6 @@ public class MasterService {
                     .masterPassword(passwordEncoder.encode(masterDto.getPassword()))
                     .masterName(masterDto.getName())
                     .emailVerified(false) // 이메일 인증 완료 후 회원가입 진행
-                    .masterCreatedAt(LocalDateTime.now()) // 현재 시간으로 설정
                     .build();
         } else {
             logger.info("Updating existing user with email: {}", masterDto.getEmail());
@@ -80,6 +79,8 @@ public class MasterService {
             master = optionalMaster.get();
             master.setMasterPassword(passwordEncoder.encode(masterDto.getPassword()));
             master.setMasterName(masterDto.getName());
+            master.setMasterCreatedAt(LocalDateTime.now());
+
         }
 
         return masterRepository.save(master);
