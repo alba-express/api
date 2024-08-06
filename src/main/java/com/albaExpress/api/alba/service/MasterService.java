@@ -95,9 +95,13 @@ public class MasterService {
         masterRepository.save(master);
     }
 
-    public void retireUser(String email) {
+    public void retireUser(String email, String password) {
         Master master = masterRepository.findByMasterEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        if (!passwordEncoder.matches(password, master.getMasterPassword())) {
+            throw new IllegalArgumentException("Invalid password");
+        }
 
         master.setMasterRetired(LocalDateTime.now());
         masterRepository.save(master);
