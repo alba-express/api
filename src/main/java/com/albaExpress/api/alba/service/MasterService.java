@@ -119,4 +119,13 @@ public class MasterService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return authentication;
     }
+    public void verifyPassword(String email, String password) {
+        Master master = masterRepository.findByMasterEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        if (!passwordEncoder.matches(password, master.getMasterPassword())) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+    }
+
 }
