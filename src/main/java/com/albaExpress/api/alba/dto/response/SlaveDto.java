@@ -11,4 +11,6 @@ public class SlaveDto {
     private String id;
     private String slaveName;
     private String slavePosition;
+    private String scheduleStart; // 출근 시간
+    private String scheduleEnd;   // 퇴근 시간
 }
