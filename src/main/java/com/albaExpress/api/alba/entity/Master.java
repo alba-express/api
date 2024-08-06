@@ -48,6 +48,7 @@ public class Master implements UserDetails {
     @Column(name = "master_created_at")
     private LocalDateTime masterCreatedAt;
 
+    @Setter
     @Column(name = "master_retired")
     private LocalDateTime masterRetired;
 

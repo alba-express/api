@@ -1,15 +1,22 @@
 package com.albaExpress.api.alba.service;
 
+import com.albaExpress.api.alba.dto.response.SlaveDto;
+import com.albaExpress.api.alba.entity.Schedule;
 import com.albaExpress.api.alba.entity.ScheduleLog;
 import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.repository.ScheduleLogRepository;
+import com.albaExpress.api.alba.repository.ScheduleRepository;
 import com.albaExpress.api.alba.repository.SlaveRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,14 +24,19 @@ import java.util.Optional;
 public class ScheduleLogService {
 
     private final ScheduleLogRepository scheduleLogRepository;
-
     private final SlaveRepository slaveRepository;
+    private final ScheduleRepository scheduleRepository;
 
     // 전화번호 검증
     public Slave verifyPhoneNumber(String phoneNumber, String workplaceId) {
         Slave slave = slaveRepository.getSlaveByPhoneNumber(phoneNumber, workplaceId);
 
-        return slave;
+        // 오늘 근무자인지 확인
+        if (slave != null && isWorkingToday(slave.getId())) {
+            return slave;
+        } else {
+            return null;
+        }
     }
 
     // 출퇴근 기록
@@ -50,5 +62,37 @@ public class ScheduleLogService {
         } else {
             throw new Exception("로그를 찾을 수 없습니다.");
         }
+    }
+
+    // 오늘 근무자 목록 조회
+    public List<SlaveDto> getTodayEmployees() {
+        int today = LocalDate.now().getDayOfWeek().getValue(); // 월요일 = 1, 일요일 = 7
+        List<Schedule> schedules = scheduleRepository.findByScheduleDay(today);
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        return schedules.stream()
+                .filter(schedule -> schedule.getScheduleEndDate() == null) // 데이터가 끝나지 않은 것만 필터링
+                .map(schedule -> {
+                    String scheduleStart = schedule.getScheduleStart() != null ?
+                            schedule.getScheduleStart().format(timeFormatter) : "";
+                    String scheduleEnd = schedule.getScheduleEnd() != null ?
+                            schedule.getScheduleEnd().format(timeFormatter) : "";
+                    return new SlaveDto(
+                            schedule.getSlave().getId(),
+                            schedule.getSlave().getSlaveName(),
+                            schedule.getSlave().getSlavePosition(),
+                            scheduleStart,
+                            scheduleEnd
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    // 오늘 근무자인지 확인하는 메서드
+    private boolean isWorkingToday(String slaveId) {
+        int today = LocalDate.now().getDayOfWeek().getValue();
+        List<Schedule> schedules = scheduleRepository.findBySlaveIdAndScheduleDay(slaveId, today);
+        return schedules.stream().anyMatch(schedule -> schedule.getScheduleEndDate() == null);
     }
 }

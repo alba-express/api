@@ -5,7 +5,8 @@ import com.albaExpress.api.alba.dto.request.MasterRequestDto;
 import com.albaExpress.api.alba.dto.request.VerificationCodeRequestDto;
 import com.albaExpress.api.alba.dto.request.ResetPasswordRequestDto;
 import com.albaExpress.api.alba.entity.Master;
-import com.albaExpress.api.alba.repository.MasterRepository;
+import com.albaExpress.api.alba.security.CustomUserDetails;
+import com.albaExpress.api.alba.security.TokenProvider;
 import com.albaExpress.api.alba.service.MasterService;
 import com.albaExpress.api.alba.service.EmailVerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -38,10 +38,7 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private MasterRepository masterRepository;
+    private TokenProvider tokenProvider;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody MasterRequestDto masterDto) {
@@ -55,21 +52,10 @@ public class AuthController {
     }
 
     @PostMapping("/check-email")
-    public ResponseEntity<?> checkEmailForRegistration(@RequestParam String email) {
+    public ResponseEntity<?> checkEmailAndSendCode(@RequestParam String email) {
         try {
-            Optional<Master> optionalMaster = masterService.findByMasterEmailOptional(email);
-            if (optionalMaster.isPresent()) {
-                Master master = optionalMaster.get();
-                if (master.isEmailVerified()) {
-                    return ResponseEntity.badRequest().body("{\"message\":\"이미 사용 중인 이메일입니다.\"}");
-                } else {
-                    emailVerificationService.sendVerificationCode(email);
-                    return ResponseEntity.ok("{\"message\":\"인증 코드가 재전송되었습니다.\"}");
-                }
-            } else {
-                emailVerificationService.sendVerificationCode(email);
-                return ResponseEntity.ok("{\"message\":\"인증 코드가 이메일로 전송되었습니다.\"}");
-            }
+            emailVerificationService.sendVerificationCode(email, false);
+            return ResponseEntity.ok("{\"message\":\"인증 코드가 이메일로 전송되었습니다.\"}");
         } catch (IllegalArgumentException e) {
             logger.error("이메일 확인 중 오류 발생: {}", e.getMessage());
             return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
@@ -77,15 +63,10 @@ public class AuthController {
     }
 
     @PostMapping("/check-email-exists")
-    public ResponseEntity<?> checkEmailForPasswordReset(@RequestParam String email) {
+    public ResponseEntity<?> checkEmailExists(@RequestParam String email) {
         try {
-            Optional<Master> optionalMaster = masterService.findByMasterEmailOptional(email);
-            if (optionalMaster.isPresent()) {
-                emailVerificationService.sendVerificationCode(email);
-                return ResponseEntity.ok("{\"message\":\"인증 코드가 이메일로 전송되었습니다.\"}");
-            } else {
-                return ResponseEntity.badRequest().body("{\"message\":\"존재하지 않는 이메일입니다.\"}");
-            }
+            emailVerificationService.sendVerificationCode(email, true);
+            return ResponseEntity.ok("{\"message\":\"인증 코드가 이메일로 전송되었습니다.\"}");
         } catch (IllegalArgumentException e) {
             logger.error("이메일 확인 중 오류 발생: {}", e.getMessage());
             return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
@@ -95,7 +76,7 @@ public class AuthController {
     @PostMapping("/send-verification-code")
     public ResponseEntity<?> sendVerificationCode(@RequestBody VerificationCodeRequestDto requestDto) {
         try {
-            emailVerificationService.sendVerificationCode(requestDto.getEmail());
+            emailVerificationService.sendVerificationCode(requestDto.getEmail(), false);
             return ResponseEntity.ok("{\"message\":\"인증 코드가 이메일로 전송되었습니다.\"}");
         } catch (IllegalArgumentException e) {
             logger.error("인증 코드 전송 중 오류 발생: {}", e.getMessage());
@@ -117,12 +98,13 @@ public class AuthController {
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
         logger.info("로그인 시도 중: {}", loginRequest.getEmail());
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            Authentication authentication = masterService.authenticate(loginRequest);
+            String token = tokenProvider.createToken(((CustomUserDetails) authentication.getPrincipal()).getMaster());
             logger.info("로그인 성공: {}", loginRequest.getEmail());
-            return ResponseEntity.ok("{\"message\":\"로그인 성공\"}");
+            return ResponseEntity.ok("{\"message\":\"로그인 성공\", \"token\":\"" + token + "\"}");
+        } catch (IllegalArgumentException e) {
+            logger.error("로그인 실패: {} 오류: {}", loginRequest.getEmail(), e.getMessage());
+            return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
         } catch (Exception e) {
             logger.error("로그인 실패: {} 오류: {}", loginRequest.getEmail(), e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\":\"이메일 또는 비밀번호가 잘못되었습니다.\"}");
@@ -132,14 +114,36 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequestDto resetPasswordRequestDto) {
         try {
-            Master master = masterRepository.findByMasterEmail(resetPasswordRequestDto.getEmail())
-                    .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 사용자를 찾을 수 없습니다."));
-            master.setMasterPassword(passwordEncoder.encode(resetPasswordRequestDto.getPassword()));
-            masterRepository.save(master);
+            masterService.resetPassword(resetPasswordRequestDto);
             return ResponseEntity.ok("{\"message\":\"비밀번호가 성공적으로 변경되었습니다.\"}");
         } catch (IllegalArgumentException e) {
             logger.error("비밀번호 변경 중 오류 발생: {}", e.getMessage());
             return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
         }
     }
+
+    @PostMapping("/retire")
+    public ResponseEntity<?> retireUser(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String password = request.get("password");
+        try {
+            masterService.retireUser(email, password);
+            return ResponseEntity.ok("{\"message\":\"회원 탈퇴가 완료되었습니다.\"}");
+        } catch (IllegalArgumentException e) {
+            logger.error("회원 탈퇴 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
+        }
+    }
+    @PostMapping("/verify-password")
+    public ResponseEntity<?> verifyPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String password = request.get("password");
+        try {
+            masterService.verifyPassword(email, password);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
 }

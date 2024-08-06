@@ -6,82 +6,76 @@ import com.albaExpress.api.alba.entity.Master;
 import com.albaExpress.api.alba.repository.EmailVerificationRepository;
 import com.albaExpress.api.alba.repository.MasterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 public class EmailVerificationService {
 
-    private final MasterRepository masterRepository;
-    private final JavaMailSender mailSender;
-    private final EmailVerificationRepository emailVerificationRepository;
-
-    private static final int CODE_LENGTH = 4;
-    private static final Random RANDOM = new Random();
+    @Autowired
+    private MasterRepository masterRepository;
 
     @Autowired
-    public EmailVerificationService(MasterRepository masterRepository, JavaMailSender mailSender, EmailVerificationRepository emailVerificationRepository) {
-        this.masterRepository = masterRepository;
-        this.mailSender = mailSender;
-        this.emailVerificationRepository = emailVerificationRepository;
-    }
+    private EmailVerificationRepository emailVerificationRepository;
 
-    private int generateVerificationCode() {
-        return RANDOM.nextInt(9000) + 1000; // 1000부터 9999 사이의 랜덤 숫자 생성
-    }
+    @Autowired
+    private EmailService emailService;
 
-    @Transactional
-    public void sendVerificationCode(String email) {
+    public void sendVerificationCode(String email, boolean isPasswordReset) {
         Optional<Master> optionalMaster = masterRepository.findByMasterEmail(email);
-        if (!optionalMaster.isPresent()) {
-            throw new IllegalArgumentException("존재하지 않는 이메일입니다.");
+
+        if (isPasswordReset) {
+            if (optionalMaster.isEmpty()) {
+                throw new IllegalArgumentException("존재하지 않는 이메일입니다.");
+            }
+        } else {
+            if (optionalMaster.isPresent()) {
+                Master master = optionalMaster.get();
+                if (master.isEmailVerified()) {
+                    throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+                }
+            }
         }
 
-        Master master = optionalMaster.get();
+        String code = generateVerificationCode();
+        LocalTime expiryDate = LocalTime.now().plusMinutes(5);
 
-        int code = generateVerificationCode();
-        EmailVerification verification = EmailVerification.builder()
-                .emailVerificationCode(code)
-                .emailVerificationExpiryDate(LocalTime.now().plusMinutes(5))
+        Master master = optionalMaster.orElseGet(() -> {
+            Master newMaster = Master.builder()
+                    .masterEmail(email)
+                    .emailVerified(false)  // 이메일 인증 여부 false로 설정
+                    .build();
+            return masterRepository.save(newMaster); // 데이터베이스에 저장
+        });
+
+        EmailVerification emailVerification = EmailVerification.builder()
                 .master(master)
+                .emailVerificationCode(Integer.parseInt(code))
+                .emailVerificationExpiryDate(expiryDate)
                 .build();
 
-        emailVerificationRepository.deleteByMaster(master);  // 기존 인증 코드 삭제
-        emailVerificationRepository.save(verification);
-
-        sendEmail(email, "Your Verification Code", "Your verification code is " + code);
+        emailVerificationRepository.save(emailVerification);
+        emailService.sendEmail(email, "인증 코드", "인증 코드는 " + code + " 입니다.");
     }
 
-    @Transactional
     public boolean verifyCode(VerificationCodeRequestDto requestDto) {
-        Optional<Master> optionalMaster = masterRepository.findByMasterEmail(requestDto.getEmail());
-        if (!optionalMaster.isPresent()) {
-            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
-        }
+        Master master = masterRepository.findByMasterEmail(requestDto.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("User with email " + requestDto.getEmail() + " not found"));
 
-        Master master = optionalMaster.get();
         Optional<EmailVerification> optionalVerification = emailVerificationRepository.findByMasterAndEmailVerificationCode(master, requestDto.getCode());
         if (optionalVerification.isPresent() && optionalVerification.get().getEmailVerificationExpiryDate().isAfter(LocalTime.now())) {
             emailVerificationRepository.delete(optionalVerification.get());
-            master.setEmailVerified(true);
+            master.setEmailVerified(true); // 이메일 인증 성공 시
             masterRepository.save(master);
             return true;
         }
         return false;
     }
 
-    private void sendEmail(String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
-        message.setFrom("springemailsender@naver.com");  // 발신자 주소 설정
-        mailSender.send(message);
+    private String generateVerificationCode() {
+        // 4자리 숫자를 String으로 생성
+        return String.format("%04d", (int) (Math.random() * 10000));
     }
 }
