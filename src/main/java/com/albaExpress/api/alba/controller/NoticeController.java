@@ -1,17 +1,13 @@
 package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.NoticeSaveDto;
-import com.albaExpress.api.alba.dto.response.NoticeListDto;
-import com.albaExpress.api.alba.security.TokenProvider;
 import com.albaExpress.api.alba.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @RestController
 @RequestMapping("/detail")
@@ -26,7 +22,6 @@ public class NoticeController {
     public ResponseEntity<Map<String, Object>> getList(@RequestParam String workplaceId,
                                                        @RequestParam(defaultValue = "1") int page) {
 
-//        log.info("userInfo={}", userInfo);
         log.info("Fetching notices for userInfo={}, page={}", workplaceId, page);
         Map<String, Object> noticePage = noticeService.getNotices(workplaceId, page);
         log.info("Fetched notices: {}", noticePage);
