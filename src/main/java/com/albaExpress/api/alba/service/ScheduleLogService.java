@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -66,16 +67,32 @@ public class ScheduleLogService {
     // 오늘 근무자 목록 조회
     public List<SlaveDto> getTodayEmployees() {
         int today = LocalDate.now().getDayOfWeek().getValue(); // 월요일 = 1, 일요일 = 7
-        List<Slave> slaves = scheduleRepository.findSlavesByWorkday(today);
-        return slaves.stream()
-                .map(slave -> new SlaveDto(slave.getId(), slave.getSlaveName(), slave.getSlavePosition()))
+        List<Schedule> schedules = scheduleRepository.findByScheduleDay(today);
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        return schedules.stream()
+                .filter(schedule -> schedule.getScheduleEndDate() == null) // 데이터가 끝나지 않은 것만 필터링
+                .map(schedule -> {
+                    String scheduleStart = schedule.getScheduleStart() != null ?
+                            schedule.getScheduleStart().format(timeFormatter) : "";
+                    String scheduleEnd = schedule.getScheduleEnd() != null ?
+                            schedule.getScheduleEnd().format(timeFormatter) : "";
+                    return new SlaveDto(
+                            schedule.getSlave().getId(),
+                            schedule.getSlave().getSlaveName(),
+                            schedule.getSlave().getSlavePosition(),
+                            scheduleStart,
+                            scheduleEnd
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
     // 오늘 근무자인지 확인하는 메서드
     private boolean isWorkingToday(String slaveId) {
         int today = LocalDate.now().getDayOfWeek().getValue();
-        List<Schedule> schedules = scheduleRepository.findBySlaveIdAndDay(slaveId, today);
-        return !schedules.isEmpty();
+        List<Schedule> schedules = scheduleRepository.findBySlaveIdAndScheduleDay(slaveId, today);
+        return schedules.stream().anyMatch(schedule -> schedule.getScheduleEndDate() == null);
     }
 }
