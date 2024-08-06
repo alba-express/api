@@ -1,6 +1,7 @@
 package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.CheckInRequestDto;
+import com.albaExpress.api.alba.dto.response.SlaveDto;
 import com.albaExpress.api.alba.entity.ScheduleLog;
 import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.service.ScheduleLogService;
@@ -10,8 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -27,7 +28,7 @@ public class ScheduleLogController {
     public ResponseEntity<?> verifyPhoneNumber(@RequestParam String phoneNumber, @RequestParam String workplaceId) {
         Slave slave = scheduleLogService.verifyPhoneNumber(phoneNumber, workplaceId);
         if (slave == null) {
-            return ResponseEntity.badRequest().body("올바르지 않은 전화번호입니다.");
+            return ResponseEntity.badRequest().body("오늘 근무자가 아닙니다.");
         }
         return ResponseEntity.ok().body(slave.getId());
     }
@@ -58,5 +59,12 @@ public class ScheduleLogController {
             errorResponse.put("error", e.getMessage());
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    // 오늘 근무자 목록 조회
+    @GetMapping("/employees")
+    public ResponseEntity<List<SlaveDto>> getTodayEmployees() {
+        List<SlaveDto> employees = scheduleLogService.getTodayEmployees();
+        return ResponseEntity.ok(employees);
     }
 }
