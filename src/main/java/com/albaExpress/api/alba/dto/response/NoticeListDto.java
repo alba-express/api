@@ -16,7 +16,7 @@ public class NoticeListDto {
 
     private String id;
     private String title;
-    @JsonFormat(pattern = "yyyy년 MM월 dd일")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
 
     public NoticeListDto(Notice notice) {

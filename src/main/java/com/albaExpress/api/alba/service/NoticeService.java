@@ -30,12 +30,13 @@ public class NoticeService {
 
     private final WorkplaceRepository workplaceRepository;
 
+
     // 전체 조회
-    public Map<String, Object> getNotices(int pageNo, String id) {
+    public Map<String, Object> getNotices(String workplaceId, int pageNo) {
 
         Pageable pageable = PageRequest.of(pageNo - 1, 5);
 
-        Page<Notice> noticePage = noticeRepository.findNotices(id, pageable);
+        Page<Notice> noticePage = noticeRepository.findNotices(workplaceId, pageable);
 
         List<Notice> noticeList = noticePage.getContent();
         log.info("noticeList ={}", noticeList );
@@ -54,12 +55,10 @@ public class NoticeService {
         return map;
     }
 
-
     // 등록
-    public void saveNotice(NoticeSaveDto dto, String id) {
+    public void saveNotice( NoticeSaveDto dto) {
 
-        // 로그인한 회원 정보 조회
-        Workplace workplace = workplaceRepository.findById(id).orElseThrow();
+        Workplace workplace = workplaceRepository.findById(dto.getWorkplaceId()).orElseThrow();
 
         Notice newNotice = dto.toEntity();
         newNotice.setWorkplace(workplace);

@@ -6,6 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface NoticeRepositoryCustom {
 
-    Page<Notice> findNotices(String id, Pageable pageable);
+    Page<Notice> findNotices(String workplaceId, Pageable pageable);
 
 }

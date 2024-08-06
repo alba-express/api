@@ -23,11 +23,11 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
     private final JPAQueryFactory factory;
 
     @Override
-    public Page<Notice> findNotices(String id, Pageable pageable) {
+    public Page<Notice> findNotices(String workplaceId, Pageable pageable) {
 
         List<Notice> noticeList = factory
                 .selectFrom(notice)
-                .where(notice.workplace.id.eq(id))
+                .where(notice.workplace.id.eq(workplaceId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -37,7 +37,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
                 factory
                 .select(notice.count())
                 .from(notice)
-                .where(notice.workplace.id.eq(id))
+                .where(notice.workplace.id.eq(workplaceId))
                 .fetchOne()
         ).orElse(0L);
 
