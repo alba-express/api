@@ -1,6 +1,8 @@
 package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.SalaryAmountRequestDto;
+import com.albaExpress.api.alba.dto.request.SalarySlaveRequestDto;
+import com.albaExpress.api.alba.dto.response.SalaryLogDetailResponseDto;
 import com.albaExpress.api.alba.dto.response.SalaryLogWorkplaceResponseDto;
 import com.albaExpress.api.alba.service.WageService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,16 @@ public class WageController {
     public ResponseEntity<?> wageMainPost(@RequestBody SalaryAmountRequestDto reqDto) {
         log.info("요청들어옴!");
         SalaryLogWorkplaceResponseDto resDto = wageService.getSalaryLogInWorkplace(reqDto.getWorkplaceId(), reqDto.getYm());
+
+        return ResponseEntity.ok().body(resDto);
+    }
+
+    @PostMapping("/slave")
+    public ResponseEntity<?> wageSlavePost(@RequestBody SalarySlaveRequestDto reqDto) {
+        log.info("slave요청들어옴!");
+
+        SalaryLogDetailResponseDto resDto = wageService.forSlavePost(reqDto);
+
 
         return ResponseEntity.ok().body(resDto);
     }
