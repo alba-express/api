@@ -1,7 +1,10 @@
 package com.albaExpress.api.alba.service;
 
+import com.albaExpress.api.alba.dto.request.SalarySlaveRequestDto;
+import com.albaExpress.api.alba.dto.response.SalaryLogDetailResponseDto;
 import com.albaExpress.api.alba.dto.response.SalaryLogSlaveResponseDto;
 import com.albaExpress.api.alba.dto.response.SalaryLogWorkplaceResponseDto;
+import com.albaExpress.api.alba.dto.response.SalaryScheduleResponseDto;
 import com.albaExpress.api.alba.entity.SalaryLog;
 import com.albaExpress.api.alba.repository.SalaryLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +36,16 @@ public class WageService {
                 .salaryAmount(salaryAmount)
                 .logList(logList)
                 .build();
+    }
+
+    public SalaryLogDetailResponseDto forSlavePost(SalarySlaveRequestDto reqDto) {
+        SalaryLogDetailResponseDto salaryLogDetail = salaryLogRepository.getSalaryLogDetail(reqDto.getSlaveId(), reqDto.getYm());
+
+        salaryLogDetail.setTotalSalary(salaryLogDetail.getDtoList().stream()
+                .map(SalaryScheduleResponseDto::getSalary)
+                .reduce(0L, Long::sum));
+
+        log.info("서비스에서 반환값확인: {}", salaryLogDetail);
+        return salaryLogDetail;
     }
 }
