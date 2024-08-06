@@ -134,4 +134,16 @@ public class AuthController {
             return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
         }
     }
+    @PostMapping("/verify-password")
+    public ResponseEntity<?> verifyPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String password = request.get("password");
+        try {
+            masterService.verifyPassword(email, password);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("{\"message\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
 }
