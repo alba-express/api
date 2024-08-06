@@ -125,8 +125,9 @@ public class AuthController {
     @PostMapping("/retire")
     public ResponseEntity<?> retireUser(@RequestBody Map<String, String> request) {
         String email = request.get("email");
+        String password = request.get("password");
         try {
-            masterService.retireUser(email);
+            masterService.retireUser(email, password);
             return ResponseEntity.ok("{\"message\":\"회원 탈퇴가 완료되었습니다.\"}");
         } catch (IllegalArgumentException e) {
             logger.error("회원 탈퇴 중 오류 발생: {}", e.getMessage());
