@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.Map;
 
 @RestController
@@ -51,7 +52,7 @@ public class NoticeController {
     public ResponseEntity<?> modify(@RequestBody NoticeSaveDto dto, @PathVariable String noticeId) {
         log.info("Modifying notice with id={}, dto={}", noticeId, dto);
         noticeService.modifyNotice(dto, noticeId);
-        return ResponseEntity.ok().body("Notice successfully modified");
+        return ResponseEntity.ok().body(Collections.singletonMap("message", "Notice successfully modified"));
     }
 
     // 삭제 요청
