@@ -10,14 +10,9 @@ import com.albaExpress.api.alba.repository.MasterRepository;
 import com.albaExpress.api.alba.repository.WorkplaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Transient;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.transaction.Transactional;
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,6 +57,12 @@ public class WorkplaceService {
                 .build();
     }
 
+    // 사업장 개별조회 중간처리
+    public Workplace getWorkplaceById(String id) {
+
+        return workplaceRepository.findById(id).orElse(null);
+    }
+
     // 사업장 등록 중간처리
     public Workplace register(WorkplacePostDto dto) {
 
@@ -84,14 +85,13 @@ public class WorkplaceService {
     }
 
     // 사업장 수정 중간처리
-    public WorkplaceListDto modify(WorkplaceModifyDto dto) {
-        // 수정하려는 사업장이 존재하는지 확인
-        Workplace existingWorkplace = workplaceRepository.findById(dto.getId()).orElse(null);
+    public WorkplaceListDto modify(String id, WorkplaceModifyDto dto) {
+        Workplace existingWorkplace = workplaceRepository.findById(id).orElse(null);
         if (existingWorkplace == null) {
-            throw new IllegalArgumentException("Invalid workplaceID: " + dto.getId());
+            throw new IllegalArgumentException("Invalid workplaceID: " + id);
         }
 
-        // 기존 엔터티를 업데이트
+        // 엔티티 업데이트
         if (dto.getWorkplaceName() != null) {
             existingWorkplace.setWorkplaceName(dto.getWorkplaceName());
         }
@@ -110,17 +110,51 @@ public class WorkplaceService {
         if(dto.getWorkplacePassword() != null) {
             existingWorkplace.setWorkplacePassword(dto.getWorkplacePassword());
         }
-
         existingWorkplace.setWorkplaceSize(dto.isWorkplaceSize());
 
-        // 사장 Master 는 변경하지 않는다는 가정으로 설정하지 않음
-
-        // JpaRepository save - 새로운 insert, 기존 데이터 업데이트 update
         workplaceRepository.save(existingWorkplace);
 
-        // 수정 후 전체 목록 반환 - 사장 아이디
         return findList(existingWorkplace.getMaster().getId());
     }
+
+//    public WorkplaceListDto modify(String id, WorkplaceModifyDto dto) {
+//        Workplace existingWorkplace = workplaceRepository.findById(id).orElse(null);
+//        // 수정하려는 사업장이 존재하는지 확인
+////        Workplace existingWorkplace = workplaceRepository.findById(dto.getId()).orElse(null);
+//        if (existingWorkplace == null) {
+//            throw new IllegalArgumentException("Invalid workplaceID: " + dto.getId());
+//        }
+//
+//        // 기존 엔터티를 업데이트
+//        if (dto.getWorkplaceName() != null) {
+//            existingWorkplace.setWorkplaceName(dto.getWorkplaceName());
+//        }
+//        if(dto.getBusinessNo() != null) {
+//            existingWorkplace.setBusinessNo(dto.getBusinessNo());
+//        }
+//        if(dto.getWorkplaceAddressCity() != null) {
+//            existingWorkplace.setWorkplaceAddressCity(dto.getWorkplaceAddressCity());
+//        }
+//        if(dto.getWorkplaceAddressStreet() != null) {
+//            existingWorkplace.setWorkplaceAddressStreet(dto.getWorkplaceAddressStreet());
+//        }
+//        if(dto.getWorkplaceAddressDetail() != null) {
+//            existingWorkplace.setWorkplaceAddressDetail(dto.getWorkplaceAddressDetail());
+//        }
+//        if(dto.getWorkplacePassword() != null) {
+//            existingWorkplace.setWorkplacePassword(dto.getWorkplacePassword());
+//        }
+//
+//        existingWorkplace.setWorkplaceSize(dto.isWorkplaceSize());
+//
+//        // 사장 Master 는 변경하지 않는다는 가정으로 설정하지 않았움
+//
+//        // JpaRepository save - 새로운 insert, 기존 데이터 업데이트 update
+//        workplaceRepository.save(existingWorkplace);
+//
+//        // 수정 후 전체 목록 반환 - 사장 아이디
+//        return findList(existingWorkplace.getMaster().getId());
+//    }
 
     // 사업장 삭제 중간처리
     public WorkplaceListDto delete(String id) {

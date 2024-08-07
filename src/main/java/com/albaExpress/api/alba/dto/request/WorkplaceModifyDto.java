@@ -23,10 +23,10 @@ public class WorkplaceModifyDto {
     private String workplacePassword;
     private boolean workplaceSize;
 
-    private Master masterId;
+    private String masterId;
 
     // 엔터티로 변환하는 메서드
-    public Workplace toEntity() {
+    public Workplace toEntity(Master master) {
         return Workplace.builder()
                 .id(this.id)
                 .workplaceName(this.workplaceName)
@@ -34,8 +34,9 @@ public class WorkplaceModifyDto {
                 .workplaceAddressCity(this.workplaceAddressCity)
                 .workplaceAddressStreet(this.workplaceAddressStreet)
                 .workplaceAddressDetail(this.workplaceAddressDetail)
+                .workplacePassword(this.workplacePassword)
                 .workplaceSize(this.workplaceSize)
-                .master(this.masterId)
-                .build();
+                .master(master)
+               .build();
     }
 }

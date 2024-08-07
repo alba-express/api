@@ -19,7 +19,7 @@ import static com.albaExpress.api.alba.entity.QMaster.master;
 public class WorkplacePostDto {
 
     // 사업장 등록시 클라이언트에게 받야아 할 데이터만 DTO
-//    private String id;
+    private String id;
 
     private String workplaceName;
 

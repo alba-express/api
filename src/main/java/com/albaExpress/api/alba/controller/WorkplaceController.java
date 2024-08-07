@@ -3,11 +3,11 @@ package com.albaExpress.api.alba.controller;
 import com.albaExpress.api.alba.dto.request.WorkplaceModifyDto;
 import com.albaExpress.api.alba.dto.request.WorkplacePostDto;
 import com.albaExpress.api.alba.dto.response.WorkplaceListDto;
-import com.albaExpress.api.alba.entity.Master;
 import com.albaExpress.api.alba.entity.Workplace;
 import com.albaExpress.api.alba.service.WorkplaceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,7 @@ public class WorkplaceController {
 
     private final WorkplaceService workplaceService;
 
-    // 사업장 전체 조회
+    // 사업장 전체조회 - (사장 아이디)
     @GetMapping("/list/{masterId}")
     public ResponseEntity<?> workplaceList(@PathVariable("masterId") String masterId) {
         log.info("/workplace/list/{} : GET", masterId);
@@ -33,6 +33,30 @@ public class WorkplaceController {
         WorkplaceListDto workplaceList = workplaceService.findList(masterId);
 
         return ResponseEntity.ok().body(workplaceList);
+    }
+
+    // 사업장 개별조회 - (사업장 아이디)
+    @GetMapping("/{id}")
+    public ResponseEntity<WorkplaceModifyDto> getWorkplaceById(@PathVariable("id") String id) {
+        Workplace workplace = workplaceService.getWorkplaceById(id);
+
+        if (workplace != null) {
+            WorkplaceModifyDto response = WorkplaceModifyDto.builder()
+                    .id(workplace.getId())
+                    .businessNo(workplace.getBusinessNo())
+                    .workplaceName(workplace.getWorkplaceName())
+                    .workplaceAddressCity(workplace.getWorkplaceAddressCity())
+                    .workplaceAddressStreet(workplace.getWorkplaceAddressStreet())
+                    .workplaceAddressDetail(workplace.getWorkplaceAddressDetail())
+                    .workplacePassword(workplace.getWorkplacePassword())
+                    .workplaceSize(workplace.isWorkplaceSize())
+//                    .workplaceCreatedAt(workplace.getWorkplaceCreatedAt())
+                    .masterId(workplace.getMaster().getId())
+                    .build();
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     // 사업장 등록
@@ -66,25 +90,35 @@ public class WorkplaceController {
         }
     }
 
-    // 사업장 수정
-    @PutMapping("/modify")
-    public ResponseEntity<?> workplaceUpdate(@Valid @RequestBody WorkplaceModifyDto dto) {
-        log.info("/workplace/modify : PUT");
+    // 사업장 수정 - 사업장 아이디
+    @PutMapping("/modify/{id}")
+    public ResponseEntity<?> workplaceUpdate(@PathVariable("id") String id, @Valid @RequestBody WorkplaceModifyDto dto) {
+        log.info("/workplace/modify/{} : PUT", id);
         log.debug("parameter - {}", dto);
 
-        WorkplaceListDto workplaceListDto = workplaceService.modify(dto);
-
-        return ResponseEntity.ok().body(workplaceListDto);
+//        WorkplaceListDto workplaceListDto = workplaceService.modify(id, dto);
+//
+//        return ResponseEntity.ok().body(workplaceListDto);
+        try {
+            WorkplaceListDto workplaceListDto = workplaceService.modify(id, dto);
+            return ResponseEntity.ok().body(workplaceListDto);
+        } catch (IllegalArgumentException e) {
+            log.warn("Error modifying workplace: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Workplace not found");
+        }
     }
 
-    // 사업장 삭제 - 사업장 삭제하면 사업장 아이디가 삭제 ? 사장 아이디가 삭제 ?
+    // 사업장 삭제 - 사업장 아이디
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> workplaceDelete(@PathVariable("id") String id) {
         log.info("/workplace/delete/ : DELETE");
         log.info("workplaceId : {}", id);
 
-        WorkplaceListDto removed = workplaceService.delete(id);
-
-        return ResponseEntity.ok().body(removed != null ? "삭제 완료" : "삭제 실패");
+        try {
+            WorkplaceListDto removed = workplaceService.delete(id);
+            return ResponseEntity.ok().body(removed);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Workplace not found");
+        }
     }
 }
