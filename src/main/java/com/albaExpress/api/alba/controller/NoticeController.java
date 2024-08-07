@@ -1,6 +1,7 @@
 package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.NoticeSaveDto;
+import com.albaExpress.api.alba.entity.Notice;
 import com.albaExpress.api.alba.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,9 +37,9 @@ public class NoticeController {
         log.info("Registering notice with dto={}",  dto);
 
         try {
-            noticeService.saveNotice(dto);
+            Notice savedNotice = noticeService.saveNotice(dto);
             log.info("Notice successfully registered: {}", dto);
-            return ResponseEntity.ok().body(dto);
+            return ResponseEntity.ok().body(savedNotice);
         } catch (IllegalStateException e) {
             log.warn(e.getMessage());
             return ResponseEntity.status(401).body(e.getMessage());
