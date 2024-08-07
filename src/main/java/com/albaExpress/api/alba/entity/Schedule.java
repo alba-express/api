@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +29,9 @@ public class Schedule {
     private int scheduleDay;
 
     @Column(name = "schedule_start")
-    private LocalDateTime scheduleStart;
+    private LocalTime scheduleStart;
     @Column(name = "schedule_end")
-    private LocalDateTime scheduleEnd;
+    private LocalTime scheduleEnd;
     @Column(name = "schedule_update_date")
     private LocalDateTime scheduleUpdateDate;
     @Column(name = "schedule_end_date")
