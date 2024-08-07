@@ -39,7 +39,7 @@ public class NoticeController {
 
         try {
             Notice savedNotice = noticeService.saveNotice(dto);
-            log.info("Notice successfully registered: {}", dto);
+            log.info("Notice successfully registered: {}", savedNotice);
             return ResponseEntity.ok().body(savedNotice);
         } catch (IllegalStateException e) {
             log.warn(e.getMessage());
