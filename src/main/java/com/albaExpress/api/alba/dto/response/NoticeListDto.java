@@ -16,12 +16,14 @@ public class NoticeListDto {
 
     private String id;
     private String title;
+    private String content;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime createdAt;
+    private LocalDateTime date;
 
     public NoticeListDto(Notice notice) {
         this.id = notice.getId();
         this.title = notice.getNoticeTitle();
-        this.createdAt = notice.getNoticeCreatedAt();
+        this.content = notice.getNoticeContent();
+        this.date = notice.getNoticeCreatedAt();
     }
 }

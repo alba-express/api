@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Builder
 public class NoticeSaveDto {
 
-    private String id;
+//    private String id;
     private String title;
     private String content;
 
@@ -34,7 +34,7 @@ public class NoticeSaveDto {
         workplace.setId(String.valueOf(this.workplaceId));
 
         return Notice.builder()
-                .id(this.id)
+//                .id(this.id)
                 .noticeTitle(this.title)
                 .noticeContent(this.content)
                 .noticeCreatedAt(this.createdAt)

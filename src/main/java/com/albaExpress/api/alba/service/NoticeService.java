@@ -56,7 +56,7 @@ public class NoticeService {
     }
 
     // 등록
-    public void saveNotice( NoticeSaveDto dto) {
+    public Notice saveNotice(NoticeSaveDto dto) {
 
         Workplace workplace = workplaceRepository.findById(dto.getWorkplaceId()).orElseThrow();
 
@@ -65,6 +65,8 @@ public class NoticeService {
 
         Notice savedNotice = noticeRepository.save(newNotice);
         log.info("saved notice: {}", savedNotice);
+
+        return savedNotice;
     }
 
     // 수정

@@ -1,12 +1,14 @@
 package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.NoticeSaveDto;
+import com.albaExpress.api.alba.entity.Notice;
 import com.albaExpress.api.alba.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.Map;
 
 @RestController
@@ -36,9 +38,9 @@ public class NoticeController {
         log.info("Registering notice with dto={}",  dto);
 
         try {
-            noticeService.saveNotice(dto);
-            log.info("Notice successfully registered: {}", dto);
-            return ResponseEntity.ok().body(dto);
+            Notice savedNotice = noticeService.saveNotice(dto);
+            log.info("Notice successfully registered: {}", savedNotice);
+            return ResponseEntity.ok().body(savedNotice);
         } catch (IllegalStateException e) {
             log.warn(e.getMessage());
             return ResponseEntity.status(401).body(e.getMessage());
@@ -50,15 +52,15 @@ public class NoticeController {
     public ResponseEntity<?> modify(@RequestBody NoticeSaveDto dto, @PathVariable String noticeId) {
         log.info("Modifying notice with id={}, dto={}", noticeId, dto);
         noticeService.modifyNotice(dto, noticeId);
-        return ResponseEntity.ok().body("Notice successfully modified");
+        return ResponseEntity.ok().body(Collections.singletonMap("message", "Notice successfully modified"));
     }
 
     // 삭제 요청
-    @DeleteMapping("/notice/{noticeId}")
-    public ResponseEntity<?> delete(@PathVariable String noticeId) {
-        log.info("Deleting notice with id={}", noticeId);
-        noticeService.deleteNotice(noticeId);
-        log.info("noticeId : {}", noticeId);
+    @DeleteMapping("/notice/{id}")
+    public ResponseEntity<?> delete(@PathVariable String id) {
+        log.info("Deleting notice with id={}", id);
+        noticeService.deleteNotice(id);
+        log.info("noticeId : {}", id);
         return ResponseEntity.ok().body("Notice successfully deleted");
     }
 
