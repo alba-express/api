@@ -28,6 +28,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
         List<Notice> noticeList = factory
                 .selectFrom(notice)
                 .where(notice.workplace.id.eq(workplaceId))
+                .orderBy(notice.noticeCreatedAt.desc()) // 최신순 정렬
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

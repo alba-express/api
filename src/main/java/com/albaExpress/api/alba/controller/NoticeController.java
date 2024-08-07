@@ -54,11 +54,11 @@ public class NoticeController {
     }
 
     // 삭제 요청
-    @DeleteMapping("/notice/{noticeId}")
-    public ResponseEntity<?> delete(@PathVariable String noticeId) {
-        log.info("Deleting notice with id={}", noticeId);
-        noticeService.deleteNotice(noticeId);
-        log.info("noticeId : {}", noticeId);
+    @DeleteMapping("/notice/{id}")
+    public ResponseEntity<?> delete(@PathVariable String id) {
+        log.info("Deleting notice with id={}", id);
+        noticeService.deleteNotice(id);
+        log.info("noticeId : {}", id);
         return ResponseEntity.ok().body("Notice successfully deleted");
     }
 
