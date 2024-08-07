@@ -24,7 +24,7 @@ public class WorkplaceListDto {
     private String masterId;
 
     // 사업장 규모 5인 이상 true이면 '5인 이상 사업장' 찍어두면 좋을거 같아서 보류 😬
-//    private boolean workplaceSize;
+    private boolean workplaceSize;
 
     private List<WorkplaceFindAllDto> workplaces;
 
