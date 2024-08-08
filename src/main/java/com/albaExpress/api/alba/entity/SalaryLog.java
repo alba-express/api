@@ -28,6 +28,7 @@ public class SalaryLog {
     @Column(name = "salary_month")
     private LocalDate salaryMonth;
 
+    @Setter
     @Column(name = "salary_amount")
     private long salaryAmount;
 

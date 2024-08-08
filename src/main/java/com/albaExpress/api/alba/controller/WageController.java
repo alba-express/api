@@ -1,5 +1,6 @@
 package com.albaExpress.api.alba.controller;
 
+import com.albaExpress.api.alba.dto.request.BonusRequestDto;
 import com.albaExpress.api.alba.dto.request.SalaryAmountRequestDto;
 import com.albaExpress.api.alba.dto.request.SalarySlaveRequestDto;
 import com.albaExpress.api.alba.dto.response.SalaryLogDetailResponseDto;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/wage")
@@ -33,6 +35,16 @@ public class WageController {
         SalaryLogDetailResponseDto resDto = wageService.forSlavePost(reqDto);
 
 
+        return ResponseEntity.ok().body(resDto);
+    }
+    @PostMapping("/bonus")
+    public ResponseEntity<?> wageBonusPost(@RequestBody BonusRequestDto reqDto) {
+
+        log.info("reqDto: {}", reqDto);
+
+        SalaryLogDetailResponseDto resDto = wageService.addBonusAndSalaryLog(reqDto);
+
+        log.info("이거 꼭 봐야함 : {}" , resDto);
         return ResponseEntity.ok().body(resDto);
     }
 }

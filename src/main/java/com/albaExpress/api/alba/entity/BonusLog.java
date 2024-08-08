@@ -26,11 +26,12 @@ public class BonusLog {
     @Column(name = "bonus_id")
     private String id;
 
+    @Setter
     @Column(name = "bonus_amount")
     private int bonusAmount;
 
     @Column(name = "bonus_day")
-    private LocalDateTime bonusDay;
+    private LocalDate bonusDay;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)

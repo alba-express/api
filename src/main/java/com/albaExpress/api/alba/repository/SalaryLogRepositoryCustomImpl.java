@@ -1,8 +1,10 @@
 package com.albaExpress.api.alba.repository;
 
+import com.albaExpress.api.alba.dto.request.BonusRequestDto;
 import com.albaExpress.api.alba.dto.response.SalaryLogDetailResponseDto;
 import com.albaExpress.api.alba.dto.response.SalaryLogSlaveResponseDto;
 import com.albaExpress.api.alba.dto.response.SalaryScheduleResponseDto;
+import com.albaExpress.api.alba.entity.SalaryLog;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import java.time.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.albaExpress.api.alba.entity.QBonusLog.bonusLog;
 import static com.albaExpress.api.alba.entity.QSalaryLog.salaryLog;
 import static com.albaExpress.api.alba.entity.QScheduleLog.scheduleLog;
 import static com.albaExpress.api.alba.entity.QSlave.slave;
@@ -73,13 +76,18 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
 
         // 2. ScheduleLog 정보 가져오기 (scheduleLogEnd가 null이 아닌 경우만 포함)
         List<Tuple> scheduleLogResults = factory
-                .select(scheduleLog.scheduleLogStart, scheduleLog.scheduleLogEnd, salaryLog.salaryAmount)
+                .select(scheduleLog.scheduleLogStart, scheduleLog.scheduleLogEnd, salaryLog.salaryAmount, bonusLog.bonusAmount)
                 .from(scheduleLog)
                 .leftJoin(salaryLog)
                 .on(scheduleLog.slave.id.eq(salaryLog.slave.id)
                         .and(scheduleLog.scheduleLogStart.year().eq(salaryLog.salaryMonth.year()))
                         .and(scheduleLog.scheduleLogStart.month().eq(salaryLog.salaryMonth.month()))
                         .and(scheduleLog.scheduleLogStart.dayOfMonth().eq(salaryLog.salaryMonth.dayOfMonth())))
+                .leftJoin(bonusLog)
+                .on(bonusLog.slave.id.eq(scheduleLog.slave.id)
+                        .and(scheduleLog.scheduleLogStart.year().eq(bonusLog.bonusDay.year()))
+                        .and(scheduleLog.scheduleLogStart.month().eq(bonusLog.bonusDay.month()))
+                        .and(scheduleLog.scheduleLogStart.dayOfMonth().eq(bonusLog.bonusDay.dayOfMonth())))
                 .where(scheduleLog.slave.id.eq(slaveId)
                         .and(scheduleLog.scheduleLogStart.year().eq(ym.getYear()))
                         .and(scheduleLog.scheduleLogStart.month().eq(ym.getMonthValue()))
@@ -92,6 +100,7 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
                     LocalDateTime start = tuple.get(scheduleLog.scheduleLogStart);
                     LocalDateTime end = tuple.get(scheduleLog.scheduleLogEnd);
                     long salary = tuple.get(salaryLog.salaryAmount) != null ? tuple.get(salaryLog.salaryAmount) : 0L;
+                    int bonusAmount = tuple.get(bonusLog.bonusAmount) != null ? tuple.get(bonusLog.bonusAmount) : 0;
 
                     // Null 체크 제거 및 Duration 계산
                     LocalTime workingTime = null;
@@ -108,6 +117,7 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
                             .scheduleLogDate(start.toLocalDate())
                             .workingTime(workingTime)
                             .salary(salary)
+                            .bonusAmount(bonusAmount)
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -119,4 +129,11 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
                 .dtoList(dtoList)
                 .build();
     }
+
+    public SalaryLog addBonus(BonusRequestDto reqDto) {
+        return factory.selectFrom(salaryLog)
+                .where(salaryLog.salaryMonth.eq(reqDto.getWorkDate()).and(salaryLog.slave.id.eq(reqDto.getSlaveId())))
+                .fetchOne();
+    }
+
 }
