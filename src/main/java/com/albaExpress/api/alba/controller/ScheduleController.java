@@ -26,6 +26,8 @@ public class ScheduleController {
     public ResponseEntity<List<ScheduleSlaveResponseDto>> getSlaveBySchedule(@RequestParam String workplaceId,
                                                                             @RequestParam LocalDate date,
                                                                             @RequestParam int dayOfWeek ) {
+
+        log.info("Fetch workplaceId={}, date={}, dayOfWeek={}", workplaceId, date, dayOfWeek);
         List<ScheduleSlaveResponseDto> scheduleData = scheduleService.findSlaveBySchedule(workplaceId, date, dayOfWeek);
         return ResponseEntity.ok(scheduleData);
 
