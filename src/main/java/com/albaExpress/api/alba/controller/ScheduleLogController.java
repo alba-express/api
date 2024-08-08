@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/schedule")
@@ -33,7 +34,7 @@ public class ScheduleLogController {
         return ResponseEntity.ok().body(slave.getId());
     }
 
-    // 출퇴근 기록
+    // 출근 기록
     @PostMapping("/checkin")
     public ResponseEntity<?> checkIn(@RequestBody CheckInRequestDto request) {
         try {
@@ -47,6 +48,7 @@ public class ScheduleLogController {
         }
     }
 
+    // 퇴근 기록
     @PostMapping("/checkout")
     public ResponseEntity<?> checkOut(@RequestBody Map<String, String> request) {
         String logId = request.get("logId");
@@ -66,5 +68,16 @@ public class ScheduleLogController {
     public ResponseEntity<List<SlaveDto>> getTodayEmployees() {
         List<SlaveDto> employees = scheduleLogService.getTodayEmployees();
         return ResponseEntity.ok(employees);
+    }
+
+    // 현재 출근 로그 조회
+    @GetMapping("/current-log")
+    public ResponseEntity<?> getCurrentLog(@RequestParam String slaveId) {
+        Optional<ScheduleLog> currentLog = scheduleLogService.findCurrentLog(slaveId);
+        if (currentLog.isPresent()) {
+            return ResponseEntity.ok(currentLog.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("현재 출근 로그가 없습니다.");
+        }
     }
 }
