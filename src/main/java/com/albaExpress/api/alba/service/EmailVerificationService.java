@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class EmailVerificationService {
@@ -22,6 +25,8 @@ public class EmailVerificationService {
 
     @Autowired
     private EmailService emailService;
+
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public void sendVerificationCode(String email, boolean isPasswordReset) {
         Optional<Master> optionalMaster = masterRepository.findByMasterEmail(email);
@@ -58,6 +63,11 @@ public class EmailVerificationService {
 
         emailVerificationRepository.save(emailVerification);
         emailService.sendEmail(email, "인증 코드", "인증 코드는 " + code + " 입니다.");
+
+        // 5분 후에 해당 인증 코드 삭제 예약
+        scheduler.schedule(() -> {
+            emailVerificationRepository.delete(emailVerification);
+        }, 5, TimeUnit.MINUTES);
     }
 
     public boolean verifyCode(VerificationCodeRequestDto requestDto) {
