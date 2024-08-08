@@ -33,9 +33,9 @@ public class Schedule {
     @Column(name = "schedule_end")
     private LocalTime scheduleEnd;
     @Column(name = "schedule_update_date")
-    private LocalDateTime scheduleUpdateDate;
+    private LocalDate scheduleUpdateDate;
     @Column(name = "schedule_end_date")
-    private LocalDateTime scheduleEndDate;
+    private LocalDate scheduleEndDate;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
