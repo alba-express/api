@@ -28,7 +28,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         try {
             String token = parseBearerToken(request);
-            log.info("토큰 위조 검사 필터 작동!");
+//            log.info("토큰 위조 검사 필터 작동!");
 
             if (token != null && tokenProvider.validateToken(token)) {
                 TokenProvider.TokenUserInfo tokenInfo = tokenProvider.validateAndGetTokenInfo(token);
