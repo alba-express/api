@@ -2,14 +2,14 @@ package com.albaExpress.api.alba.dto.request;
 
 import com.albaExpress.api.alba.entity.Schedule;
 import com.albaExpress.api.alba.entity.Slave;
+import com.albaExpress.api.alba.entity.Wage;
 import com.albaExpress.api.alba.entity.Workplace;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Time;
 import java.time.LocalDate;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,11 +34,7 @@ public class SlaveRegistRequestDto {
 
     private String slavePosition; // 직원 직책
 
-    private boolean slaveWageType; // 급여타입 (true, 1 = 시급, false, 0 = 월급)
-
-    private int slaveWageMount; // 시급 = 시급금액, 월급 = 월급금액
-
-    private boolean slaveWageInsurance; // 4대보험 여부 (true, 1 = 적용, false, 0 = 미적용)
+    private List<SlaveRegistWageRequestDto> slaveWageList; // 급여리스트
 
     private boolean slaveScheduleType; // 근무시간타입 (true, 1 = 고정시간, false, 0 = 변동시간)
 
@@ -53,6 +49,7 @@ public class SlaveRegistRequestDto {
                                 .slavePhoneNumber(this.slavePhoneNumber)
                                 .slaveBirthday(this.slaveBirthday)
                                 .slavePosition(this.slavePosition)
+                                .slaveCreatedAt(LocalDateTime.now())
                                 .build();
 
         // SlaveRegistScheduleRequestDto 를 Schedule 로 바꾼 것을 List로 만들어 slave build 객체에 전달
@@ -61,6 +58,13 @@ public class SlaveRegistRequestDto {
                 .collect(Collectors.toList());
 
         slave.setScheduleList(schedules);
+
+        // SlaveRegistWageRequestDto 를 Wage 로 바꾼 것을 List로 만들어 slave build 객체에 전달
+        List<Wage> wages = this.slaveWageList.stream()
+                .map(SlaveRegistWageRequestDto -> SlaveRegistWageRequestDto.dtoToWageEntity(slave))
+                .collect(Collectors.toList());
+
+        slave.setWageList(wages);
 
         return slave;
     }

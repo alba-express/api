@@ -52,6 +52,7 @@ public class Slave {
     @OneToMany(mappedBy = "slave", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<BonusLog> bonusLogList = new ArrayList<>();
 
+    @Setter
     @OneToMany(mappedBy = "slave", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Wage> wageList = new ArrayList<>();
 
