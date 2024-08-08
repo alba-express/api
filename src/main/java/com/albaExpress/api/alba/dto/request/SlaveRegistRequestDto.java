@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +45,8 @@ public class SlaveRegistRequestDto {
 
     private List<SlaveRegistScheduleRequestDto> slaveScheduleList; // 근무정보 (근무요일, 근무시작시간, 근무종료시간)
 
+    private LocalDateTime slaveCreatedAt; // 직원 생성시간
+
     // SlaveRegistRequestDto --> Entity Slave 로 변환하기
     public Slave dtoToSlaveEntity () {
 
@@ -53,6 +56,7 @@ public class SlaveRegistRequestDto {
                                 .slavePhoneNumber(this.slavePhoneNumber)
                                 .slaveBirthday(this.slaveBirthday)
                                 .slavePosition(this.slavePosition)
+                                .slaveCreatedAt(this.slaveCreatedAt)
                                 .build();
 
         // SlaveRegistScheduleRequestDto 를 Schedule 로 바꾼 것을 List로 만들어 slave build 객체에 전달
