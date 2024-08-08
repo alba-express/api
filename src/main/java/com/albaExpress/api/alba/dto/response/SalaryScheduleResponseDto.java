@@ -18,4 +18,6 @@ public class SalaryScheduleResponseDto {
     private LocalTime workingTime; // end - start 하면 나올까 싶다.
 
     private long salary; // 그날 얼마의 급여를 주게되었는가? - 이건 좀 애매하긴한데 salarylog에서 꺼내야하나
+
+    private int bonusAmount; // 그중에 얼마가 추가수당인가?
 }
