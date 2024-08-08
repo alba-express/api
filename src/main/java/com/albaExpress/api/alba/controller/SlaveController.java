@@ -23,7 +23,7 @@ public class SlaveController {
     public ResponseEntity<?> registSlave (@RequestBody SlaveRegistRequestDto dto) {
 
         // 클라이언트에서 입력한 직원입력정보 조회하기
-        // log.info("regist slave Info - {}", dto);
+         log.info("regist slave Info - {}", dto);
 
         // slaveService 로 정보처리 위임하기
         try {

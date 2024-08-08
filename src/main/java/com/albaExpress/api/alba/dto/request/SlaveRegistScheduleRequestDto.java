@@ -5,7 +5,6 @@ import com.albaExpress.api.alba.entity.Slave;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -23,13 +22,15 @@ public class SlaveRegistScheduleRequestDto {
 
     private LocalTime endSchedule; // 근무종료시간;
 
+
+
     // SlaveRegistRequestDto --> Entity Schedule 로 변환하기
     public Schedule dtoToScheduleEntity (Slave slave) {
         return Schedule.builder()
                 .scheduleDay(this.scheduleDay)
                 .scheduleStart(this.startSchedule)
                 .scheduleEnd(this.endSchedule)
-                .scheduleUpdateDate(LocalDateTime.now())
+                .scheduleUpdateDate(LocalDate.now())
                 .slave(slave)
                 .build();
     }
