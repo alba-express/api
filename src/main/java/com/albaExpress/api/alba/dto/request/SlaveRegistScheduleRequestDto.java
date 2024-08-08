@@ -29,7 +29,7 @@ public class SlaveRegistScheduleRequestDto {
                 .scheduleDay(this.scheduleDay)
                 .scheduleStart(this.startSchedule)
                 .scheduleEnd(this.endSchedule)
-                .scheduleUpdateDate(LocalDateTime.now())
+                .scheduleUpdateDate(LocalDate.now())
                 .slave(slave)
                 .build();
     }
