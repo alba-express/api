@@ -13,4 +13,9 @@ public class SlaveDto {
     private String slavePosition;
     private String scheduleStart; // 출근 시간
     private String scheduleEnd;   // 퇴근 시간
+
+    public SlaveDto(String id, String slaveName) {
+        this.id = id;
+        this.slaveName = slaveName;
+    }
 }
