@@ -1,5 +1,6 @@
 package com.albaExpress.api.alba.repository;
 
+import com.albaExpress.api.alba.dto.response.SalaryLogSlaveResponseDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
 import com.albaExpress.api.alba.entity.QSchedule;
 import com.albaExpress.api.alba.entity.QSlave;
@@ -29,35 +30,30 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .select(slave.id, slave.slaveName, slave.slavePosition,
                         schedule.id, schedule.scheduleDay, schedule.scheduleStart, schedule.scheduleEnd)
                 .from(slave)
-                .leftJoin(slave.scheduleList, schedule)
+                .leftJoin(schedule)
+                .on(slave.id.eq(schedule.slave.id))
                 .where(slave.workplace.id.eq(workplaceId)
-                        .and(schedule.scheduleDay.eq(dayOfWeek))
-                        .and(schedule.scheduleUpdateDate.eq(date)))
+                        .and(schedule.scheduleDay.eq(dayOfWeek)))
                 .fetch();
 
-        // 슬레이브 ID로 그룹화된 스케줄 리스트 생성
-        Map<String, List<ScheduleSlaveResponseDto.ScheduleDto>> groupedSchedules = results.stream()
-                .collect(Collectors.groupingBy(
-                        tuple -> tuple.get(slave.id),
-                        Collectors.mapping(
-                                tuple -> ScheduleSlaveResponseDto.ScheduleDto.builder()
-                                        .scheduleId(tuple.get(schedule.id))
-                                        .scheduleDay(tuple.get(schedule.scheduleDay))
-                                        .scheduleStart(tuple.get(schedule.scheduleStart))
-                                        .scheduleEnd(tuple.get(schedule.scheduleEnd))
-                                        .build(),
-                                Collectors.toList())
-                ));
-
-        return results.stream()
+        List<ScheduleSlaveResponseDto> dtoList = results.stream()
                 .map(tuple -> ScheduleSlaveResponseDto.builder()
                         .slaveId(tuple.get(slave.id))
                         .slaveName(tuple.get(slave.slaveName))
                         .slavePosition(tuple.get(slave.slavePosition))
-                        .schedules(groupedSchedules.get(schedule))
+                        .scheduleId(tuple.get(schedule.id))
+                        .scheduleDay(tuple.get(schedule.scheduleDay))
+                        .scheduleStart(tuple.get(schedule.scheduleStart))
+                        .scheduleEnd(tuple.get(schedule.scheduleEnd))
                         .build())
                 .collect(Collectors.toList());
 
+        for (int i = 0; i < dtoList.size(); i++) {
+            ScheduleSlaveResponseDto dto = dtoList.get(i);
+            log.info("레포지토리 dto{}: {}", i, dto);
+        }
+
+        return dtoList;
 
     }
 

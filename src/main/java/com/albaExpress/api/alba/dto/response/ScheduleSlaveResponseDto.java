@@ -17,21 +17,26 @@ public class ScheduleSlaveResponseDto {
     private String slaveName;
     private String slavePosition;
 
-    private List<ScheduleDto> schedules;
+    private String scheduleId;
+    private int scheduleDay;
+    private LocalTime scheduleStart;
+    private LocalTime scheduleEnd;
 
-    @Getter
-    @ToString
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    @Builder
-    public static class ScheduleDto {
-        private String scheduleId;
-        private int scheduleDay;
-        private LocalTime scheduleStart;
-        private LocalTime scheduleEnd;
+//    private List<ScheduleDto> schedules;
 
-    }
+//    @Getter
+//    @ToString
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    @EqualsAndHashCode
+//    @Builder
+//    public static class ScheduleDto {
+//        private String scheduleId;
+//        private int scheduleDay;
+//        private LocalTime scheduleStart;
+//        private LocalTime scheduleEnd;
+//
+//    }
 
 
 }
