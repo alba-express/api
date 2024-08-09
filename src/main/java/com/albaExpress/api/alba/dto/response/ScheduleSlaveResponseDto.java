@@ -1,8 +1,10 @@
 package com.albaExpress.api.alba.dto.response;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Getter
@@ -17,21 +19,10 @@ public class ScheduleSlaveResponseDto {
     private String slaveName;
     private String slavePosition;
 
-    private List<ScheduleDto> schedules;
-
-    @Getter
-    @ToString
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    @Builder
-    public static class ScheduleDto {
-        private String scheduleId;
-        private int scheduleDay;
-        private LocalTime scheduleStart;
-        private LocalTime scheduleEnd;
-
-    }
+    private String scheduleId;
+    private int scheduleDay;
+    private LocalTime scheduleStart;
+    private LocalTime scheduleEnd;
 
 
 }
