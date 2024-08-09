@@ -35,7 +35,9 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .leftJoin(schedule)
                 .on(slave.id.eq(schedule.slave.id))
                 .where(slave.workplace.id.eq(workplaceId)
-                        .and(schedule.scheduleDay.eq(dayOfWeek)))
+                        .and(schedule.scheduleDay.eq(dayOfWeek))
+                        .and(schedule.scheduleUpdateDate.before(date))
+                        .and(schedule.scheduleEndDate.after(date).or(schedule.scheduleEndDate.isNull())))
                 .orderBy(schedule.scheduleStart.asc())
                 .fetch();
 
