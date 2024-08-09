@@ -36,6 +36,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .on(slave.id.eq(schedule.slave.id))
                 .where(slave.workplace.id.eq(workplaceId)
                         .and(schedule.scheduleDay.eq(dayOfWeek)))
+                .orderBy(schedule.scheduleStart.asc())
                 .fetch();
 
         List<ScheduleSlaveResponseDto> dtoList = results.stream()
