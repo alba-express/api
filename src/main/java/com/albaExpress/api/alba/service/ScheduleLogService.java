@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,7 +50,7 @@ public class ScheduleLogService {
         Slave findSlave = slaveRepository.findById(slaveId).orElse(null);
         if (findSlave != null) {
             ScheduleLog scheduleLog = ScheduleLog.builder()
-                    .scheduleLogStart(LocalDateTime.now())
+                    .scheduleLogStart(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
                     .slave(findSlave)
                     .build();
             return scheduleLogRepository.save(scheduleLog);
@@ -62,7 +64,7 @@ public class ScheduleLogService {
         // 주어진 logId로 출근 기록을 조회합니다.
         ScheduleLog findScheduleLog = scheduleLogRepository.findById(logId).orElse(null);
         if (findScheduleLog != null) {
-            findScheduleLog.setScheduleLogEnd(LocalDateTime.now());
+            findScheduleLog.setScheduleLogEnd(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
             return scheduleLogRepository.save(findScheduleLog);
         } else {
             throw new Exception("해당 ID의 출근 기록을 찾을 수 없습니다.");
@@ -90,6 +92,7 @@ public class ScheduleLogService {
                         schedule.getScheduleStart() != null ? schedule.getScheduleStart().format(timeFormatter) : "",
                         schedule.getScheduleEnd() != null ? schedule.getScheduleEnd().format(timeFormatter) : ""
                 ))
+                .sorted(Comparator.comparing(SlaveDto::getScheduleStart)) // 시작 시간을 기준으로 정렬
                 .collect(Collectors.toList());
     }
 
