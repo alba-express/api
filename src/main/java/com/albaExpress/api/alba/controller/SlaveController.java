@@ -1,14 +1,15 @@
 package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.SlaveRegistRequestDto;
+import com.albaExpress.api.alba.dto.response.SlaveActiveSlaveListResponseDto;
+import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.service.SlaveService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -33,5 +34,16 @@ public class SlaveController {
         }
 
         return ResponseEntity.ok().body("Regist slave success");
+    }
+
+    // 근무중인 직원 전체 조회하기
+    @GetMapping("/activeSlaveList")
+    public ResponseEntity<List<SlaveActiveSlaveListResponseDto>> getAllActiveSlaveList () {
+        try {
+            List<SlaveActiveSlaveListResponseDto> activeSlaveList = slaveService.serviceGetAllActiveSlaveList();
+            return ResponseEntity.ok().body(activeSlaveList);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 }

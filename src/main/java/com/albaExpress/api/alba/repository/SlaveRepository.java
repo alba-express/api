@@ -3,6 +3,7 @@ package com.albaExpress.api.alba.repository;
 import com.albaExpress.api.alba.entity.Slave;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface SlaveRepository extends JpaRepository<Slave, String>, SlaveRepositoryCustom {
