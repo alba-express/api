@@ -33,7 +33,7 @@ public class SlaveController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
 
-        return ResponseEntity.ok().body("Regist slave success");
+        return ResponseEntity.ok().body("{\"message\":\"Regist slave success\"}");
     }
 
     // 근무중인 직원 전체 조회하기
