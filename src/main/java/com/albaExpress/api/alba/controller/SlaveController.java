@@ -40,9 +40,20 @@ public class SlaveController {
     @GetMapping("/activeSlaveList")
     public ResponseEntity<List<SlaveActiveSlaveListResponseDto>> getAllActiveSlaveList () {
         try {
-            // 전체직원 조회하기
             List<SlaveActiveSlaveListResponseDto> activeSlaveList = slaveService.serviceGetAllActiveSlaveList();
             return ResponseEntity.ok().body(activeSlaveList);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    // 퇴사한 직원 전체 조회하기
+    @GetMapping("inactiveSlaveList")
+    public ResponseEntity<List<SlaveActiveSlaveListResponseDto>> getAllInactiveSlaveList () {
+        try {
+            List<SlaveActiveSlaveListResponseDto> inactiveSlaveList = slaveService.serviceGetAllInactiveSlaveList();
+            return ResponseEntity.ok().body(inactiveSlaveList);
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
