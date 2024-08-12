@@ -1,9 +1,7 @@
 package com.albaExpress.api.alba.repository;
 
-import com.albaExpress.api.alba.dto.response.SalaryLogSlaveResponseDto;
+import com.albaExpress.api.alba.dto.request.ScheduleRequestDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
-import com.albaExpress.api.alba.entity.QSchedule;
-import com.albaExpress.api.alba.entity.QSlave;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -11,11 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.albaExpress.api.alba.entity.QExtraSchedule.*;
 import static com.albaExpress.api.alba.entity.QSchedule.*;
 import static com.albaExpress.api.alba.entity.QSlave.*;
 
@@ -55,6 +53,43 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
 
         for (int i = 0; i < dtoList.size(); i++) {
             ScheduleSlaveResponseDto dto = dtoList.get(i);
+            log.info("레포지토리 dto{}: {}", i, dto);
+        }
+
+        return dtoList;
+
+    }
+
+    @Override
+    public List<ScheduleRequestDto> addSchedule(String slaveId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+
+        List<Tuple> results = factory
+                .select(slave.id, slave.slaveName, slave.slavePosition,
+                        extraSchedule.id, extraSchedule.extraScheduleDate,
+                        extraSchedule.extraScheduleStart, extraSchedule.extraScheduleEnd,extraSchedule.slave)
+                .from(slave)
+                .leftJoin(extraSchedule)
+                .on(slave.id.eq(extraSchedule.slave.id))
+                .where(slave.id.eq(extraSchedule.slave.id)
+                        .and(extraSchedule.extraScheduleDate.eq(date)))
+//                        .and(schedule.scheduleUpdateDate.before(date))
+//                        .and(schedule.scheduleEndDate.after(date).or(schedule.scheduleEndDate.isNull())))
+                .orderBy(extraSchedule.extraScheduleStart.asc())
+                .fetch();
+
+        List<ScheduleRequestDto> dtoList = results.stream()
+                .map(tuple -> ScheduleRequestDto.builder()
+                        .slaveId(tuple.get(slave.id))
+                        .slaveName(tuple.get(slave.slaveName))
+                        .slavePosition(tuple.get(slave.slavePosition))
+                        .date(tuple.get(extraSchedule.extraScheduleDate))
+                        .startTime(tuple.get(extraSchedule.extraScheduleStart))
+                        .endTime(tuple.get(extraSchedule.extraScheduleEnd))
+                        .build())
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < dtoList.size(); i++) {
+            ScheduleRequestDto dto = dtoList.get(i);
             log.info("레포지토리 dto{}: {}", i, dto);
         }
 

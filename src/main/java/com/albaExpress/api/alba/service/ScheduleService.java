@@ -1,5 +1,6 @@
 package com.albaExpress.api.alba.service;
 
+import com.albaExpress.api.alba.dto.request.ScheduleRequestDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
 import com.albaExpress.api.alba.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -25,5 +27,14 @@ public class ScheduleService {
         log.info("result: {} ", result);
 
         return result;
+    }
+
+    // 일정 추가
+    public List<ScheduleRequestDto> addSchedule(String slaveId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        List<ScheduleRequestDto> addedSchedule = scheduleRepository.addSchedule(slaveId, date, startTime, endTime);
+        log.info("addedSchedule: {} ", addedSchedule);
+
+        return addedSchedule;
+
     }
 }
