@@ -29,6 +29,8 @@ public class SlaveActiveSlaveListResponseDto {
 
     private LocalDateTime slaveCreatedAt; // 직원 입사일자
 
+    private LocalDateTime slaveFiredDate; // 직원 퇴사일자
+
     // Entity Slave --> SlaveActiveSlaveListResponseDto 로 변환하기
     public SlaveActiveSlaveListResponseDto(Slave slave) {
 
@@ -42,5 +44,6 @@ public class SlaveActiveSlaveListResponseDto {
         this.slaveScheduleList = slave.getScheduleList().stream().map(SlaveScheduleResponseDto::new).collect(Collectors.toList());
 
         this.slaveCreatedAt = slave.getSlaveCreatedAt();
+        this.slaveFiredDate = slave.getSlaveFiredDate();
     }
 }

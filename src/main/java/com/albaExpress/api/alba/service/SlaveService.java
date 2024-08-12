@@ -44,10 +44,14 @@ public class SlaveService {
 
     public List<SlaveActiveSlaveListResponseDto> serviceGetAllActiveSlaveList() {
 
-        // DB에 있는 모든 직원 조회하기
-        List<SlaveActiveSlaveListResponseDto> activeSlaveList = slaveRepository.findAll().stream()
-                                                                                         .map(SlaveActiveSlaveListResponseDto::new)
-                                                                                         .collect(Collectors.toList());
+        // DB에 있는 모든직원 조회하기
+        List<SlaveActiveSlaveListResponseDto> activeSlaveList =
+                                                        slaveRepository.findAll()
+                                                                            .stream()
+                                                                            .map(SlaveActiveSlaveListResponseDto::new)
+                                                                            // 모든직원에서 근무중인 직원만 필터링하기 (퇴사일자가 없으면 근무중인 직원)
+                                                                            .filter(slave -> slave.getSlaveFiredDate() == null)
+                                                                            .collect(Collectors.toList());
 
         return activeSlaveList;
     }
