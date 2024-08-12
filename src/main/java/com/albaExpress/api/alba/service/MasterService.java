@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.albaExpress.api.alba.dto.request.VerificationCodeRequestDto;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -42,6 +43,9 @@ public class MasterService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private EmailVerificationService emailVerificationService;
 
     public boolean emailExists(String email) {
         return masterRepository.findByMasterEmail(email).isPresent();
@@ -126,6 +130,25 @@ public class MasterService {
         if (!passwordEncoder.matches(password, master.getMasterPassword())) {
             throw new IllegalArgumentException("Invalid password");
         }
+    }
+    public void recoverAccount(String email, String verificationCode) {
+        boolean isVerified = emailVerificationService.verifyCode(
+                new VerificationCodeRequestDto(email, verificationCode)
+        );
+
+        if (!isVerified) {
+            throw new IllegalArgumentException("Invalid verification code.");
+        }
+
+        Master master = masterRepository.findByMasterEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        if (master.getMasterRetired() == null) {
+            throw new IllegalArgumentException("Account is already active.");
+        }
+
+        master.setMasterRetired(null); // 복구 시 master_retired 필드 값을 null로 변경
+        masterRepository.save(master);
     }
 
 }

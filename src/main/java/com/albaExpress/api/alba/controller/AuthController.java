@@ -146,4 +146,18 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/send-recover-code")
+    public ResponseEntity<String> sendRecoveryCode(@RequestBody Map<String, String> payload) {
+        String email = payload.get("email");
+        emailVerificationService.sendRecoveryCode(email);
+        return ResponseEntity.ok("Recovery code sent successfully.");
+    }
+
+    @PostMapping("/recover-account")
+    public ResponseEntity<String> recoverAccount(@RequestBody Map<String, String> payload) {
+        String email = payload.get("email");
+        String code = payload.get("code");
+        emailVerificationService.recoverUser(email, code);
+        return ResponseEntity.ok("Account recovered successfully.");
+    }
 }
