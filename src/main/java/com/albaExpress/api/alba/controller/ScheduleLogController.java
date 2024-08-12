@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,5 +81,12 @@ public class ScheduleLogController {
         } else {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("현재 출근 로그가 없습니다.");
         }
+    }
+
+    // 서버 시간 조회
+    @GetMapping("/server-time")
+    public ResponseEntity<LocalDateTime> getServerTime() {
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        return ResponseEntity.ok(now);
     }
 }

@@ -74,6 +74,11 @@ public class ScheduleLogService {
     // 오늘 근무자인지 확인하는 메서드
     private boolean isWorkingToday(String slaveId) {
         int today = LocalDate.now().getDayOfWeek().getValue();
+        // 근무자가 해고된 상태인지 확인합니다.
+        Slave slave = slaveRepository.findById(slaveId).orElse(null);
+        if (slave == null || slave.getSlaveFiredDate() != null) {
+            return false;
+        }
         List<Schedule> schedules = scheduleRepository.findBySlaveIdAndScheduleDay(slaveId, today);
         return schedules.stream().anyMatch(schedule -> schedule.getScheduleEndDate() == null);
     }
@@ -85,6 +90,7 @@ public class ScheduleLogService {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         return schedules.stream()
                 .filter(schedule -> schedule.getScheduleEndDate() == null) // 끝나지 않은 스케줄만 필터링
+                .filter(schedule -> schedule.getSlave().getSlaveFiredDate() == null) // 해고되지 않은 근무자만 필터링
                 .map(schedule -> new SlaveDto(
                         schedule.getSlave().getId(),
                         schedule.getSlave().getSlaveName(),
