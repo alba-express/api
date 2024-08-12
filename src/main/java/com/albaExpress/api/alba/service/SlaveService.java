@@ -1,6 +1,7 @@
 package com.albaExpress.api.alba.service;
 
 import com.albaExpress.api.alba.dto.request.SlaveRegistRequestDto;
+import com.albaExpress.api.alba.dto.response.SlaveActiveSlaveListResponseDto;
 import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.repository.SlaveRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -37,5 +40,15 @@ public class SlaveService {
             slaveRepository.save(oneSlave);
             log.info("새로운 직원이 등록되었습니다: {}", dto.getSlavePhoneNumber());
         }
+    }
+
+    public List<SlaveActiveSlaveListResponseDto> serviceGetAllActiveSlaveList() {
+
+        // DB에 있는 모든 직원 조회하기
+        List<SlaveActiveSlaveListResponseDto> activeSlaveList = slaveRepository.findAll().stream()
+                                                                                         .map(SlaveActiveSlaveListResponseDto::new)
+                                                                                         .collect(Collectors.toList());
+
+        return activeSlaveList;
     }
 }
