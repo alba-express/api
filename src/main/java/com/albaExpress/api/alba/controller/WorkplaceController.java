@@ -13,6 +13,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/workplace")
@@ -90,15 +92,25 @@ public class WorkplaceController {
         }
     }
 
+    // 사업장 등록번호 중복 확인
+    @GetMapping("/checkBusinessNo/{businessNo}")
+    public ResponseEntity<Map<String, Object>> checkBusinessNo(@PathVariable("businessNo") String businessNo) {
+        log.info("/workplace/check-business-no/{} : GET", businessNo);
+
+        boolean isDuplicate = workplaceService.isBusinessNoDuplicate(businessNo);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("exists", isDuplicate);
+
+        return ResponseEntity.ok(response);
+    }
+
     // 사업장 수정 - 사업장 아이디
     @PutMapping("/modify/{id}")
     public ResponseEntity<?> workplaceUpdate(@PathVariable("id") String id, @Valid @RequestBody WorkplaceModifyDto dto) {
         log.info("/workplace/modify/{} : PUT", id);
         log.debug("parameter - {}", dto);
 
-//        WorkplaceListDto workplaceListDto = workplaceService.modify(id, dto);
-//
-//        return ResponseEntity.ok().body(workplaceListDto);
         try {
             WorkplaceListDto workplaceListDto = workplaceService.modify(id, dto);
             return ResponseEntity.ok().body(workplaceListDto);
@@ -120,5 +132,17 @@ public class WorkplaceController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Workplace not found");
         }
+    }
+
+    // 사업장 간편비밀번호 인증 처리
+    @PostMapping("/verify/{id}")
+    public ResponseEntity<Map<String, Boolean>> verifyPassword(@PathVariable("id") String id, @RequestBody Map<String, String> payload) {
+        String inputPassword = payload.get("password");
+        boolean isValid = workplaceService.verifyPassword(id, inputPassword);
+
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("valid", isValid);
+
+        return ResponseEntity.ok(response);
     }
 }
