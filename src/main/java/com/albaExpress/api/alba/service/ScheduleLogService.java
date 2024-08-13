@@ -29,6 +29,8 @@ public class ScheduleLogService {
     private final SlaveRepository slaveRepository;
     private final ScheduleRepository scheduleRepository;
 
+    private final WageService wageService;
+
     // 전화번호와 작업장 ID로 근무자를 검증합니다.
     public Slave verifyPhoneNumber(String phoneNumber, String workplaceId) {
         Slave slave = slaveRepository.getSlaveByPhoneNumber(phoneNumber, workplaceId);
@@ -65,7 +67,12 @@ public class ScheduleLogService {
         ScheduleLog findScheduleLog = scheduleLogRepository.findById(logId).orElse(null);
         if (findScheduleLog != null) {
             findScheduleLog.setScheduleLogEnd(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
-            return scheduleLogRepository.save(findScheduleLog);
+            ScheduleLog save = scheduleLogRepository.save(findScheduleLog);
+
+            log.info("스케쥴서비스 퇴근등록시 : {}", save);
+            wageService.putSalaryLog(save);
+
+            return save;
         } else {
             throw new Exception("해당 ID의 출근 기록을 찾을 수 없습니다.");
         }
