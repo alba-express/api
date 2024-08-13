@@ -1,8 +1,7 @@
 package com.albaExpress.api.alba.repository;
 
-import com.albaExpress.api.alba.dto.request.ScheduleRequestDto;
+import com.albaExpress.api.alba.dto.request.ExtraScheduleRequestDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
-import com.albaExpress.api.alba.entity.QWorkplace;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .on(slave.id.eq(schedule.slave.id))
                 .where(slave.workplace.id.eq(workplaceId)
                         .and(schedule.scheduleDay.eq(dayOfWeek))
-                        .and(schedule.scheduleUpdateDate.before(date))
+                        .and(schedule.scheduleUpdateDate.before(date).or(schedule.scheduleUpdateDate.eq(date)))
                         .and(schedule.scheduleEndDate.after(date).or(schedule.scheduleEndDate.isNull())))
                 .orderBy(schedule.scheduleStart.asc())
                 .fetch();
@@ -63,7 +62,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
     }
 
     @Override
-    public List<ScheduleRequestDto> addSchedule(String slaveId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public List<ExtraScheduleRequestDto> addSchedule(String workplaceId, LocalDate date) {
 
         List<Tuple> results = factory
                 .select(slave.id, slave.slaveName, slave.slavePosition,
@@ -72,18 +71,18 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .from(slave)
                 .leftJoin(extraSchedule)
                 .on(slave.id.eq(extraSchedule.slave.id))
-                .where(slave.id.eq(slaveId))
-//                        .and(extraSchedule.extraScheduleDate.eq(date)))
+                .where(slave.workplace.id.eq(workplaceId)
+                        .and(extraSchedule.extraScheduleDate.eq(date)))
 //                        .and(schedule.scheduleUpdateDate.before(date))
 //                        .and(schedule.scheduleEndDate.after(date).or(schedule.scheduleEndDate.isNull())))
                 .orderBy(extraSchedule.extraScheduleStart.asc())
                 .fetch();
 
-        List<ScheduleRequestDto> dtoList = results.stream()
-                .map(tuple -> ScheduleRequestDto.builder()
+        List<ExtraScheduleRequestDto> dtoList = results.stream()
+                .map(tuple -> ExtraScheduleRequestDto.builder()
                         .slaveId(tuple.get(slave.id))
-                        .slaveName(tuple.get(slave.slaveName))
-                        .slavePosition(tuple.get(slave.slavePosition))
+//                        .slaveName(tuple.get(slave.slaveName))
+//                        .slavePosition(tuple.get(slave.slavePosition))
                         .date(tuple.get(extraSchedule.extraScheduleDate))
                         .startTime(tuple.get(extraSchedule.extraScheduleStart))
                         .endTime(tuple.get(extraSchedule.extraScheduleEnd))
@@ -91,8 +90,8 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .collect(Collectors.toList());
 
         for (int i = 0; i < dtoList.size(); i++) {
-            ScheduleRequestDto dto = dtoList.get(i);
-            log.info("레포지토리 dto{}: {}", i, dto);
+            ExtraScheduleRequestDto dto = dtoList.get(i);
+            log.info("일정 추가 레포지토리 dto{}: {}", i, dto);
         }
         return dtoList;
     }

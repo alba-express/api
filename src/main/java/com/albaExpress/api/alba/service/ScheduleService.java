@@ -1,8 +1,12 @@
 package com.albaExpress.api.alba.service;
 
-import com.albaExpress.api.alba.dto.request.ScheduleRequestDto;
+import com.albaExpress.api.alba.dto.request.ExtraScheduleRequestDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
+import com.albaExpress.api.alba.entity.ExtraSchedule;
+import com.albaExpress.api.alba.entity.Slave;
+import com.albaExpress.api.alba.repository.ExtraScheduleRepository;
 import com.albaExpress.api.alba.repository.ScheduleRepository;
+import com.albaExpress.api.alba.repository.SlaveRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,10 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
 
+    private final ExtraScheduleRepository extraScheduleRepository;
+
+    private final SlaveRepository slaveRepository;
+
     // 해당 날짜 근무자 조회
     public List<ScheduleSlaveResponseDto> findSlaveBySchedule(String workplaceId, LocalDate date, int dayOfWeek) {
 
@@ -30,18 +38,31 @@ public class ScheduleService {
     }
 
     // 일정 추가
-    public List<ScheduleRequestDto> addSchedule(String slaveId, LocalDate date, LocalTime startTime, LocalTime endTime) {
-        List<ScheduleRequestDto> addedSchedule = scheduleRepository.addSchedule(slaveId, date, startTime, endTime);
+    public List<ExtraScheduleRequestDto> addSchedule(String workplaceId, LocalDate date) {
+        List<ExtraScheduleRequestDto> addedSchedule = scheduleRepository.addSchedule(workplaceId, date);
         log.info("addedSchedule: {} ", addedSchedule);
 
         return addedSchedule;
 
     }
 
+    public ExtraSchedule saveExtraSchedule(ExtraScheduleRequestDto dto) {
+
+        Slave slave = slaveRepository.findById(dto.getSlaveId()).orElseThrow();
+        ExtraSchedule extraSchedule = dto.toEntity(slave);
+        extraSchedule.setSlave(slave);
+
+        ExtraSchedule savedExtraSchedule = extraScheduleRepository.save(extraSchedule);
+        log.info("saved extraSchedule: {}", savedExtraSchedule);
+        return savedExtraSchedule;
+    }
+
+    // 사업장 ID로 직원조회
     public List<ScheduleSlaveResponseDto> findSlaveByWorkplaceId(String workplaceId) {
         List<ScheduleSlaveResponseDto> result = scheduleRepository.findSlaveByWorkplaceId(workplaceId);
         log.info("result: {} ", result);
 
         return result;
     }
+
 }
