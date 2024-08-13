@@ -14,4 +14,5 @@ public interface WorkplaceRepository extends JpaRepository<Workplace, String> {
     // 사장 ID로 사업장 리스트 조회
     List<Workplace> findByMaster(Master master);
 
+    boolean existsByBusinessNo(String businessNo);
 }
