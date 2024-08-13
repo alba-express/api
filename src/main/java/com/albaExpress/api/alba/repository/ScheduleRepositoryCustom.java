@@ -11,7 +11,7 @@ public interface ScheduleRepositoryCustom {
 
     List<ScheduleSlaveResponseDto> findSlaveBySchedule(String workplaceId, LocalDate date, int dayOfWeek);
 
-    List<ExtraScheduleRequestDto> addSchedule(String workplaceId, LocalDate date);
+    List<ExtraScheduleRequestDto> getExtraSchedule(String workplaceId, LocalDate date);
 
     List<ScheduleSlaveResponseDto> findSlaveByWorkplaceId(String workplaceId);
 }

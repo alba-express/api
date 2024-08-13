@@ -40,7 +40,7 @@ public class ScheduleController {
     public ResponseEntity<?> getSlaveByExtraSchedule(@RequestParam String workplaceId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date ) {
 
         try {
-            List<ExtraScheduleRequestDto> extraScheduleRequestDto = scheduleService.addSchedule(workplaceId, date);
+            List<ExtraScheduleRequestDto> extraScheduleRequestDto = scheduleService.getExtraSchedule(workplaceId, date);
             log.info("dtoList 크기확인: {}", extraScheduleRequestDto.size());
             for (ExtraScheduleRequestDto scheduleRequestDto : extraScheduleRequestDto) {
                 log.info("컨트롤러에서 리턴하기 직전 dto확인: {}", scheduleRequestDto);

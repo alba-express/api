@@ -37,9 +37,9 @@ public class ScheduleService {
         return result;
     }
 
-    // 일정 추가
-    public List<ExtraScheduleRequestDto> addSchedule(String workplaceId, LocalDate date) {
-        List<ExtraScheduleRequestDto> addedSchedule = scheduleRepository.addSchedule(workplaceId, date);
+    // 추가 일정 조회
+    public List<ExtraScheduleRequestDto> getExtraSchedule(String workplaceId, LocalDate date) {
+        List<ExtraScheduleRequestDto> addedSchedule = scheduleRepository.getExtraSchedule(workplaceId, date);
         log.info("addedSchedule: {} ", addedSchedule);
 
         return addedSchedule;

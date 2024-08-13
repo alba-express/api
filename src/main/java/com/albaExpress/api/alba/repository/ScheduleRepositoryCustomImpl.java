@@ -62,7 +62,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
     }
 
     @Override
-    public List<ExtraScheduleRequestDto> addSchedule(String workplaceId, LocalDate date) {
+    public List<ExtraScheduleRequestDto> getExtraSchedule(String workplaceId, LocalDate date) {
 
         List<Tuple> results = factory
                 .select(slave.id, slave.slaveName, slave.slavePosition,
