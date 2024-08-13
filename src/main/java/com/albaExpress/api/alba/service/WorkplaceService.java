@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -146,13 +145,10 @@ public class WorkplaceService {
     }
 
     // 사업장 간편비밀번호 인증 중간처리
-    public boolean verifyWorkplacePassword(String id, String password) {
-        Optional<Workplace> optionalWorkplace = workplaceRepository.findById(id);
+    public boolean verifyPassword(String workplaceId, String inputPassword) {
 
-        if (optionalWorkplace.isPresent()) {
-            Workplace workplace = optionalWorkplace.get();
-            return workplace.getWorkplacePassword().equals(password);
-        }
-        return false;
+        return workplaceRepository.findById(workplaceId)
+                .map(workplace -> workplace.getWorkplacePassword().equals(inputPassword))
+                .orElse(false);
     }
 }

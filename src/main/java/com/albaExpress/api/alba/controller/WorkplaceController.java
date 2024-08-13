@@ -136,11 +136,11 @@ public class WorkplaceController {
 
     // 사업장 간편비밀번호 인증 처리
     @PostMapping("/verify/{id}")
-    public ResponseEntity<Map<String, Object>> verifyWorkplacePassword(@PathVariable("id") String id, @RequestBody Map<String, String> request) {
-        String password = request.get("password");
-        boolean isValid = workplaceService.verifyWorkplacePassword(id, password);
+    public ResponseEntity<Map<String, Boolean>> verifyPassword(@PathVariable("id") String id, @RequestBody Map<String, String> payload) {
+        String inputPassword = payload.get("password");
+        boolean isValid = workplaceService.verifyPassword(id, inputPassword);
 
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Boolean> response = new HashMap<>();
         response.put("valid", isValid);
 
         return ResponseEntity.ok(response);
