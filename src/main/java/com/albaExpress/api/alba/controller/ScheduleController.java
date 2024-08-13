@@ -33,6 +33,15 @@ public class ScheduleController {
 
     }
 
+    // 사업장 ID로 직원조회
+    @GetMapping("/schedule-add")
+    public ResponseEntity<?> findSlaveByWorkplaceId (@RequestParam String workplaceId) {
+
+        log.info("Fetch workplaceId={}", workplaceId);
+        List<ScheduleSlaveResponseDto> dtoList = scheduleService.findSlaveByWorkplaceId(workplaceId);
+        return ResponseEntity.ok(dtoList);
+    }
+
     // 일정 추가
     @PostMapping("/schedule-add")
     public ResponseEntity<?> addSchedule(@RequestParam String slaveId,

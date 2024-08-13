@@ -37,4 +37,11 @@ public class ScheduleService {
         return addedSchedule;
 
     }
+
+    public List<ScheduleSlaveResponseDto> findSlaveByWorkplaceId(String workplaceId) {
+        List<ScheduleSlaveResponseDto> result = scheduleRepository.findSlaveByWorkplaceId(workplaceId);
+        log.info("result: {} ", result);
+
+        return result;
+    }
 }
