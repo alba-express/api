@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +61,10 @@ public class ScheduleService {
             throw new Exception("올바르지 않은 근무시간입니다.");
         }
 
+        // 조건 필요하면 추가
+        // 원래 근무 종료 시간보다 추가일정 시작 시간이 같거나 뒤에 시작
+        // 원래 근무 시작 시간보다 추가일정 종료 시간이 같거나 전에 시작
+
         ExtraSchedule extraSchedule = dto.toEntity(slave);
         extraSchedule.setSlave(slave);
         ExtraSchedule savedExtraSchedule = extraScheduleRepository.save(extraSchedule);
@@ -75,4 +80,13 @@ public class ScheduleService {
         return result;
     }
 
+    public void deleteExtraSchedule(String id) {
+        if (extraScheduleRepository.existsById(id)) {
+            extraScheduleRepository.deleteById(id);
+            log.info("일정 ID {}가 삭제되었습니다.", id);
+        } else {
+            log.warn("삭제하려는 일정 ID {}가 존재하지 않습니다.", id);
+            throw new NoSuchElementException("삭제하려는 일정이 존재하지 않습니다.");
+        }
+    }
 }

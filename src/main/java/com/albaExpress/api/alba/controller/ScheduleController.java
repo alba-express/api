@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/detail")
@@ -67,6 +68,20 @@ public class ScheduleController {
         } catch (Exception e) {
             log.warn("schedule-add-post 에러 " + e.getMessage());
             return ResponseEntity.status(401).body(e.getMessage());
+        }
+    }
+
+    // 추가 일정 삭제
+    @DeleteMapping("/schedule-manage")
+    public ResponseEntity<?> deleteExtraSchedule(@RequestParam String id) {
+
+        try {
+            scheduleService.deleteExtraSchedule(id);
+            return ResponseEntity.ok("일정이 성공적으로 삭제되었습니다.");
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("삭제하려는 일정이 존재하지 않습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("일정 삭제 중 오류가 발생했습니다.");
         }
     }
 

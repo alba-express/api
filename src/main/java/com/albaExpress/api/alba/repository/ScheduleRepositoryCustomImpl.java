@@ -75,9 +75,13 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
 
                 .where(slave.workplace.id.eq(workplaceId)
                         .and(extraSchedule.extraScheduleDate.eq(date))
-//                        .and(extraSchedule.extraScheduleStart.notBetween(schedule.scheduleStart, schedule.scheduleEnd))
-//                        .and(extraSchedule.extraScheduleEnd.notBetween(schedule.scheduleStart, schedule.scheduleEnd))
-                        )
+                        // 원래 근무 종료 시간보다 추가일정 시작 시간이 같거나 뒤에 시작
+                        // 원래 근무 시작 시간보다 추가일정 종료 시간이 같거나 전에 시작
+//                        .and(schedule.scheduleEnd.after(extraSchedule.extraScheduleStart)
+//                                .or(schedule.scheduleEnd.eq(extraSchedule.extraScheduleStart)))
+//                        .and(schedule.scheduleStart.before(extraSchedule.extraScheduleEnd)
+//                                .or(schedule.scheduleStart.eq(extraSchedule.extraScheduleEnd)))
+                )
 
                 .orderBy(extraSchedule.extraScheduleStart.asc())
                 .fetch();
@@ -124,7 +128,6 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
         }
         return dtoList;
     }
-
 
 
 }
