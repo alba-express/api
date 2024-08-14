@@ -2,8 +2,7 @@ package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.SlaveRegistRequestDto;
 import com.albaExpress.api.alba.dto.response.SlaveAddCountSlaveListResponseDto;
-import com.albaExpress.api.alba.dto.response.SlaveAllSlaveListResponseDto;
-import com.albaExpress.api.alba.entity.Slave;
+import com.albaExpress.api.alba.dto.response.SlaveOneSlaveInfoResponseDto;
 import com.albaExpress.api.alba.service.SlaveService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -70,21 +68,17 @@ public class SlaveController {
 
     // 직원 한 명 조회하기
     @GetMapping("/slave-manage/{slaveId}")
-    public ResponseEntity<Slave> getOneSlave (@PathVariable("slaveId") String slaveId) {
+    public ResponseEntity<Optional<SlaveOneSlaveInfoResponseDto>> getOneSlave (@PathVariable("slaveId") String slaveId) {
 
         // 클라이언트에서 서버로 전송한 직원 id
         log.info("slaveId - {}", slaveId);
 
         try {
-            Optional<Slave> selectSlave = slaveService.serviceGetOneSlave(slaveId);
+            Optional<SlaveOneSlaveInfoResponseDto> selectSlave = slaveService.serviceGetOneSlave(slaveId);
 
-            if (selectSlave.isPresent()) {
-                log.info("have same id Slave Info - {}", selectSlave);
-                return ResponseEntity.ok().body(selectSlave.get());
+            log.info("have same id Slave Info - {}", selectSlave);
 
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
+            return ResponseEntity.ok().body(selectSlave);
 
         } catch (Exception e) {
             // 서버가 클라이언트의 요청을 처리하다가 오류나는 경우

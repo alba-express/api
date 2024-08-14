@@ -3,6 +3,7 @@ package com.albaExpress.api.alba.service;
 import com.albaExpress.api.alba.dto.request.SlaveRegistRequestDto;
 import com.albaExpress.api.alba.dto.response.SlaveAddCountSlaveListResponseDto;
 import com.albaExpress.api.alba.dto.response.SlaveAllSlaveListResponseDto;
+import com.albaExpress.api.alba.dto.response.SlaveOneSlaveInfoResponseDto;
 import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.repository.SlaveRepository;
 import lombok.RequiredArgsConstructor;
@@ -79,10 +80,10 @@ public class SlaveService {
         return new SlaveAddCountSlaveListResponseDto(inactiveSlaves, totalSlaveCount);
     }
 
-    public Optional<Slave> serviceGetOneSlave(String id) {
+    public Optional<SlaveOneSlaveInfoResponseDto> serviceGetOneSlave(String id) {
 
         // 클라이언트에서 보낸 직원id와 일치하는 id를 가진 직원 한 명 조회하기
-        Optional<Slave> selectSlave = slaveRepository.findById(id);
+        Optional<SlaveOneSlaveInfoResponseDto> selectSlave = slaveRepository.findById(id).map(SlaveOneSlaveInfoResponseDto::new);
 
         return selectSlave;
     }
