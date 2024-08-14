@@ -67,14 +67,23 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
         List<Tuple> results = factory
                 .select(slave.id, slave.slaveName, slave.slavePosition,
                         extraSchedule.id, extraSchedule.extraScheduleDate,
-                        extraSchedule.extraScheduleStart, extraSchedule.extraScheduleEnd,extraSchedule.slave)
+                        extraSchedule.extraScheduleStart, extraSchedule.extraScheduleEnd, extraSchedule.slave)
                 .from(slave)
                 .leftJoin(extraSchedule)
                 .on(slave.id.eq(extraSchedule.slave.id))
+//                .leftJoin(schedule)
+//                .on(slave.id.eq(schedule.slave.id))
+
                 .where(slave.workplace.id.eq(workplaceId)
-                        .and(extraSchedule.extraScheduleDate.eq(date)))
-//                        .and(schedule.scheduleUpdateDate.before(date))
-//                        .and(schedule.scheduleEndDate.after(date).or(schedule.scheduleEndDate.isNull())))
+                        .and(extraSchedule.extraScheduleDate.eq(date))
+                        // 원래 근무 종료 시간보다 추가일정 시작 시간이 같거나 뒤에 시작
+                        // 원래 근무 시작 시간보다 추가일정 종료 시간이 같거나 전에 시작
+//                        .and(schedule.scheduleEnd.after(extraSchedule.extraScheduleStart)
+//                                .or(schedule.scheduleEnd.eq(extraSchedule.extraScheduleStart)))
+//                        .and(schedule.scheduleStart.before(extraSchedule.extraScheduleEnd)
+//                                .or(schedule.scheduleStart.eq(extraSchedule.extraScheduleEnd)))
+                )
+
                 .orderBy(extraSchedule.extraScheduleStart.asc())
                 .fetch();
 
@@ -120,6 +129,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
         }
         return dtoList;
     }
+
 
     // 지효씨의 추가메서드 컨플릭트시 추가만하면됨
     @Override

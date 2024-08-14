@@ -2,6 +2,7 @@ package com.albaExpress.api.alba.repository;
 
 import com.albaExpress.api.alba.dto.request.ExtraScheduleRequestDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
+import com.albaExpress.api.alba.entity.ExtraSchedule;
 import com.albaExpress.api.alba.entity.Schedule;
 
 import java.time.LocalDate;

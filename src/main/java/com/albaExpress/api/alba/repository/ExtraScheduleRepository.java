@@ -10,6 +10,7 @@ public interface ExtraScheduleRepository extends JpaRepository<ExtraSchedule, St
 
     public ExtraSchedule findByExtraScheduleDateAndSlaveId(LocalDate date, String slaveId);
 
+
 //    boolean existsBySlaveAndDate(Slave slave, LocalDate date);
 }
 

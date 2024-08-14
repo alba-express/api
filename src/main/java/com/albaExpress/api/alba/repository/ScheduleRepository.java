@@ -1,12 +1,14 @@
 package com.albaExpress.api.alba.repository;
 
 import com.albaExpress.api.alba.entity.Schedule;
+import com.albaExpress.api.alba.entity.Slave;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, String>, ScheduleRepositoryCustom {
