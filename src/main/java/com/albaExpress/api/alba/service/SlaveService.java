@@ -1,7 +1,9 @@
 package com.albaExpress.api.alba.service;
 
 import com.albaExpress.api.alba.dto.request.SlaveRegistRequestDto;
-import com.albaExpress.api.alba.dto.response.SlaveActiveSlaveListResponseDto;
+import com.albaExpress.api.alba.dto.response.SlaveAddCountSlaveListResponseDto;
+import com.albaExpress.api.alba.dto.response.SlaveAllSlaveListResponseDto;
+import com.albaExpress.api.alba.dto.response.SlaveOneSlaveInfoResponseDto;
 import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.repository.SlaveRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,13 +44,47 @@ public class SlaveService {
         }
     }
 
-    public List<SlaveActiveSlaveListResponseDto> serviceGetAllActiveSlaveList() {
+    // 모든 근무중인 직원 목록 & 근무중인 직원 개수 조회하기
+    public SlaveAddCountSlaveListResponseDto serviceGetAllActiveSlaveList() {
 
-        // DB에 있는 모든 직원 조회하기
-        List<SlaveActiveSlaveListResponseDto> activeSlaveList = slaveRepository.findAll().stream()
-                                                                                         .map(SlaveActiveSlaveListResponseDto::new)
-                                                                                         .collect(Collectors.toList());
+        // DB에 있는 모든직원 조회하기
+        List<SlaveAllSlaveListResponseDto> activeSlaves =
+                                                slaveRepository.findAll()
+                                                                        .stream()
+                                                                        .map(SlaveAllSlaveListResponseDto::new)
+                                                                        // 모든직원에서 근무중인 직원만 필터링하기 (퇴사일자가 없으면 근무중인 직원)
+                                                                        .filter(slave -> slave.getSlaveFiredDate() == null)
+                                                                        .collect(Collectors.toList());
 
-        return activeSlaveList;
+        // 모든 근무중인 직원의 개수
+        int totalSlaveCount = activeSlaves.size();
+
+        return new SlaveAddCountSlaveListResponseDto(activeSlaves, totalSlaveCount);
+    }
+
+    // 모든 퇴사한 직원 목록 & 퇴사한 직원 개수 조회하기
+    public SlaveAddCountSlaveListResponseDto serviceGetAllInactiveSlaveList() {
+
+        // DB에 있는 모든직원 조회하기
+        List<SlaveAllSlaveListResponseDto> inactiveSlaves =
+                                                slaveRepository.findAll()
+                                                                        .stream()
+                                                                        .map(SlaveAllSlaveListResponseDto::new)
+                                                                        // 모든직원에서 퇴사한 직원만 필터링하기 (퇴사일자가 있으면 퇴사한 직원)
+                                                                        .filter(slave -> slave.getSlaveFiredDate() != null)
+                                                                        .collect(Collectors.toList());
+
+        // 모든 퇴사한 직원의 개수
+        int totalSlaveCount = inactiveSlaves.size();
+
+        return new SlaveAddCountSlaveListResponseDto(inactiveSlaves, totalSlaveCount);
+    }
+
+    public Optional<SlaveOneSlaveInfoResponseDto> serviceGetOneSlave(String id) {
+
+        // 클라이언트에서 보낸 직원id와 일치하는 id를 가진 직원 한 명 조회하기
+        Optional<SlaveOneSlaveInfoResponseDto> selectSlave = slaveRepository.findById(id).map(SlaveOneSlaveInfoResponseDto::new);
+
+        return selectSlave;
     }
 }

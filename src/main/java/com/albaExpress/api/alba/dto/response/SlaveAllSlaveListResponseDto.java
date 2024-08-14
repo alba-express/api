@@ -1,11 +1,12 @@
 package com.albaExpress.api.alba.dto.response;
 
-import com.albaExpress.api.alba.dto.request.SlaveRegistScheduleRequestDto;
-import com.albaExpress.api.alba.dto.request.SlaveRegistWageRequestDto;
 import com.albaExpress.api.alba.entity.Slave;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SlaveActiveSlaveListResponseDto {
+public class SlaveAllSlaveListResponseDto {
 
     private String slaveId; // 직원 사원번호
 
@@ -29,9 +30,10 @@ public class SlaveActiveSlaveListResponseDto {
 
     private LocalDateTime slaveCreatedAt; // 직원 입사일자
 
-    // Entity Slave --> SlaveActiveSlaveListResponseDto 로 변환하기
-    public SlaveActiveSlaveListResponseDto(Slave slave) {
+    private LocalDateTime slaveFiredDate; // 직원 퇴사일자
 
+    // Entity Slave --> SlaveActiveSlaveListResponseDto 로 변환하기
+    public SlaveAllSlaveListResponseDto(Slave slave) {
         this.slaveId = slave.getId();
         this.slaveName = slave.getSlaveName();
         this.slavePosition = slave.getSlavePosition();
@@ -42,5 +44,17 @@ public class SlaveActiveSlaveListResponseDto {
         this.slaveScheduleList = slave.getScheduleList().stream().map(SlaveScheduleResponseDto::new).collect(Collectors.toList());
 
         this.slaveCreatedAt = slave.getSlaveCreatedAt();
+        this.slaveFiredDate = slave.getSlaveFiredDate();
     }
+
+//    // LocalDateTime 년:월:일 시:분:초 형식에서 --> yyyy년 MM월 dd일 형식으로 변환
+//    private static String formatTimeYearToDate(LocalDateTime date) {
+//        if (date == null) {
+//            return "";
+//        }
+//
+//        // 꺼내온 시간의 형식을 아래와 같이 변환
+//        DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+//        return date.format(formatterDate);
+//    }
 }

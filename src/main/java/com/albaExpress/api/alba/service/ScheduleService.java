@@ -60,6 +60,7 @@ public class ScheduleService {
         } else if (dto.getStartTime().isAfter(dto.getEndTime())) {
             throw new Exception("올바르지 않은 근무시간입니다.");
         }
+        
 
         // 조건 필요하면 추가
         // 원래 근무 종료 시간보다 추가일정 시작 시간이 같거나 뒤에 시작

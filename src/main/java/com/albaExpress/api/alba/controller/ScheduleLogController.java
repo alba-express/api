@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/schedule")
@@ -67,8 +64,12 @@ public class ScheduleLogController {
 
     // 오늘 근무자 목록 조회
     @GetMapping("/employees")
-    public ResponseEntity<List<SlaveDto>> getTodayEmployees() {
-        List<SlaveDto> employees = scheduleLogService.getTodayEmployees();
+    public ResponseEntity<List<SlaveDto>> getTodayEmployees(@RequestParam(name = "workplaceId") String workplaceId) {
+        if (workplaceId == null || workplaceId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Collections.emptyList()); // 유효하지 않은 workplaceId에 대한 응답
+        }
+
+        List<SlaveDto> employees = scheduleLogService.getTodayEmployees(workplaceId);
         return ResponseEntity.ok(employees);
     }
 
