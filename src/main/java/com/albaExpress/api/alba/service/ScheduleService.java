@@ -40,18 +40,24 @@ public class ScheduleService {
     // 추가 일정 조회
     public List<ExtraScheduleRequestDto> getExtraSchedule(String workplaceId, LocalDate date) {
         List<ExtraScheduleRequestDto> addedSchedule = scheduleRepository.getExtraSchedule(workplaceId, date);
-        log.info("addedSchedule: {} ", addedSchedule);
+        log.info("추가 일정: {} ", addedSchedule);
 
         return addedSchedule;
-
     }
 
+    // 추가 일정 등록
     public ExtraSchedule saveExtraSchedule(ExtraScheduleRequestDto dto) {
 
         Slave slave = slaveRepository.findById(dto.getSlaveId()).orElseThrow();
+
+        // 일정이 이미 존재하는지 확인
+        boolean exists = extraScheduleRepository.existsBySlaveAndDate(slave, dto.getDate());
+        if (exists) {
+            throw new IllegalStateException("이미 해당 날짜에 추가된 일정이 존재합니다.");
+        }
+
         ExtraSchedule extraSchedule = dto.toEntity(slave);
         extraSchedule.setSlave(slave);
-
         ExtraSchedule savedExtraSchedule = extraScheduleRepository.save(extraSchedule);
         log.info("saved extraSchedule: {}", savedExtraSchedule);
         return savedExtraSchedule;

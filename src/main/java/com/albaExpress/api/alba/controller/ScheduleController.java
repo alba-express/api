@@ -32,7 +32,6 @@ public class ScheduleController {
         log.info("Fetch workplaceId={}, date={}, dayOfWeek={}", workplaceId, date, dayOfWeek);
         List<ScheduleSlaveResponseDto> scheduleData = scheduleService.findSlaveBySchedule(workplaceId, date, dayOfWeek);
         return ResponseEntity.ok(scheduleData);
-
     }
 
     // 해당 날짜 추가 근무자 조회
@@ -41,32 +40,31 @@ public class ScheduleController {
 
         try {
             List<ExtraScheduleRequestDto> extraScheduleRequestDto = scheduleService.getExtraSchedule(workplaceId, date);
-            log.info("dtoList 크기확인: {}", extraScheduleRequestDto.size());
+            log.info("dtoList 크기 확인: {}", extraScheduleRequestDto.size());
             for (ExtraScheduleRequestDto scheduleRequestDto : extraScheduleRequestDto) {
-                log.info("컨트롤러에서 리턴하기 직전 dto확인: {}", scheduleRequestDto);
+                log.info("컨트롤러에서 리턴하기 직전 dto 확인: {}", scheduleRequestDto);
             }
             return ResponseEntity.ok(extraScheduleRequestDto);
         } catch (IllegalArgumentException e) {
-            log.warn("extraschedule-manage-get에서 일리걸 에러 발생");
+            log.warn("extraschedule-manage-get Illegal 에러 발생");
             return ResponseEntity.badRequest().body("잘못된 요청입니다: " + e.getMessage());
         } catch (Exception e) {
-            log.warn("extraschedule-manage-get에서 일리걸 아닌 에러 발생");
+            log.warn("extraschedule-manage-get 에러 발생");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다: " + e.getMessage());
         }
-
     }
 
-    // 일정 추가
+    // 추가일정 등록
     @PostMapping("/schedule-add")
-    public ResponseEntity<?> addSchedule(@RequestBody ExtraScheduleRequestDto dto) {
-        log.info("Add schedule = {}", dto);
+    public ResponseEntity<?> saveExtraSchedule(@RequestBody ExtraScheduleRequestDto dto) {
+        log.info("추가 일정 등록 = {}", dto);
 
         try {
             ExtraSchedule extraSchedule = scheduleService.saveExtraSchedule(dto);
 //            return ResponseEntity.ok().body(extraSchedule);
             return ResponseEntity.ok().body("등록완료 ok");
         } catch (Exception e) {
-            log.warn("schedule-add-post에서 에러남" + e.getMessage());
+            log.warn("schedule-add-post 에러" + e.getMessage());
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }

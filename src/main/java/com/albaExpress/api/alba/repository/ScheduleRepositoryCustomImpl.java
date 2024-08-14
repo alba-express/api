@@ -56,9 +56,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
             ScheduleSlaveResponseDto dto = dtoList.get(i);
             log.info("레포지토리 dto{}: {}", i, dto);
         }
-
         return dtoList;
-
     }
 
     @Override
@@ -81,8 +79,8 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
         List<ExtraScheduleRequestDto> dtoList = results.stream()
                 .map(tuple -> ExtraScheduleRequestDto.builder()
                         .slaveId(tuple.get(slave.id))
-//                        .slaveName(tuple.get(slave.slaveName))
-//                        .slavePosition(tuple.get(slave.slavePosition))
+                        .slaveName(tuple.get(slave.slaveName))
+                        .slavePosition(tuple.get(slave.slavePosition))
                         .date(tuple.get(extraSchedule.extraScheduleDate))
                         .startTime(tuple.get(extraSchedule.extraScheduleStart))
                         .endTime(tuple.get(extraSchedule.extraScheduleEnd))
@@ -118,7 +116,6 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
             ScheduleSlaveResponseDto dto = dtoList.get(i);
             log.info("직원 조회 레포지토리 dto{}: {}", i, dto);
         }
-
         return dtoList;
     }
 
