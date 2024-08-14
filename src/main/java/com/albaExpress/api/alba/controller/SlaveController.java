@@ -67,7 +67,7 @@ public class SlaveController {
     }
 
     // 직원 한 명 조회하기
-    @GetMapping("/slave-manage/{slaveId}")
+    @GetMapping("/slave-info/{slaveId}")
     public ResponseEntity<Optional<SlaveOneSlaveInfoResponseDto>> getOneSlave (@PathVariable("slaveId") String slaveId) {
 
         // 클라이언트에서 서버로 전송한 직원 id
