@@ -3,6 +3,7 @@ package com.albaExpress.api.alba.controller;
 import com.albaExpress.api.alba.dto.request.ExtraScheduleRequestDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
 import com.albaExpress.api.alba.entity.ExtraSchedule;
+import com.albaExpress.api.alba.repository.ExtraScheduleRepository;
 import com.albaExpress.api.alba.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
