@@ -17,5 +17,4 @@ public interface ScheduleRepositoryCustom {
 
     List<ScheduleSlaveResponseDto> findSlaveByWorkplaceId(String workplaceId);
 
-    public Schedule findByDateAndSlaveId(LocalDate date, String slaveId);
 }

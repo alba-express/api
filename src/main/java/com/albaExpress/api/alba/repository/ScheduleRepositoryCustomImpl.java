@@ -125,9 +125,6 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
         return dtoList;
     }
 
-    @Override
-    public Schedule findByDateAndSlaveId(LocalDate date, String slaveId) {
-        return null;
-    }
+
 
 }
