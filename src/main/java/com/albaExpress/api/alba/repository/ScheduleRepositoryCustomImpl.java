@@ -2,6 +2,8 @@ package com.albaExpress.api.alba.repository;
 
 import com.albaExpress.api.alba.dto.request.ExtraScheduleRequestDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
+import com.albaExpress.api.alba.entity.QSchedule;
+import com.albaExpress.api.alba.entity.Schedule;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -119,4 +121,14 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
         return dtoList;
     }
 
+    // 지효씨의 추가메서드 컨플릭트시 추가만하면됨
+    @Override
+    public List<Schedule> findByScheduleDay(int day, String workplaceId) {
+
+        return factory.select(schedule)
+                .from(schedule)
+                .where(schedule.scheduleDay.eq(day)
+                        .and(schedule.slave.workplace.id.eq(workplaceId)))
+                .fetch();
+    }
 }

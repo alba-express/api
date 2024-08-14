@@ -91,9 +91,9 @@ public class ScheduleLogService {
     }
 
     // 오늘 근무자 목록을 조회합니다.
-    public List<SlaveDto> getTodayEmployees() {
+    public List<SlaveDto> getTodayEmployees(String workplaceId) {
         int today = LocalDate.now().getDayOfWeek().getValue();
-        List<Schedule> schedules = scheduleRepository.findByScheduleDay(today);
+        List<Schedule> schedules = scheduleRepository.findByScheduleDay(today, workplaceId);
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         return schedules.stream()
                 .filter(schedule -> schedule.getScheduleEndDate() == null) // 끝나지 않은 스케줄만 필터링
