@@ -1,6 +1,6 @@
 package com.albaExpress.api.alba.repository;
 
-import com.albaExpress.api.alba.dto.request.ScheduleRequestDto;
+import com.albaExpress.api.alba.dto.request.ExtraScheduleRequestDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
 import com.albaExpress.api.alba.entity.QSchedule;
 import com.albaExpress.api.alba.entity.Schedule;
@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import static com.albaExpress.api.alba.entity.QExtraSchedule.*;
 import static com.albaExpress.api.alba.entity.QSchedule.*;
 import static com.albaExpress.api.alba.entity.QSlave.*;
+import static com.albaExpress.api.alba.entity.QWorkplace.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -36,7 +37,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .on(slave.id.eq(schedule.slave.id))
                 .where(slave.workplace.id.eq(workplaceId)
                         .and(schedule.scheduleDay.eq(dayOfWeek))
-                        .and(schedule.scheduleUpdateDate.before(date))
+                        .and(schedule.scheduleUpdateDate.before(date).or(schedule.scheduleUpdateDate.eq(date)))
                         .and(schedule.scheduleEndDate.after(date).or(schedule.scheduleEndDate.isNull())))
                 .orderBy(schedule.scheduleStart.asc())
                 .fetch();
@@ -57,13 +58,11 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
             ScheduleSlaveResponseDto dto = dtoList.get(i);
             log.info("레포지토리 dto{}: {}", i, dto);
         }
-
         return dtoList;
-
     }
 
     @Override
-    public List<ScheduleRequestDto> addSchedule(String slaveId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public List<ExtraScheduleRequestDto> getExtraSchedule(String workplaceId, LocalDate date) {
 
         List<Tuple> results = factory
                 .select(slave.id, slave.slaveName, slave.slavePosition,
@@ -72,15 +71,15 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .from(slave)
                 .leftJoin(extraSchedule)
                 .on(slave.id.eq(extraSchedule.slave.id))
-                .where(slave.id.eq(extraSchedule.slave.id)
+                .where(slave.workplace.id.eq(workplaceId)
                         .and(extraSchedule.extraScheduleDate.eq(date)))
 //                        .and(schedule.scheduleUpdateDate.before(date))
 //                        .and(schedule.scheduleEndDate.after(date).or(schedule.scheduleEndDate.isNull())))
                 .orderBy(extraSchedule.extraScheduleStart.asc())
                 .fetch();
 
-        List<ScheduleRequestDto> dtoList = results.stream()
-                .map(tuple -> ScheduleRequestDto.builder()
+        List<ExtraScheduleRequestDto> dtoList = results.stream()
+                .map(tuple -> ExtraScheduleRequestDto.builder()
                         .slaveId(tuple.get(slave.id))
                         .slaveName(tuple.get(slave.slaveName))
                         .slavePosition(tuple.get(slave.slavePosition))
@@ -91,12 +90,35 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .collect(Collectors.toList());
 
         for (int i = 0; i < dtoList.size(); i++) {
-            ScheduleRequestDto dto = dtoList.get(i);
-            log.info("레포지토리 dto{}: {}", i, dto);
+            ExtraScheduleRequestDto dto = dtoList.get(i);
+            log.info("일정 추가 레포지토리 dto{}: {}", i, dto);
         }
-
         return dtoList;
+    }
 
+    @Override
+    public List<ScheduleSlaveResponseDto> findSlaveByWorkplaceId(String workplaceId) {
+        List<Tuple> tupleList = factory
+                .select(slave.id, slave.slaveName, slave.slavePosition)
+                .from(slave)
+                .leftJoin(workplace)
+                .on(slave.workplace.id.eq(workplace.id))
+                .where(slave.workplace.id.eq(workplaceId))
+                .fetch();
+
+        List<ScheduleSlaveResponseDto> dtoList = tupleList.stream()
+                .map(tuple -> ScheduleSlaveResponseDto.builder()
+                        .slaveId(tuple.get(slave.id))
+                        .slaveName(tuple.get(slave.slaveName))
+                        .slavePosition(tuple.get(slave.slavePosition))
+                        .build())
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < dtoList.size(); i++) {
+            ScheduleSlaveResponseDto dto = dtoList.get(i);
+            log.info("직원 조회 레포지토리 dto{}: {}", i, dto);
+        }
+        return dtoList;
     }
 
     // 지효씨의 추가메서드 컨플릭트시 추가만하면됨

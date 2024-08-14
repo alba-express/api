@@ -1,7 +1,6 @@
 package com.albaExpress.api.alba.dto.request;
 
 import com.albaExpress.api.alba.entity.ExtraSchedule;
-import com.albaExpress.api.alba.entity.Schedule;
 import com.albaExpress.api.alba.entity.Slave;
 import lombok.*;
 
@@ -15,7 +14,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ScheduleRequestDto {
+public class ExtraScheduleRequestDto {
 
     private String slaveId;
     private String slaveName;
@@ -25,14 +24,13 @@ public class ScheduleRequestDto {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    public ExtraSchedule toEntity() {
-        Slave slave = new Slave();
-
+    public ExtraSchedule toEntity(Slave slave) {
         return ExtraSchedule.builder()
+//                .slave(this.slaveName)
                 .extraScheduleDate(this.date)
                 .extraScheduleStart(this.startTime)
                 .extraScheduleEnd(this.endTime)
-                .slave(slave)
+//                .slave(slave)
                 .build();
     }
 
