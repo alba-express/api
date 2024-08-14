@@ -51,10 +51,10 @@ public class ScheduleService {
         Slave slave = slaveRepository.findById(dto.getSlaveId()).orElseThrow();
 
         // 일정이 이미 존재하는지 확인
-        boolean exists = extraScheduleRepository.existsBySlaveAndDate(slave, dto.getDate());
-        if (exists) {
-            throw new IllegalStateException("이미 해당 날짜에 추가된 일정이 존재합니다.");
-        }
+//        boolean exists = extraScheduleRepository.existsBySlaveAndDate(slave, dto.getDate());
+//        if (exists) {
+//            throw new IllegalStateException("이미 해당 날짜에 추가된 일정이 존재합니다.");
+//        }
 
         ExtraSchedule extraSchedule = dto.toEntity(slave);
         extraSchedule.setSlave(slave);
