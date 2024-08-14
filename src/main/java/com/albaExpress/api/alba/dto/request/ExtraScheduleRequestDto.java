@@ -30,7 +30,7 @@ public class ExtraScheduleRequestDto {
                 .extraScheduleDate(this.date)
                 .extraScheduleStart(this.startTime)
                 .extraScheduleEnd(this.endTime)
-//                .slave(slave)
+                .slave(slave)
                 .build();
     }
 

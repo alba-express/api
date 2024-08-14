@@ -65,7 +65,7 @@ public class ScheduleController {
 //            return ResponseEntity.ok().body(extraSchedule);
             return ResponseEntity.ok().body("등록완료 ok");
         } catch (Exception e) {
-            log.warn("schedule-add-post 에러" + e.getMessage());
+            log.warn("schedule-add-post 에러 " + e.getMessage());
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }

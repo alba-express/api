@@ -3,6 +3,7 @@ package com.albaExpress.api.alba.service;
 import com.albaExpress.api.alba.dto.request.ExtraScheduleRequestDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
 import com.albaExpress.api.alba.entity.ExtraSchedule;
+import com.albaExpress.api.alba.entity.Schedule;
 import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.repository.ExtraScheduleRepository;
 import com.albaExpress.api.alba.repository.ScheduleRepository;
@@ -50,10 +51,11 @@ public class ScheduleService {
 
         Slave slave = slaveRepository.findById(dto.getSlaveId()).orElseThrow();
 
-        ExtraSchedule extraScheduleDateAndSlaveId = extraScheduleRepository.findByExtraScheduleDateAndSlaveId(dto.getDate(), dto.getSlaveId());
-
-        if (extraScheduleDateAndSlaveId != null) {
-            throw new IllegalStateException("이미 해당 날짜에 추가된 일정이 존재합니다.");
+        // 추가 일정 확인
+        ExtraSchedule existsExtraSchedule = extraScheduleRepository.findByExtraScheduleDateAndSlaveId(dto.getDate() ,slave.getId());
+        log.info("Checking for existing schedule: {}", existsExtraSchedule);
+        if (existsExtraSchedule != null) {
+            throw new IllegalStateException("이미 해당 날짜에 추가 일정이 존재합니다.");
         }
 
         ExtraSchedule extraSchedule = dto.toEntity(slave);

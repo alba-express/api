@@ -2,6 +2,7 @@ package com.albaExpress.api.alba.repository;
 
 import com.albaExpress.api.alba.dto.request.ExtraScheduleRequestDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
+import com.albaExpress.api.alba.entity.Schedule;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -65,14 +66,19 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
         List<Tuple> results = factory
                 .select(slave.id, slave.slaveName, slave.slavePosition,
                         extraSchedule.id, extraSchedule.extraScheduleDate,
-                        extraSchedule.extraScheduleStart, extraSchedule.extraScheduleEnd,extraSchedule.slave)
+                        extraSchedule.extraScheduleStart, extraSchedule.extraScheduleEnd, extraSchedule.slave)
                 .from(slave)
                 .leftJoin(extraSchedule)
                 .on(slave.id.eq(extraSchedule.slave.id))
+//                .leftJoin(schedule)
+//                .on(slave.id.eq(schedule.slave.id))
+
                 .where(slave.workplace.id.eq(workplaceId)
-                        .and(extraSchedule.extraScheduleDate.eq(date)))
-//                        .and(schedule.scheduleUpdateDate.before(date))
-//                        .and(schedule.scheduleEndDate.after(date).or(schedule.scheduleEndDate.isNull())))
+                        .and(extraSchedule.extraScheduleDate.eq(date))
+//                        .and(extraSchedule.extraScheduleStart.notBetween(schedule.scheduleStart, schedule.scheduleEnd))
+//                        .and(extraSchedule.extraScheduleEnd.notBetween(schedule.scheduleStart, schedule.scheduleEnd))
+                        )
+
                 .orderBy(extraSchedule.extraScheduleStart.asc())
                 .fetch();
 
@@ -117,6 +123,11 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
             log.info("직원 조회 레포지토리 dto{}: {}", i, dto);
         }
         return dtoList;
+    }
+
+    @Override
+    public Schedule findByDateAndSlaveId(LocalDate date, String slaveId) {
+        return null;
     }
 
 }

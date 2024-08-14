@@ -2,6 +2,8 @@ package com.albaExpress.api.alba.repository;
 
 import com.albaExpress.api.alba.dto.request.ExtraScheduleRequestDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
+import com.albaExpress.api.alba.entity.ExtraSchedule;
+import com.albaExpress.api.alba.entity.Schedule;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -14,4 +16,6 @@ public interface ScheduleRepositoryCustom {
     List<ExtraScheduleRequestDto> getExtraSchedule(String workplaceId, LocalDate date);
 
     List<ScheduleSlaveResponseDto> findSlaveByWorkplaceId(String workplaceId);
+
+    public Schedule findByDateAndSlaveId(LocalDate date, String slaveId);
 }
