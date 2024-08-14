@@ -28,9 +28,9 @@ public class ScheduleLogController {
     public ResponseEntity<?> verifyPhoneNumber(@RequestParam String phoneNumber, @RequestParam String workplaceId) {
         Slave slave = scheduleLogService.verifyPhoneNumber(phoneNumber, workplaceId);
         if (slave == null) {
-            return ResponseEntity.badRequest().body("오늘 근무자가 아닙니다.");
+            return ResponseEntity.badRequest().body("오늘 근무자가 아닙니다."); // 구체적인 오류 메시지
         }
-        return ResponseEntity.ok().body(slave.getId());
+        return ResponseEntity.ok().body(Collections.singletonMap("slaveId", slave.getId())); // JSON 형태로 반환
     }
 
     // 출근 기록
