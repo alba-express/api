@@ -47,15 +47,17 @@ public class ScheduleService {
     }
 
     // 추가 일정 등록
-    public ExtraSchedule saveExtraSchedule(ExtraScheduleRequestDto dto) {
+    public ExtraSchedule saveExtraSchedule(ExtraScheduleRequestDto dto) throws Exception {
 
         Slave slave = slaveRepository.findById(dto.getSlaveId()).orElseThrow();
 
         // 추가 일정 확인
-        ExtraSchedule existsExtraSchedule = extraScheduleRepository.findByExtraScheduleDateAndSlaveId(dto.getDate() ,slave.getId());
+        ExtraSchedule existsExtraSchedule = extraScheduleRepository.findByExtraScheduleDateAndSlaveId(dto.getDate(), slave.getId());
         log.info("Checking for existing schedule: {}", existsExtraSchedule);
         if (existsExtraSchedule != null) {
             throw new IllegalStateException("이미 해당 날짜에 추가 일정이 존재합니다.");
+        } else if (dto.getStartTime().isAfter(dto.getEndTime())) {
+            throw new Exception("올바르지 않은 근무시간입니다.");
         }
 
         ExtraSchedule extraSchedule = dto.toEntity(slave);
