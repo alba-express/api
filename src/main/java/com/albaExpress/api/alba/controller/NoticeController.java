@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
 
@@ -62,6 +63,13 @@ public class NoticeController {
         noticeService.deleteNotice(id);
         log.info("noticeId : {}", id);
         return ResponseEntity.ok().body("Notice successfully deleted");
+    }
+
+    // 최신글 조회
+    @GetMapping
+    public ResponseEntity<?> findLatestNotice (@RequestParam String workplaceId) {
+        noticeService.findLatestNotice(workplaceId);
+        return ResponseEntity.ok().body("LatestNotice");
     }
 
 

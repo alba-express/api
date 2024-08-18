@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,5 +80,10 @@ public class NoticeService {
     // 삭제
     public void deleteNotice(String id) {
         noticeRepository.deleteById(id);
+    }
+
+    public void findLatestNotice(String workplaceId) {
+        Notice latestNotice = noticeRepository.findLatestNotice(workplaceId);
+
     }
 }
