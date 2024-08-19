@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -93,11 +94,17 @@ public class WorkplaceController {
     }
 
     // 사업장 등록번호 중복 확인
-    @GetMapping("/checkBusinessNo/{businessNo}")
-    public ResponseEntity<Map<String, Object>> checkBusinessNo(@PathVariable("businessNo") String businessNo) {
-        log.info("/workplace/check-business-no/{} : GET", businessNo);
+    @GetMapping("/checkBusinessNo/{masterId}/{businessNo}")
+    public ResponseEntity<Map<String, Object>> checkBusinessNo(@PathVariable("masterId") String masterId, @PathVariable("businessNo") String businessNo) {
+        log.info("/workplace/checkBusinessNo/{}/{} : GET", masterId, businessNo);
 
-        boolean isDuplicate = workplaceService.isBusinessNoDuplicate(businessNo);
+        // 사업장 등록번호가 하이픈 포함된 형식으로 체크하는 사업장 등록번호로 바꾸기
+        String normalizedBusinessNo = businessNo.replace("-", "");
+        log.info("Normalized Business No: {}", normalizedBusinessNo);
+
+        // 사업장 등록번호가 중복되었는지 boolean 값으로 체크
+        boolean isDuplicate = workplaceService.isBusinessNoDuplicateForMaster(masterId, businessNo);
+        log.info("Is Duplicate: {}", isDuplicate);
 
         Map<String, Object> response = new HashMap<>();
         response.put("exists", isDuplicate);

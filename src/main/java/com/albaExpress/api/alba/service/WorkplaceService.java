@@ -95,19 +95,19 @@ public class WorkplaceService {
         if (dto.getWorkplaceName() != null) {
             existingWorkplace.setWorkplaceName(dto.getWorkplaceName());
         }
-        if(dto.getBusinessNo() != null) {
+        if (dto.getBusinessNo() != null) {
             existingWorkplace.setBusinessNo(dto.getBusinessNo());
         }
-        if(dto.getWorkplaceAddressCity() != null) {
+        if (dto.getWorkplaceAddressCity() != null) {
             existingWorkplace.setWorkplaceAddressCity(dto.getWorkplaceAddressCity());
         }
-        if(dto.getWorkplaceAddressStreet() != null) {
+        if (dto.getWorkplaceAddressStreet() != null) {
             existingWorkplace.setWorkplaceAddressStreet(dto.getWorkplaceAddressStreet());
         }
-        if(dto.getWorkplaceAddressDetail() != null) {
+        if (dto.getWorkplaceAddressDetail() != null) {
             existingWorkplace.setWorkplaceAddressDetail(dto.getWorkplaceAddressDetail());
         }
-        if(dto.getWorkplacePassword() != null) {
+        if (dto.getWorkplacePassword() != null) {
             existingWorkplace.setWorkplacePassword(dto.getWorkplacePassword());
         }
         existingWorkplace.setWorkplaceSize(dto.isWorkplaceSize());
@@ -138,11 +138,11 @@ public class WorkplaceService {
         return findList(masterId);
     }
 
-    public boolean isBusinessNoDuplicate(String businessNo) {
-        String normalizedBusinessNo = businessNo.replace("-", ""); // 하이픈 제거
-
-        return workplaceRepository.existsByBusinessNo(normalizedBusinessNo);
-    }
+//    public boolean isBusinessNoDuplicate(String businessNo) {
+//        String normalizedBusinessNo = businessNo.replace("-", ""); // 하이픈 제거
+//
+//        return workplaceRepository.existsByBusinessNo(normalizedBusinessNo);
+//    }
 
     // 사업장 간편비밀번호 인증 중간처리
     public boolean verifyPassword(String workplaceId, String inputPassword) {
@@ -150,5 +150,21 @@ public class WorkplaceService {
         return workplaceRepository.findById(workplaceId)
                 .map(workplace -> workplace.getWorkplacePassword().equals(inputPassword))
                 .orElse(false);
+    }
+
+    // 사업장 등록번호 중복 체크 중간처리
+    public boolean isBusinessNoDuplicateForMaster(String masterId, String businessNo) {
+        // Master 엔티티 조회
+        Master master = masterRepository.findById(masterId).orElse(null);
+        if (master == null) {
+            throw new IllegalArgumentException("Invalid masterId: " + masterId);
+        }
+        log.info("checking duplicate businessNo: {} masterId: {}", businessNo, masterId);
+
+        // 특정 사장과 연결된 동일한 등록번호를 가진 사업장이 있는지 확인
+        boolean exists = workplaceRepository.existsByMasterAndBusinessNo(master, businessNo);
+        log.info("중복 체크 결과: {}", exists);
+
+        return exists;
     }
 }

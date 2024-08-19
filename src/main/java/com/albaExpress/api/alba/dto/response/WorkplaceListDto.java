@@ -22,6 +22,7 @@ public class WorkplaceListDto {
     private String workplaceAddressDetail;
     private LocalDateTime workplaceCreatedAt;
     private String masterId;
+    private String businessNo;
 
     // 사업장 규모 5인 이상 true이면 '5인 이상 사업장' 찍어두면 좋을거 같아서 보류 😬
     private boolean workplaceSize;
@@ -34,6 +35,7 @@ public class WorkplaceListDto {
 
     public WorkplaceListDto(WorkplaceFindAllDto w) {
         this.id = w.getId();
+        this.businessNo = w.getBusinessNo();
         this.workplaceName = w.getWorkplaceName();
         this.workplaceAddressCity = w.getWorkplaceAddressCity();
         this.workplaceAddressStreet = w.getWorkplaceAddressStreet();
