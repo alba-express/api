@@ -15,6 +15,7 @@ public class WorkplaceFindAllDto {
 
     // 사업장 목록 전체 조회할 때 필요한 데이터 DTO
     private String id;
+    private String businessNo;
     private String workplaceName;
     private String workplaceAddressCity;
     private String workplaceAddressStreet;
