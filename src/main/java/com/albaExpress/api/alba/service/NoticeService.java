@@ -1,6 +1,7 @@
 package com.albaExpress.api.alba.service;
 
 import com.albaExpress.api.alba.dto.request.NoticeSaveDto;
+import com.albaExpress.api.alba.dto.response.NoticeDto;
 import com.albaExpress.api.alba.dto.response.NoticeListDto;
 import com.albaExpress.api.alba.entity.Notice;
 import com.albaExpress.api.alba.entity.Workplace;
@@ -82,8 +83,14 @@ public class NoticeService {
         noticeRepository.deleteById(id);
     }
 
-    public void findLatestNotice(String workplaceId) {
+    public NoticeDto findLatestNotice(String workplaceId) {
         Notice latestNotice = noticeRepository.findLatestNotice(workplaceId);
 
+        return new NoticeDto(
+                latestNotice.getId(),
+                latestNotice.getNoticeTitle(),
+                latestNotice.getNoticeContent(),
+                latestNotice.getNoticeCreatedAt()
+        );
     }
 }

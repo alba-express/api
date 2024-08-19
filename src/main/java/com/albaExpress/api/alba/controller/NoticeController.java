@@ -1,6 +1,7 @@
 package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.NoticeSaveDto;
+import com.albaExpress.api.alba.dto.response.NoticeDto;
 import com.albaExpress.api.alba.entity.Notice;
 import com.albaExpress.api.alba.service.NoticeService;
 import lombok.RequiredArgsConstructor;
@@ -67,9 +68,9 @@ public class NoticeController {
 
     // 최신글 조회
     @GetMapping
-    public ResponseEntity<?> findLatestNotice (@RequestParam String workplaceId) {
-        noticeService.findLatestNotice(workplaceId);
-        return ResponseEntity.ok().body("LatestNotice");
+    public ResponseEntity<NoticeDto> findLatestNotice (@RequestParam String workplaceId) {
+        NoticeDto latestNotice = noticeService.findLatestNotice(workplaceId);
+        return ResponseEntity.ok().body(latestNotice);
     }
 
 

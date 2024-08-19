@@ -53,7 +53,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
                 .from(notice)
                 .where(notice.workplace.id.eq(workplaceId))
                 .orderBy(notice.noticeCreatedAt.desc())
-                .fetchOne();
+                .fetchFirst();
 
         return latestNotice;
     }
