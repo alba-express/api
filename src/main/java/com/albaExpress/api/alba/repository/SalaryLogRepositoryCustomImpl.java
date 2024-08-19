@@ -106,7 +106,7 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
                     LocalTime workingTime = null;
                     try {
                     Duration duration = Duration.between(start, end);
-                        workingTime = LocalTime.of((int) duration.toHours(), (int) duration.toMinutesPart());
+                        workingTime = LocalTime.of((int) duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart());
 
                     } catch (DateTimeException e) {
                         workingTime = LocalTime.of(0,0,0);
