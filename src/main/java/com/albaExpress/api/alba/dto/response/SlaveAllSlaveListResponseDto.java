@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Builder
 public class SlaveAllSlaveListResponseDto {
+    
+    private String workPlaceNumber; // 사업장번호
 
     private String slaveId; // 직원 사원번호
 
@@ -34,6 +36,7 @@ public class SlaveAllSlaveListResponseDto {
 
     // Entity Slave --> SlaveActiveSlaveListResponseDto 로 변환하기
     public SlaveAllSlaveListResponseDto(Slave slave) {
+        this.workPlaceNumber = slave.getWorkplace().getId();
         this.slaveId = slave.getId();
         this.slaveName = slave.getSlaveName();
         this.slavePosition = slave.getSlavePosition();
@@ -46,15 +49,4 @@ public class SlaveAllSlaveListResponseDto {
         this.slaveCreatedAt = slave.getSlaveCreatedAt();
         this.slaveFiredDate = slave.getSlaveFiredDate();
     }
-
-//    // LocalDateTime 년:월:일 시:분:초 형식에서 --> yyyy년 MM월 dd일 형식으로 변환
-//    private static String formatTimeYearToDate(LocalDateTime date) {
-//        if (date == null) {
-//            return "";
-//        }
-//
-//        // 꺼내온 시간의 형식을 아래와 같이 변환
-//        DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-//        return date.format(formatterDate);
-//    }
 }

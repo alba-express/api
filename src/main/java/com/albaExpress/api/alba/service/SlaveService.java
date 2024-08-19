@@ -87,4 +87,13 @@ public class SlaveService {
 
         return selectSlave;
     }
+
+    public List<SlaveAllSlaveListResponseDto> serviceGetAllSlaveList(String id) {
+
+        List<Slave> allSlaves = slaveRepository.findByWorkplace_id(id);
+
+        List<SlaveAllSlaveListResponseDto> allSlaveList = allSlaves.stream().map(SlaveAllSlaveListResponseDto::new).collect(Collectors.toList());
+
+        return allSlaveList;
+    }
 }
