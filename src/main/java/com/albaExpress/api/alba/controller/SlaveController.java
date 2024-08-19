@@ -2,7 +2,9 @@ package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.SlaveRegistRequestDto;
 import com.albaExpress.api.alba.dto.response.SlaveAddCountSlaveListResponseDto;
+import com.albaExpress.api.alba.dto.response.SlaveAllSlaveListResponseDto;
 import com.albaExpress.api.alba.dto.response.SlaveOneSlaveInfoResponseDto;
+import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.service.SlaveService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -35,6 +38,22 @@ public class SlaveController {
         }
 
         return ResponseEntity.ok().body("{\"message\":\"Regist slave success\"}");
+    }
+
+    // 특정사업장의 전체 직원 조회하기
+    @GetMapping("/slaveList/{workplaceIdByStore}")
+    public ResponseEntity <List<SlaveAllSlaveListResponseDto>> getAllSlaveList (@PathVariable("workplaceIdByStore")String workplaceId) {
+        try {
+            List<SlaveAllSlaveListResponseDto> allSlaveList = slaveService.serviceGetAllSlaveList(workplaceId);
+
+            log.info("active slave Info - {}", allSlaveList);
+
+            return ResponseEntity.ok().body(allSlaveList);
+
+        } catch (Exception e) {
+            // 서버가 클라이언트의 요청을 처리하다가 오류나는 경우
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     // 근무중인 직원 전체 조회하기
@@ -85,4 +104,21 @@ public class SlaveController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    // 직원 수정하기
+//    @PostMapping("/modifySlave")
+//    public ResponseEntity<?> modifySlave (@RequestBody SlaveRegistRequestDto dto) {
+//
+//        // 클라이언트에서 입력한 직원입력정보 조회하기
+//        log.info("regist slave Info - {}", dto);
+//
+//        // slaveService 로 정보처리 위임하기
+//        try {
+//            slaveService.serviceRegistSlave(dto);
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//
+//        return ResponseEntity.ok().body("{\"message\":\"Regist slave success\"}");
+//    }
 }

@@ -12,4 +12,7 @@ public interface SlaveRepository extends JpaRepository<Slave, String>, SlaveRepo
 
     @Override
     <S extends Slave> S save(S entity);
+
+    // Workplace의 workplaceId로 직원 목록 조회
+    List<Slave> findByWorkplace_id(String workplaceId);
 }
