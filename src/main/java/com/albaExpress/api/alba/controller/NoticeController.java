@@ -1,6 +1,7 @@
 package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.NoticeSaveDto;
+import com.albaExpress.api.alba.dto.response.NoticeDto;
 import com.albaExpress.api.alba.entity.Notice;
 import com.albaExpress.api.alba.service.NoticeService;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
 
@@ -62,6 +64,13 @@ public class NoticeController {
         noticeService.deleteNotice(id);
         log.info("noticeId : {}", id);
         return ResponseEntity.ok().body("Notice successfully deleted");
+    }
+
+    // 최신글 조회
+    @GetMapping
+    public ResponseEntity<NoticeDto> findLatestNotice (@RequestParam String workplaceId) {
+        NoticeDto latestNotice = noticeService.findLatestNotice(workplaceId);
+        return ResponseEntity.ok().body(latestNotice);
     }
 
 
