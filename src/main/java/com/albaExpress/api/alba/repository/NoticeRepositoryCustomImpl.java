@@ -44,17 +44,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
         return new PageImpl<>(noticeList, pageable, count);
     }
 
-    @Override
-    public Notice findLatestNotice(String workplaceId) {
-        Notice latestNotice = factory
-                .select(notice)
-                .from(notice)
-                .where(notice.workplace.id.eq(workplaceId))
-                .orderBy(notice.noticeCreatedAt.desc())
-                .fetchFirst();
 
-        return latestNotice;
-    }
 
 
 }

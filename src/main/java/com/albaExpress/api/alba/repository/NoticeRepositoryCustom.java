@@ -8,6 +8,5 @@ public interface NoticeRepositoryCustom {
 
     Page<Notice> findNotices(String workplaceId, Pageable pageable);
 
-    Notice findLatestNotice(String workplaceId);
 
 }

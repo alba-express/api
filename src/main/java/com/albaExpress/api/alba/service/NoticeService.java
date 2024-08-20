@@ -83,19 +83,5 @@ public class NoticeService {
         noticeRepository.deleteById(id);
     }
 
-    // 최신글 조회
-    public NoticeDto findLatestNotice(String workplaceId) {
-        Notice latestNotice = noticeRepository.findLatestNotice(workplaceId);
 
-        if (latestNotice == null) {
-            return null;
-        }
-
-        return new NoticeDto(
-                latestNotice.getId(),
-                latestNotice.getNoticeTitle(),
-                latestNotice.getNoticeContent(),
-                latestNotice.getNoticeCreatedAt()
-        );
-    }
 }
