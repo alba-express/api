@@ -70,6 +70,9 @@ public class NoticeController {
     @GetMapping
     public ResponseEntity<NoticeDto> findLatestNotice (@RequestParam String workplaceId) {
         NoticeDto latestNotice = noticeService.findLatestNotice(workplaceId);
+        if (latestNotice == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok().body(latestNotice);
     }
 
