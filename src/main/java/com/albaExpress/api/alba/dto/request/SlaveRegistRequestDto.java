@@ -54,8 +54,12 @@ public class SlaveRegistRequestDto {
 
         // SlaveRegistScheduleRequestDto 를 Schedule 로 바꾼 것을 List로 만들어 slave build 객체에 전달
         List<Schedule> schedules = this.slaveScheduleList.stream()
-                .map(SlaveRegistScheduleRequestDto -> SlaveRegistScheduleRequestDto.dtoToScheduleEntity(slave))
+                .flatMap(slaveRegistScheduleRequestDto ->
+                        slaveRegistScheduleRequestDto.dtoToScheduleEntity(slave).stream()
+                )
                 .collect(Collectors.toList());
+
+        slave.setScheduleList(schedules);
 
         slave.setScheduleList(schedules);
 

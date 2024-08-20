@@ -25,6 +25,10 @@ public class Schedule {
     @GeneratedValue(generator = "uuid-generator")
     @Column(name = "schedule_id")
     private String id;
+
+    @Column(name = "schedule_type")
+    private boolean scheduleType;
+
     @Column(name = "schedule_day")
     private int scheduleDay;
 
