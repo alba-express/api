@@ -4,6 +4,7 @@ import com.albaExpress.api.alba.dto.request.SlaveRegistRequestDto;
 import com.albaExpress.api.alba.dto.response.SlaveAddCountSlaveListResponseDto;
 import com.albaExpress.api.alba.dto.response.SlaveAllSlaveListResponseDto;
 import com.albaExpress.api.alba.dto.response.SlaveOneSlaveInfoResponseDto;
+import com.albaExpress.api.alba.dto.response.SlaveSearchSlaveInfoResponseDto;
 import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.service.SlaveService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -104,6 +107,44 @@ public class SlaveController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    // 해당 사업장의 직원 한 명 이름으로 조회하기
+    @GetMapping("/search-slave")
+    public ResponseEntity<?> searchSlaveByName(@RequestParam String slaveName, @RequestParam String workplaceId) {
+
+        List<SlaveSearchSlaveInfoResponseDto> searchSlave = slaveService.searchSlaveByName(slaveName, workplaceId);
+
+        if (!searchSlave.isEmpty()) {  // 리스트가 비어 있지 않으면
+            return ResponseEntity.ok(searchSlave);  // 리스트를 그대로 반환
+        } else {
+            return ResponseEntity.status(404).body("해당 이름을 가진 직원 정보가 없습니다.");
+        }
+    }
+
+    // 해당 사업장의 직원 한 명 이름으로 조회하기
+    @PostMapping("/validPhoneNumber")
+    public Map<String, Boolean> validatePhoneNumber(@RequestBody String phoneNumber) {
+        boolean isValid = slaveService.isPhoneNumberValid(phoneNumber);
+
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("isValid", isValid);
+        return response;
+    }
+
+    // 직원 수정하기
+//    @PostMapping("/modifySlave")
+//    public ResponseEntity<Slave> modifyEmployee(@RequestBody SlaveRegistRequestDto dto) {
+//
+//        // 클라이언트에서 입력한 직원입력정보 조회하기
+//        log.info("modify slave Info - {}", dto);
+//
+//        try {
+//            Slave updatedEmployee = slaveService.updateEmployee(dto.getSlavePhoneNumber(), dto);
+//            return ResponseEntity.ok(updatedEmployee);
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.badRequest().body(null);
+//        }
+//    }
 
     // 직원 수정하기
 //    @PostMapping("/modifySlave")

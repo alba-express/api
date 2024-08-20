@@ -4,6 +4,7 @@ import com.albaExpress.api.alba.dto.request.SlaveRegistRequestDto;
 import com.albaExpress.api.alba.dto.response.SlaveAddCountSlaveListResponseDto;
 import com.albaExpress.api.alba.dto.response.SlaveAllSlaveListResponseDto;
 import com.albaExpress.api.alba.dto.response.SlaveOneSlaveInfoResponseDto;
+import com.albaExpress.api.alba.dto.response.SlaveSearchSlaveInfoResponseDto;
 import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.repository.SlaveRepository;
 import lombok.RequiredArgsConstructor;
@@ -96,4 +97,28 @@ public class SlaveService {
 
         return allSlaveList;
     }
+
+    public List<SlaveSearchSlaveInfoResponseDto> searchSlaveByName(String slaveName, String id) {
+        
+        // 특정 사업장의 모든 직원 리스트 가져오기
+        List<Slave> allSlaves = slaveRepository.findByWorkplace_id(id);
+
+        // 사업장의 직원 중 이름이 일치하는 모든 직원 찾기
+        return allSlaves.stream()
+                .filter(slave -> slave.getSlaveName().equalsIgnoreCase(slaveName))
+                .map(SlaveSearchSlaveInfoResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public boolean isPhoneNumberValid(String slavePhoneNumber) {
+
+        return slaveRepository.findBySlavePhoneNumber(slavePhoneNumber).isPresent();
+    }
+
+//    public Slave updateEmployee(String slavePhoneNumber, SlaveRegistRequestDto dto) {
+//
+//        Optional<Slave> oneSlave = slaveRepository.findById(slavePhoneNumber);
+//
+//        return oneSlave;
+//    }
 }
