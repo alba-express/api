@@ -38,7 +38,8 @@ public class ScheduleController {
 
     // 해당 날짜 추가 근무자 조회
     @GetMapping("/extraschedule-manage")
-    public ResponseEntity<?> getSlaveByExtraSchedule(@RequestParam String workplaceId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date ) {
+    public ResponseEntity<?> getSlaveByExtraSchedule(@RequestParam String workplaceId,
+                                                     @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date ) {
 
         try {
             List<ExtraScheduleRequestDto> extraScheduleRequestDto = scheduleService.getExtraSchedule(workplaceId, date);
@@ -72,7 +73,7 @@ public class ScheduleController {
     }
 
     // 추가 일정 삭제
-    @DeleteMapping("/schedule-manage")
+    @DeleteMapping("/extraSchedule-manage")
     public ResponseEntity<?> deleteExtraSchedule(@RequestParam String id) {
 
         try {

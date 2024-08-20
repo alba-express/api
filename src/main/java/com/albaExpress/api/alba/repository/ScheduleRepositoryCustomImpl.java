@@ -89,6 +89,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
 
         List<ExtraScheduleRequestDto> dtoList = results.stream()
                 .map(tuple -> ExtraScheduleRequestDto.builder()
+                        .id(tuple.get(extraSchedule.id))
                         .slaveId(tuple.get(slave.id))
                         .slaveName(tuple.get(slave.slaveName))
                         .slavePosition(tuple.get(slave.slavePosition))

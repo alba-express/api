@@ -20,6 +20,7 @@ public class ExtraScheduleRequestDto {
     private String slaveName;
     private String slavePosition;
 
+    private String id;
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
