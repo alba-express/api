@@ -66,12 +66,7 @@ public class NoticeController {
         return ResponseEntity.ok().body("Notice successfully deleted");
     }
 
-    // 최신글 조회
-    @GetMapping
-    public ResponseEntity<NoticeDto> findLatestNotice (@RequestParam String workplaceId) {
-        NoticeDto latestNotice = noticeService.findLatestNotice(workplaceId);
-        return ResponseEntity.ok().body(latestNotice);
-    }
+
 
 
 }

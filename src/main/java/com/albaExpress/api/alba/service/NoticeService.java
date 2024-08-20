@@ -83,14 +83,5 @@ public class NoticeService {
         noticeRepository.deleteById(id);
     }
 
-    public NoticeDto findLatestNotice(String workplaceId) {
-        Notice latestNotice = noticeRepository.findLatestNotice(workplaceId);
 
-        return new NoticeDto(
-                latestNotice.getId(),
-                latestNotice.getNoticeTitle(),
-                latestNotice.getNoticeContent(),
-                latestNotice.getNoticeCreatedAt()
-        );
-    }
 }

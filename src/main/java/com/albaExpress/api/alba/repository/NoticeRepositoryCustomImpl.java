@@ -1,7 +1,6 @@
 package com.albaExpress.api.alba.repository;
 
 import com.albaExpress.api.alba.entity.Notice;
-import com.albaExpress.api.alba.entity.QNotice;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +9,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,17 +44,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
         return new PageImpl<>(noticeList, pageable, count);
     }
 
-    @Override
-    public Notice findLatestNotice(String workplaceId) {
-        Notice latestNotice = factory
-                .select(notice)
-                .from(notice)
-                .where(notice.workplace.id.eq(workplaceId))
-                .orderBy(notice.noticeCreatedAt.desc())
-                .fetchFirst();
 
-        return latestNotice;
-    }
 
 
 }
