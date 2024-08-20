@@ -16,6 +16,8 @@ public class SalaryLogDetailResponseDto {
 
     private String slaveName;
 
+    private boolean wageInsurance;
+
     @Setter
     private Long totalSalary;
 

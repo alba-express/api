@@ -69,8 +69,14 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
     public SalaryLogDetailResponseDto getSalaryLogDetail(String slaveId, YearMonth ym) {
         // 1. Slave 정보 가져오기
         Tuple slaveInfo = factory
-                .select(slave.id, slave.slaveName)
+                .select(slave.id, slave.slaveName, wage.wageInsurance)
                 .from(slave)
+                .innerJoin(wage)
+                .on(wage.slave.id.eq(slaveId)
+                        .and(wage.wageUpdateDate.before(LocalDate.of(ym.getYear(), ym.getMonthValue(), 1))
+                                .or(wage.wageUpdateDate.eq(LocalDate.of(ym.getYear(), ym.getMonthValue(), 1))))
+                        .and(wage.wageEndDate.after(LocalDate.of(ym.getYear(), ym.getMonthValue(), 1))
+                                .or(wage.wageEndDate.isNull())))
                 .where(slave.id.eq(slaveId))
                 .fetchOne();
 
@@ -126,6 +132,7 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
         return SalaryLogDetailResponseDto.builder()
                 .slaveId(slaveInfo.get(slave.id))
                 .slaveName(slaveInfo.get(slave.slaveName))
+                .wageInsurance(slaveInfo.get(wage.wageInsurance))
                 .dtoList(dtoList)
                 .build();
     }
