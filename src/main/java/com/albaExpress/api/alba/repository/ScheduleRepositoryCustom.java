@@ -20,4 +20,6 @@ public interface ScheduleRepositoryCustom {
 
     List<ScheduleSlaveResponseDto> findSlaveByWorkplaceId(String workplaceId);
 
+    Schedule findScheduleBySlaveId(String slaveId, LocalDate date);
+
 }
