@@ -6,6 +6,8 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @ToString
@@ -15,23 +17,21 @@ import java.time.LocalTime;
 @Builder
 public class SlaveRegistScheduleRequestDto {
 
-    private int scheduleDay; // 근무요일
-    // 근무요일 (월=1, 화=2, 수=3, 목=4, 금=5, 토=6, 일=7)
+    private boolean slaveScheduleType; // 근무타입 (고정시간 / 변동시간)
 
-    private LocalTime startSchedule; // 근무시작시간
-
-    private LocalTime endSchedule; // 근무종료시간;
-
-
+    private List<SlaveRegistScheduleListRequestDto> slaveScheduleList; // 근무목록 (근무요일, 근무시작시간, 근무종료시간)
 
     // SlaveRegistRequestDto --> Entity Schedule 로 변환하기
-    public Schedule dtoToScheduleEntity (Slave slave) {
-        return Schedule.builder()
-                .scheduleDay(this.scheduleDay)
-                .scheduleStart(this.startSchedule)
-                .scheduleEnd(this.endSchedule)
-                .scheduleUpdateDate(LocalDate.now())
-                .slave(slave)
-                .build();
+    public List<Schedule> dtoToScheduleEntity (Slave slave) {
+        return this.slaveScheduleList.stream().map(scheduleList ->
+                Schedule.builder()
+                        .scheduleType(this.slaveScheduleType)
+                        .scheduleDay(scheduleList.getScheduleDay())
+                        .scheduleStart(scheduleList.getStartSchedule())
+                        .scheduleEnd(scheduleList.getEndSchedule())
+                        .scheduleUpdateDate(LocalDate.now())
+                        .slave(slave)
+                        .build()
+        ).collect(Collectors.toList());
     }
 }
