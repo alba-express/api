@@ -9,6 +9,7 @@ import com.albaExpress.api.alba.security.CustomUserDetails;
 import com.albaExpress.api.alba.security.TokenProvider;
 import com.albaExpress.api.alba.service.MasterService;
 import com.albaExpress.api.alba.service.EmailVerificationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,22 +24,17 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    @Autowired
-    private MasterService masterService;
+    private final MasterService masterService;
 
-    @Autowired
-    private EmailVerificationService emailVerificationService;
+    private final EmailVerificationService emailVerificationService;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private TokenProvider tokenProvider;
+    private final TokenProvider tokenProvider;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody MasterRequestDto masterDto) {

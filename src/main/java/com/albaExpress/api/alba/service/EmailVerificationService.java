@@ -5,7 +5,7 @@ import com.albaExpress.api.alba.entity.EmailVerification;
 import com.albaExpress.api.alba.entity.Master;
 import com.albaExpress.api.alba.repository.EmailVerificationRepository;
 import com.albaExpress.api.alba.repository.MasterRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -15,16 +15,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@RequiredArgsConstructor
 public class EmailVerificationService {
 
-    @Autowired
-    private MasterRepository masterRepository;
+    private final MasterRepository masterRepository;
 
-    @Autowired
-    private EmailVerificationRepository emailVerificationRepository;
+    private final EmailVerificationRepository emailVerificationRepository;
 
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 

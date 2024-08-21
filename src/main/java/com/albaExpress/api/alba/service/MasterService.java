@@ -4,65 +4,39 @@ import com.albaExpress.api.alba.dto.request.MasterRequestDto;
 import com.albaExpress.api.alba.dto.request.ResetPasswordRequestDto;
 import com.albaExpress.api.alba.entity.Master;
 import com.albaExpress.api.alba.repository.MasterRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.albaExpress.api.alba.dto.request.VerificationCodeRequestDto;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import com.albaExpress.api.alba.dto.request.LoginRequest;
-import com.albaExpress.api.alba.entity.Master;
-import com.albaExpress.api.alba.repository.MasterRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class MasterService {
 
     private static final Logger logger = LoggerFactory.getLogger(MasterService.class);
 
-    @Autowired
-    private MasterRepository masterRepository;
+    private final MasterRepository masterRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private EmailVerificationService emailVerificationService;
-
-    public boolean emailExists(String email) {
-        return masterRepository.findByMasterEmail(email).isPresent();
-    }
-
-    public Optional<Master> findByMasterEmailOptional(String email) {
-        return masterRepository.findByMasterEmail(email);
-    }
+    private final AuthenticationManager authenticationManager;
 
     public Master findByMasterEmail(String email) {
         return masterRepository.findByMasterEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
     }
 
-    public boolean checkPassword(String rawPassword, String encodedPassword) {
-        return passwordEncoder.matches(rawPassword, encodedPassword);
-    }
 
     public Master registerOrUpdateUser(MasterRequestDto masterDto) {
         logger.info("Register or update user with email: {}", masterDto.getEmail());
@@ -130,25 +104,6 @@ public class MasterService {
         if (!passwordEncoder.matches(password, master.getMasterPassword())) {
             throw new IllegalArgumentException("Invalid password");
         }
-    }
-    public void recoverAccount(String email, String verificationCode) {
-        boolean isVerified = emailVerificationService.verifyCode(
-                new VerificationCodeRequestDto(email, verificationCode)
-        );
-
-        if (!isVerified) {
-            throw new IllegalArgumentException("Invalid verification code.");
-        }
-
-        Master master = masterRepository.findByMasterEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-
-        if (master.getMasterRetired() == null) {
-            throw new IllegalArgumentException("Account is already active.");
-        }
-
-        master.setMasterRetired(null); // 복구 시 master_retired 필드 값을 null로 변경
-        masterRepository.save(master);
     }
 
 }
