@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -71,19 +72,9 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .from(slave)
                 .leftJoin(extraSchedule)
                 .on(slave.id.eq(extraSchedule.slave.id))
-//                .leftJoin(schedule)
-//                .on(slave.id.eq(schedule.slave.id))
-
                 .where(slave.workplace.id.eq(workplaceId)
                         .and(extraSchedule.extraScheduleDate.eq(date))
-                        // 원래 근무 종료 시간보다 추가일정 시작 시간이 같거나 뒤에 시작
-                        // 원래 근무 시작 시간보다 추가일정 종료 시간이 같거나 전에 시작
-//                        .and(schedule.scheduleEnd.after(extraSchedule.extraScheduleStart)
-//                                .or(schedule.scheduleEnd.eq(extraSchedule.extraScheduleStart)))
-//                        .and(schedule.scheduleStart.before(extraSchedule.extraScheduleEnd)
-//                                .or(schedule.scheduleStart.eq(extraSchedule.extraScheduleEnd)))
                 )
-
                 .orderBy(extraSchedule.extraScheduleStart.asc())
                 .fetch();
 
@@ -111,8 +102,6 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
         List<Tuple> tupleList = factory
                 .select(slave.id, slave.slaveName, slave.slavePosition)
                 .from(slave)
-                .leftJoin(workplace)
-                .on(slave.workplace.id.eq(workplace.id))
                 .where(slave.workplace.id.eq(workplaceId))
                 .fetch();
 
@@ -129,6 +118,23 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
             log.info("직원 조회 레포지토리 dto{}: {}", i, dto);
         }
         return dtoList;
+    }
+
+    // 기존 스케줄 가져오기
+    @Override
+    public Schedule findScheduleBySlaveId(String slaveId, LocalDate date) {
+
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        log.info("dayOfWeek: {}", dayOfWeek);
+
+        return factory
+                .select(schedule)
+                .from(schedule)
+                .where(schedule.slave.id.eq(slaveId)
+                        .and(schedule.scheduleDay.eq(date.getDayOfWeek().getValue()))
+                        .and(schedule.scheduleUpdateDate.before(LocalDate.now()).or(schedule.scheduleUpdateDate.eq(LocalDate.now())))
+                        .and(schedule.scheduleEndDate.after(LocalDate.now()).or(schedule.scheduleEndDate.isNull())))
+                .fetchOne();
     }
 
 

@@ -52,6 +52,8 @@ public class ScheduleService {
 
         Slave slave = slaveRepository.findById(dto.getSlaveId()).orElseThrow();
 
+        Schedule schedule = scheduleRepository.findScheduleBySlaveId(dto.getSlaveId(), dto.getDate());
+
         // 추가 일정 확인
         ExtraSchedule existsExtraSchedule = extraScheduleRepository.findByExtraScheduleDateAndSlaveId(dto.getDate(), slave.getId());
         log.info("Checking for existing schedule: {}", existsExtraSchedule);
@@ -62,10 +64,14 @@ public class ScheduleService {
 //            throw new Exception("올바르지 않은 근무시간입니다.");
 //        }
 
+        if (!dto.getEndTime().equals(schedule.getScheduleStart()) && !dto.getStartTime().equals(schedule.getScheduleEnd()) ||
+        !dto.getStartTime().isBefore(schedule.getScheduleStart()) &&  !dto.getEndTime().isAfter(schedule.getScheduleEnd())) {
+            throw new IllegalStateException("추가 일정은 기존 근무 시작 시간(" + schedule.getScheduleStart().toString() + ")에 종료되거나\n" +
+                    "기존 근무 종료 시간(" + schedule.getScheduleEnd().toString() + ")에 시작되어야 합니다.");
+        }
 
-        // 조건 필요하면 추가
-        // 원래 근무 종료 시간보다 추가일정 시작 시간이 같거나 뒤에 시작
-        // 원래 근무 시작 시간보다 추가일정 종료 시간이 같거나 전에 시작
+        log.info("스케줄 시간: {}", schedule.getScheduleStart());
+        log.info("dto 시간: {}", dto.getEndTime());
 
         ExtraSchedule extraSchedule = dto.toEntity(slave);
         extraSchedule.setSlave(slave);
