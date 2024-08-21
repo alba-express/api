@@ -27,6 +27,33 @@ public class SalaryLogSlaveResponseDto {
 
     private long totalAmount; // 해당 달의 총급여량
 
+    @Setter
+    @Builder.Default
+    private boolean first = false;
+    @Setter
+    @Builder.Default
+    private boolean second = false;
+    @Setter
+    @Builder.Default
+    private boolean third = false;
+    @Setter
+    @Builder.Default
+    private boolean fourth = false;
+    @Setter
+    @Builder.Default
+    private boolean fifth = false;
+    @Setter
+    private double firstWorkingTime;
+    @Setter
+    private double secondWorkingTime;
+    @Setter
+    private double thirdWorkingTime;
+    @Setter
+    private double fourthWorkingTime;
+    @Setter
+    private double fifthWorkingTime;
+
+
 
 
 }

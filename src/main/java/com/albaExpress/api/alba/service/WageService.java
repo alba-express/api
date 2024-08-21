@@ -2,10 +2,7 @@ package com.albaExpress.api.alba.service;
 
 import com.albaExpress.api.alba.dto.request.BonusRequestDto;
 import com.albaExpress.api.alba.dto.request.SalarySlaveRequestDto;
-import com.albaExpress.api.alba.dto.response.SalaryLogDetailResponseDto;
-import com.albaExpress.api.alba.dto.response.SalaryLogSlaveResponseDto;
-import com.albaExpress.api.alba.dto.response.SalaryLogWorkplaceResponseDto;
-import com.albaExpress.api.alba.dto.response.SalaryScheduleResponseDto;
+import com.albaExpress.api.alba.dto.response.*;
 import com.albaExpress.api.alba.entity.*;
 import com.albaExpress.api.alba.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +11,8 @@ import org.hibernate.id.UUIDGenerator;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
-import java.util.List;
-import java.util.UUID;
+import java.time.temporal.TemporalAdjusters;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +34,55 @@ public class WageService {
     public SalaryLogWorkplaceResponseDto getSalaryLogInWorkplace(String workplaceId, YearMonth ym) {
 
         List<SalaryLogSlaveResponseDto> logList = salaryLogRepository.getLogListByWorkplace(workplaceId, ym);
+        List<WorkingTimeDto> workingTimeDtoList = salaryLogRepository.calcWorkingTime(workplaceId, ym);
+
+        Map<String, BenefitDto> benefitMap = new HashMap<>();
+
+        for (WorkingTimeDto dto : workingTimeDtoList) {
+            String key = dto.getWeek() + "-" + dto.getSlaveId();
+            if (benefitMap.containsKey(key)) {
+                BenefitDto existingBenefit = benefitMap.get(key);
+                existingBenefit.setWorkingTime(existingBenefit.getWorkingTime() + dto.getWorkingTime());
+            } else {
+                benefitMap.put(key, new BenefitDto(dto.getWeek(), dto.getWorkingTime(), dto.getSlaveId()));
+            }
+        }
+        List<BenefitDto> benefitList = new ArrayList<>(benefitMap.values());
+        log.info("베니핏디티오리스트: {}", benefitList);
+
+        for (BenefitDto dto : benefitList) {
+            for (SalaryLogSlaveResponseDto log : logList) {
+                if (dto.getWorkingTime() >= 15 && dto.getSlaveId().equals(log.getSlaveId())) {
+                    switch (dto.getWeek()) {
+                        case 1:
+                            log.setFirst(true);
+                            log.setFirstWorkingTime(dto.getWorkingTime());
+                            break;
+                        case 2:
+                            log.setSecond(true);
+                            log.setSecondWorkingTime(dto.getWorkingTime());
+                            break;
+                        case 3:
+                            log.setThird(true);
+                            log.setThirdWorkingTime(dto.getWorkingTime());
+                            break;
+                        case 4:
+                            log.setFourth(true);
+                            log.setFourthWorkingTime(dto.getWorkingTime());
+                            break;
+                        case 5:
+                            if (getSundayOfWeek(ym.atEndOfMonth()).getMonthValue() != ym.getMonthValue()) {
+                                break;
+                            }
+                            log.setFifth(true);
+                            log.setFifthWorkingTime(dto.getWorkingTime());
+                            break;
+                    }
+                }
+            }
+        }
+
+
         long salaryAmount = 0L;
 
         for (SalaryLogSlaveResponseDto salaryLog : logList) {
@@ -45,6 +91,21 @@ public class WageService {
             } else {
                 salaryAmount += salaryLog.getWage();
             }
+            if (salaryLog.isFirst()) {
+                salaryAmount += (long) (salaryLog.getFirstWorkingTime() * salaryLog.getWage() / 5);
+            }
+            if (salaryLog.isSecond()) {
+                salaryAmount += (long) (salaryLog.getSecondWorkingTime() * salaryLog.getWage() / 5);
+            }
+            if (salaryLog.isThird()) {
+                salaryAmount += (long) (salaryLog.getThirdWorkingTime() * salaryLog.getWage() / 5);
+            }
+            if (salaryLog.isFourth()) {
+                salaryAmount += (long) (salaryLog.getFourthWorkingTime() * salaryLog.getWage() / 5);
+            }
+            if (salaryLog.isFifth()) {
+                salaryAmount += (long) (salaryLog.getFifthWorkingTime() * salaryLog.getWage() / 5);
+            }
 
         }
         log.info("service에서 controller가기전 결과물: {}", salaryAmount);
@@ -52,6 +113,10 @@ public class WageService {
                 .salaryAmount(salaryAmount)
                 .logList(logList)
                 .build();
+    }
+
+    private LocalDate getSundayOfWeek(LocalDate date) {
+        return date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
     }
 
     public SalaryLogDetailResponseDto forSlavePost(SalarySlaveRequestDto reqDto) {
@@ -118,18 +183,18 @@ public class WageService {
         log.info("엑스트라스케쥴이 있다고? :{}", extraSchedule);
         LocalTime scheduleStart = schedule.getScheduleStart();
         LocalTime scheduleEnd = schedule.getScheduleEnd();
-        if(extraSchedule != null) {
+        if (extraSchedule != null) {
             // 엑스트라 스케쥴이 있다면 ~~
             // 여기에 이후에 수빈누님이 하고나서 extraschedule의 개념이 잡히면 경우에 따라 다르게 세팅
             // ex)기본스케쥴이 15:00 ~ 16:00 이고 extra schedule이 16:00 ~ 17:00 일 경우
-            if(scheduleStart == extraSchedule.getExtraScheduleEnd()) {
+            if (scheduleStart == extraSchedule.getExtraScheduleEnd()) {
                 scheduleStart = extraSchedule.getExtraScheduleStart();
-            } else if(scheduleEnd == extraSchedule.getExtraScheduleStart()) {
+            } else if (scheduleEnd == extraSchedule.getExtraScheduleStart()) {
                 scheduleEnd = extraSchedule.getExtraScheduleEnd();
             }
             // ex)기본스케쥴이 15:00 ~ 16:00 이고 extra schedule이 15:00 ~ 17:00 일 경우
-            scheduleStart = extraSchedule.getExtraScheduleStart();
-            scheduleEnd = extraSchedule.getExtraScheduleEnd();
+//            scheduleStart = extraSchedule.getExtraScheduleStart();
+//            scheduleEnd = extraSchedule.getExtraScheduleEnd();
         }
 
         if (start.isBefore(scheduleStart)) {

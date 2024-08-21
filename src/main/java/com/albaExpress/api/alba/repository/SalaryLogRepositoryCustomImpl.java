@@ -1,10 +1,10 @@
 package com.albaExpress.api.alba.repository;
 
 import com.albaExpress.api.alba.dto.request.BonusRequestDto;
-import com.albaExpress.api.alba.dto.response.SalaryLogDetailResponseDto;
-import com.albaExpress.api.alba.dto.response.SalaryLogSlaveResponseDto;
-import com.albaExpress.api.alba.dto.response.SalaryScheduleResponseDto;
+import com.albaExpress.api.alba.dto.response.WorkingTimeDto;
+import com.albaExpress.api.alba.dto.response.*;
 import com.albaExpress.api.alba.entity.SalaryLog;
+import com.albaExpress.api.alba.entity.ScheduleLog;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.*;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,7 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
                 .groupBy(slave.id, wage.id)
                 .fetch();
 
+
         List<SalaryLogSlaveResponseDto> dtoList = results.stream()
                 .map(tuple -> SalaryLogSlaveResponseDto.builder()
                         .slaveId(tuple.get(slave.id))
@@ -56,6 +58,14 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
                         .build()
                 )
                 .collect(Collectors.toList());
+
+//        for (SalaryLogSlaveResponseDto dto : dtoList) {
+//            for (WorkingTimeDto workingTimeDto : workingTimeDtoList) {
+//                if(dto.getSlaveId().equals(workingTimeDto.getSlaveId())) {
+//                    dto.setWorkingTime(dto.getWorkingTime() + workingTimeDto.getWorkingTime());
+//                }
+//            }
+//        }
 
         for (int i = 0; i < dtoList.size(); i++) {
             SalaryLogSlaveResponseDto dto = dtoList.get(i);
@@ -80,7 +90,7 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
                 .where(slave.id.eq(slaveId))
                 .fetchOne();
 
-        // 2. ScheduleLog 정보 가져오기 (scheduleLogEnd가 null이 아닌 경우만 포함)
+        // 2. ScheduleLog 정보 가져오기 (scheduleLogEnd 가 null 이 아닌 경우만 포함)
         List<Tuple> scheduleLogResults = factory
                 .select(scheduleLog.scheduleLogStart, scheduleLog.scheduleLogEnd, salaryLog.salaryAmount, bonusLog.bonusAmount)
                 .from(scheduleLog)
@@ -97,7 +107,7 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
                 .where(scheduleLog.slave.id.eq(slaveId)
                         .and(scheduleLog.scheduleLogStart.year().eq(ym.getYear()))
                         .and(scheduleLog.scheduleLogStart.month().eq(ym.getMonthValue()))
-                        .and(scheduleLog.scheduleLogEnd.isNotNull())) // scheduleLogEnd가 null이 아닌 조건 추가
+                        .and(scheduleLog.scheduleLogEnd.isNotNull())) // scheduleLogEnd 가 null 이 아닌 조건 추가
                 .fetch();
 
         // 3. ScheduleLog 정보로 DTO 리스트 채우기
@@ -111,11 +121,11 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
                     // Null 체크 제거 및 Duration 계산
                     LocalTime workingTime = null;
                     try {
-                    Duration duration = Duration.between(start, end);
+                        Duration duration = Duration.between(start, end);
                         workingTime = LocalTime.of((int) duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart());
 
                     } catch (DateTimeException e) {
-                        workingTime = LocalTime.of(0,0,0);
+                        workingTime = LocalTime.of(0, 0, 0);
                     }
 
 
@@ -136,11 +146,53 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
                 .dtoList(dtoList)
                 .build();
     }
-
+    @Override
     public SalaryLog addBonus(BonusRequestDto reqDto) {
         return factory.selectFrom(salaryLog)
                 .where(salaryLog.salaryMonth.eq(reqDto.getWorkDate()).and(salaryLog.slave.id.eq(reqDto.getSlaveId())))
                 .fetchOne();
+    }
+
+    @Override
+    public List<WorkingTimeDto> calcWorkingTime(String workplaceId, YearMonth ym) {
+        List<ScheduleLog> scheduleLogList = factory.select(scheduleLog)
+                .from(scheduleLog)
+                .where(scheduleLog.slave.workplace.id.eq(workplaceId)
+                        .and(scheduleLog.scheduleLogStart.after(LocalDateTime.of(ym.getYear(), ym.getMonthValue() - 1, 1, 0, 0)))
+                        .and(scheduleLog.scheduleLogEnd.isNotNull())
+                        .and(scheduleLog.scheduleLogStart.before(LocalDateTime.of(ym.getYear(), ym.getMonthValue() + 1, 1, 0, 0))))
+                .fetch();
+        List<WorkingTimeDto> workingTimeDtoList = scheduleLogList.stream().map(log -> {
+            double workingTime = (double) Duration.between(log.getScheduleLogStart(), log.getScheduleLogEnd()).getSeconds() / 3600;
+            String slaveId = log.getSlave().getId();
+            int week = 1;
+            for (int i = 0; i <= 4; i++) {
+                if (!log.getScheduleLogStart().toLocalDate().isBefore(getMondayOfWeek(ym.atDay(1 + (7 * i))))
+                        && !log.getScheduleLogStart().toLocalDate().isAfter(getSundayOfWeek(ym.atDay(1 + (7 * i))))
+                ) {
+                    week = i + 1;
+                }
+
+            }
+            return WorkingTimeDto.builder()
+                    .week(week)
+                    .workingTime(workingTime)
+                    .slaveId(slaveId)
+                    .workingDate(log.getScheduleLogStart().toLocalDate())
+                    .build();
+        }).collect(Collectors.toList());
+        log.info("레포지토리에서 workingTimeDto확인: {}", workingTimeDtoList);
+
+
+        return workingTimeDtoList;
+    }
+
+    private LocalDate getMondayOfWeek(LocalDate date) {
+        return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    }
+
+    private LocalDate getSundayOfWeek(LocalDate date) {
+        return date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
     }
 
 }
