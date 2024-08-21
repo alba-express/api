@@ -64,14 +64,20 @@ public class ScheduleService {
 //            throw new Exception("올바르지 않은 근무시간입니다.");
 //        }
 
-        if (!dto.getEndTime().equals(schedule.getScheduleStart()) && !dto.getStartTime().equals(schedule.getScheduleEnd()) ||
-        !dto.getStartTime().isBefore(schedule.getScheduleStart()) &&  !dto.getEndTime().isAfter(schedule.getScheduleEnd())) {
-            throw new IllegalStateException("추가 일정은 기존 근무 시작 시간(" + schedule.getScheduleStart().toString() + ")에 종료되거나\n" +
-                    "기존 근무 종료 시간(" + schedule.getScheduleEnd().toString() + ")에 시작되어야 합니다.");
+        // 기존 스케줄이 있는 경우에만 추가 일정의 시간을 확인하는 로직
+        if (schedule != null) {
+            if (!dto.getEndTime().equals(schedule.getScheduleStart()) && !dto.getStartTime().equals(schedule.getScheduleEnd()) ||
+                    !dto.getStartTime().isBefore(schedule.getScheduleStart()) &&  !dto.getEndTime().isAfter(schedule.getScheduleEnd())) {
+                throw new IllegalStateException("추가 일정은 기존 근무 시작 시간(" + schedule.getScheduleStart().toString() + ")에 종료되거나\n" +
+                        "기존 근무 종료 시간(" + schedule.getScheduleEnd().toString() + ")에 시작되어야 합니다.");
+            }
+        } else {
+            // 기존 스케줄이 없는 경우에는 시간 제한 없이 추가 일정을 등록할 수 있게 허용
+            log.info("기존 근무 일정이 없습니다. 새로운 추가 일정을 등록합니다.");
         }
 
-        log.info("스케줄 시간: {}", schedule.getScheduleStart());
-        log.info("dto 시간: {}", dto.getEndTime());
+//        log.info("스케줄 시간: {}", schedule.getScheduleStart());
+//        log.info("dto 시간: {}", dto.getEndTime());
 
         ExtraSchedule extraSchedule = dto.toEntity(slave);
         extraSchedule.setSlave(slave);
