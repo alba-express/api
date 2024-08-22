@@ -40,9 +40,9 @@ public class WorkplaceController {
 
     // 사업장 개별조회 - (사업장 아이디)
     @GetMapping("/{id}")
-    public ResponseEntity<WorkplaceModifyDto> getWorkplaceById(@PathVariable("id") String id) {
+    public ResponseEntity<?> getWorkplaceById(@PathVariable("id") String id) {
         Workplace workplace = workplaceService.getWorkplaceById(id);
-
+        log.info("요청온 아이디: {}", id);
         if (workplace != null) {
             WorkplaceModifyDto response = WorkplaceModifyDto.builder()
                     .id(workplace.getId())
