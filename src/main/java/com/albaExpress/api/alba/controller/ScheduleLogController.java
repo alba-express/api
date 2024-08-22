@@ -11,8 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -60,14 +62,25 @@ public class ScheduleLogController {
     }
 
     @GetMapping("/employees")
-    public ResponseEntity<List<SlaveDto>> getTodayEmployees(@RequestParam(name = "workplaceId") String workplaceId) {
+    public ResponseEntity<List<SlaveDto>> getEmployeesByDate(
+            @RequestParam(name = "workplaceId") String workplaceId,
+            @RequestParam(name = "date", required = false) String date) {
+
         if (workplaceId == null || workplaceId.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(Collections.emptyList());
         }
 
-        List<SlaveDto> employees = scheduleLogService.getTodayEmployees(workplaceId);
+        List<SlaveDto> employees;
+        if (date == null || date.trim().isEmpty()) {
+            employees = scheduleLogService.getEmployeesByDate(workplaceId, LocalDate.now());
+        } else {
+            LocalDate parsedDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
+            employees = scheduleLogService.getEmployeesByDate(workplaceId, parsedDate);
+        }
+
         return ResponseEntity.ok(employees);
     }
+
 
     @GetMapping("/current-log")
     public ResponseEntity<?> getCurrentLog(@RequestParam String slaveId) {
