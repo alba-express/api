@@ -23,17 +23,15 @@ public class ScheduleLogController {
 
     private final ScheduleLogService scheduleLogService;
 
-    // 전화번호 검증
     @GetMapping("/verify-phone-number")
     public ResponseEntity<?> verifyPhoneNumber(@RequestParam String phoneNumber, @RequestParam String workplaceId) {
         Slave slave = scheduleLogService.verifyPhoneNumber(phoneNumber, workplaceId);
         if (slave == null) {
-            return ResponseEntity.badRequest().body("오늘 근무자가 아닙니다."); // 구체적인 오류 메시지
+            return ResponseEntity.badRequest().body("오늘 근무자가 아닙니다.");
         }
-        return ResponseEntity.ok().body(Collections.singletonMap("slaveId", slave.getId())); // JSON 형태로 반환
+        return ResponseEntity.ok().body(Collections.singletonMap("slaveId", slave.getId()));
     }
 
-    // 출근 기록
     @PostMapping("/checkin")
     public ResponseEntity<?> checkIn(@RequestBody CheckInRequestDto request) {
         try {
@@ -47,7 +45,6 @@ public class ScheduleLogController {
         }
     }
 
-    // 퇴근 기록
     @PostMapping("/checkout")
     public ResponseEntity<?> checkOut(@RequestBody Map<String, String> request) {
         String logId = request.get("logId");
@@ -62,18 +59,16 @@ public class ScheduleLogController {
         }
     }
 
-    // 오늘 근무자 목록 조회
     @GetMapping("/employees")
     public ResponseEntity<List<SlaveDto>> getTodayEmployees(@RequestParam(name = "workplaceId") String workplaceId) {
         if (workplaceId == null || workplaceId.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(Collections.emptyList()); // 유효하지 않은 workplaceId에 대한 응답
+            return ResponseEntity.badRequest().body(Collections.emptyList());
         }
 
         List<SlaveDto> employees = scheduleLogService.getTodayEmployees(workplaceId);
         return ResponseEntity.ok(employees);
     }
 
-    // 현재 출근 로그 조회
     @GetMapping("/current-log")
     public ResponseEntity<?> getCurrentLog(@RequestParam String slaveId) {
         Optional<ScheduleLog> currentLog = scheduleLogService.findCurrentLog(slaveId);
@@ -84,7 +79,6 @@ public class ScheduleLogController {
         }
     }
 
-    // 서버 시간 조회
     @GetMapping("/server-time")
     public ResponseEntity<LocalDateTime> getServerTime() {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));

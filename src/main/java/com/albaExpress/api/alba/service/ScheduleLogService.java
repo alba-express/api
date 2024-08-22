@@ -31,10 +31,8 @@ public class ScheduleLogService {
 
     private final WageService wageService;
 
-    // 전화번호와 작업장 ID로 근무자를 검증합니다.
     public Slave verifyPhoneNumber(String phoneNumber, String workplaceId) {
         Slave slave = slaveRepository.getSlaveByPhoneNumber(phoneNumber, workplaceId);
-        // 오늘 근무자인지 확인합니다.
         if (slave != null && isWorkingToday(slave.getId())) {
             return slave;
         } else {
@@ -42,13 +40,10 @@ public class ScheduleLogService {
         }
     }
 
-    // 출근 기록을 저장합니다.
     public ScheduleLog checkIn(String slaveId) throws Exception {
-        // 현재 출근 기록이 있는지 확인합니다.
         if (findCurrentLog(slaveId).isPresent()) {
             throw new Exception("이미 출근 기록이 있습니다.");
         }
-        // 주어진 slaveId로 근무자를 조회합니다.
         Slave findSlave = slaveRepository.findById(slaveId).orElse(null);
         if (findSlave != null) {
             ScheduleLog scheduleLog = ScheduleLog.builder()
@@ -61,9 +56,7 @@ public class ScheduleLogService {
         }
     }
 
-    // 퇴근 기록을 저장합니다.
     public ScheduleLog checkOut(String logId) throws Exception {
-        // 주어진 logId로 출근 기록을 조회합니다.
         ScheduleLog findScheduleLog = scheduleLogRepository.findById(logId).orElse(null);
         if (findScheduleLog != null) {
             findScheduleLog.setScheduleLogEnd(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
@@ -78,10 +71,8 @@ public class ScheduleLogService {
         }
     }
 
-    // 오늘 근무자인지 확인하는 메서드
     private boolean isWorkingToday(String slaveId) {
         int today = LocalDate.now().getDayOfWeek().getValue();
-        // 근무자가 해고된 상태인지 확인합니다.
         Slave slave = slaveRepository.findById(slaveId).orElse(null);
         if (slave == null || slave.getSlaveFiredDate() != null) {
             return false;
@@ -90,26 +81,39 @@ public class ScheduleLogService {
         return schedules.stream().anyMatch(schedule -> schedule.getScheduleEndDate() == null);
     }
 
-    // 오늘 근무자 목록을 조회합니다.
     public List<SlaveDto> getTodayEmployees(String workplaceId) {
         int today = LocalDate.now().getDayOfWeek().getValue();
         List<Schedule> schedules = scheduleRepository.findByScheduleDay(today, workplaceId);
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
         return schedules.stream()
-                .filter(schedule -> schedule.getScheduleEndDate() == null) // 끝나지 않은 스케줄만 필터링
-                .filter(schedule -> schedule.getSlave().getSlaveFiredDate() == null) // 해고되지 않은 근무자만 필터링
-                .map(schedule -> new SlaveDto(
-                        schedule.getSlave().getId(),
-                        schedule.getSlave().getSlaveName(),
-                        schedule.getSlave().getSlavePosition(),
-                        schedule.getScheduleStart() != null ? schedule.getScheduleStart().format(timeFormatter) : "",
-                        schedule.getScheduleEnd() != null ? schedule.getScheduleEnd().format(timeFormatter) : ""
-                ))
-                .sorted(Comparator.comparing(SlaveDto::getScheduleStart)) // 시작 시간을 기준으로 정렬
+                .filter(schedule -> schedule.getScheduleEndDate() == null)
+                .filter(schedule -> schedule.getSlave().getSlaveFiredDate() == null)
+                .map(schedule -> {
+                    Optional<ScheduleLog> log = findCurrentLog(schedule.getSlave().getId());
+                    String status;
+                    if (log.isPresent()) {
+                        if (log.get().getScheduleLogEnd() != null) {
+                            status = "퇴근";
+                        } else {
+                            status = "근무 중";
+                        }
+                    } else {
+                        status = "출근 전";
+                    }
+                    return new SlaveDto(
+                            schedule.getSlave().getId(),
+                            schedule.getSlave().getSlaveName(),
+                            schedule.getSlave().getSlavePosition(),
+                            schedule.getScheduleStart() != null ? schedule.getScheduleStart().format(timeFormatter) : "",
+                            schedule.getScheduleEnd() != null ? schedule.getScheduleEnd().format(timeFormatter) : "",
+                            status
+                    );
+                })
+                .sorted(Comparator.comparing(SlaveDto::getScheduleStart))
                 .collect(Collectors.toList());
     }
 
-    // 현재 출근 기록을 조회합니다.
     public Optional<ScheduleLog> findCurrentLog(String slaveId) {
         LocalDate today = LocalDate.now();
         return scheduleLogRepository.findFirstBySlaveIdAndScheduleLogStartBetween(
