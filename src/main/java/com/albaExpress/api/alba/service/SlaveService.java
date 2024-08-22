@@ -187,4 +187,14 @@ public class SlaveService {
         // 기존 직원정보를 업데이트한 직원정보로 변경저장하기
         slaveRepository.save(prevSlave);
     }
+
+    @Transactional
+    public void serviceFireSlave(String slaveId) {
+        Slave firedSlave = slaveRepository.findById(slaveId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 직원이 없음: " + slaveId));
+
+        // 탈퇴일자를 현재 시간으로 설정
+        firedSlave.setSlaveFiredDate(LocalDateTime.now());
+        slaveRepository.save(firedSlave);
+    }
 }

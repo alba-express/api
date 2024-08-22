@@ -148,4 +148,18 @@ public class SlaveController {
 
         return ResponseEntity.ok().body("{\"message\":\"Modify slave success\"}");
     }
+
+    @PostMapping("/slave-fired/{slaveId}")
+    public ResponseEntity<?> firedSlave(@PathVariable String slaveId) {
+
+        log.info("fired slave Info - {}", slaveId);
+
+        try {
+            // 직원 탈퇴 처리 (탈퇴일자를 현재 시간으로 설정)
+            slaveService.serviceFireSlave(slaveId);
+            return ResponseEntity.ok("직원의 탈퇴일자가 성공적으로 업데이트되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("탈퇴일자 업데이트 실패");
+        }
+    }
 }
