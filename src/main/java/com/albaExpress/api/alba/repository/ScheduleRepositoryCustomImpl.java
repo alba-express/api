@@ -1,8 +1,8 @@
 package com.albaExpress.api.alba.repository;
 
 import com.albaExpress.api.alba.dto.request.ExtraScheduleRequestDto;
+import com.albaExpress.api.alba.dto.response.ScheduleAndLogDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
-import com.albaExpress.api.alba.entity.QSchedule;
 import com.albaExpress.api.alba.entity.Schedule;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -12,14 +12,15 @@ import org.springframework.stereotype.Repository;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.albaExpress.api.alba.entity.QExtraSchedule.*;
 import static com.albaExpress.api.alba.entity.QSchedule.*;
+import static com.albaExpress.api.alba.entity.QScheduleLog.scheduleLog;
 import static com.albaExpress.api.alba.entity.QSlave.*;
-import static com.albaExpress.api.alba.entity.QWorkplace.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -149,5 +150,58 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .where(schedule.scheduleDay.eq(day)
                         .and(schedule.slave.workplace.id.eq(workplaceId)))
                 .fetch();
+    }
+    @Override
+    public List<ScheduleAndLogDto> getScheduleAndScheduleLog(String workplaceId, LocalDate date) {
+        int dayOfWeek = (date.getDayOfWeek().getValue() % 7);
+        List<Tuple> list = factory.select(
+                        scheduleLog.scheduleLogStart,
+                        scheduleLog.scheduleLogEnd,
+                        schedule.scheduleStart,
+                        schedule.scheduleEnd,
+                        schedule.slave.slaveName)
+                .from(schedule)
+                .leftJoin(scheduleLog)
+                .on(scheduleLog.slave.id.eq(schedule.slave.id)
+                        .and(scheduleLog.scheduleLogStart.between(
+                                LocalDateTime.of(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 0, 0, 0),
+                                LocalDateTime.of(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 23, 59, 59))
+                        )
+                )
+                .where(schedule.slave.workplace.id.eq(workplaceId)
+                        .and(schedule.scheduleDay.eq(dayOfWeek))
+                        .and(schedule.scheduleUpdateDate.before(date).or(schedule.scheduleUpdateDate.eq(date)))
+                        .and(schedule.scheduleEndDate.isNull().or(schedule.scheduleEndDate.after(date)))
+                )
+                .groupBy(
+                        schedule.slave.slaveName,
+                        schedule.scheduleStart,
+                        schedule.scheduleEnd,
+                        scheduleLog.scheduleLogStart,
+                        scheduleLog.scheduleLogEnd
+                )
+                .fetch();
+
+
+        return list.stream().map(tuple -> {
+            LocalDateTime logStartDateTime = tuple.get(scheduleLog.scheduleLogStart);
+            LocalTime logStartTime = null;
+            if(logStartDateTime != null) {
+                logStartTime = logStartDateTime.toLocalTime();
+            }
+            LocalDateTime logEndDateTime = tuple.get(scheduleLog.scheduleLogEnd);
+            LocalTime logEndTime = null;
+            if(logEndDateTime != null) {
+                logEndTime = logEndDateTime.toLocalTime();
+            }
+            return ScheduleAndLogDto.builder()
+                    .scheduleLogStart(logStartTime)
+                    .scheduleLogEnd(logEndTime)
+                    .scheduleStart(tuple.get(schedule.scheduleStart))
+                    .scheduleEnd(tuple.get(schedule.scheduleEnd))
+                    .slaveName(tuple.get(schedule.slave.slaveName))
+                    .build();
+        }).collect(Collectors.toList());
+
     }
 }

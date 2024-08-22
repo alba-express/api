@@ -1,6 +1,7 @@
 package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.ExtraScheduleRequestDto;
+import com.albaExpress.api.alba.dto.response.ScheduleAndLogDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
 import com.albaExpress.api.alba.entity.ExtraSchedule;
 import com.albaExpress.api.alba.repository.ExtraScheduleRepository;
@@ -93,6 +94,13 @@ public class ScheduleController {
         log.info("Fetch workplaceId={}", workplaceId);
         List<ScheduleSlaveResponseDto> dtoList = scheduleService.findSlaveByWorkplaceId(workplaceId);
         return ResponseEntity.ok(dtoList);
+    }
+
+    @GetMapping("/schedule-log-list")
+    public ResponseEntity<?> getLogList(@RequestParam String workplaceId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        List<ScheduleAndLogDto> resDto = scheduleService.getScheduleAndScheduleLog(workplaceId, date);
+        return ResponseEntity.ok().body(resDto);
     }
 
 }
