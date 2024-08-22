@@ -41,6 +41,7 @@ public class Slave {
     @Column(name = "slave_created_at")
     private LocalDateTime slaveCreatedAt;
 
+    @Setter
     @Column(name = "slave_fired_date")
     private LocalDateTime slaveFiredDate;
 

@@ -30,7 +30,7 @@ public class SlaveOneSlaveInfoResponseDto {
 
     private LocalDate slaveBirthday; // 직원 생년월일
 
-    private LocalDateTime slaveCreatedAt; // 직원 입사일
+    private String slaveCreatedAt; // 직원 입사일
 
     private List<SlaveWageResponseDto> wageList; // 직원의 급여정보
 
@@ -45,7 +45,7 @@ public class SlaveOneSlaveInfoResponseDto {
         this.slavePosition = slave.getSlavePosition();
         this.slavePhoneNumber = slave.getSlavePhoneNumber();
         this.slaveBirthday = slave.getSlaveBirthday();
-        this.slaveCreatedAt = slave.getSlaveCreatedAt();
+        this.slaveCreatedAt = formatSlaveLocalDateTime(slave.getSlaveCreatedAt());
 
         // SlaveWageResponseDto를 SlaveOneSlaveInfoResponseDto 의 wageList 로 변환하기
         this.wageList = slave.getWageList().stream().map(SlaveWageResponseDto::new).collect(Collectors.toList());
@@ -53,5 +53,17 @@ public class SlaveOneSlaveInfoResponseDto {
         this.scheduleList = slave.getScheduleList().stream().map(SlaveScheduleResponseDto::new).collect(Collectors.toList());
         // SlaveScheduleLogResponseDto를 SlaveOneSlaveInfoResponseDto 의 scheduleLogList 로 변환하기
         this.scheduleLogList = slave.getScheduleLogList().stream().map(SlaveScheduleLogResponseDto::new).collect(Collectors.toList());
+    }
+
+    // LocalDateTime 년:월:일 시:분:초 형식에서 --> 년:월:일 형식으로 꺼내오기
+    public static String formatSlaveLocalDateTime(LocalDateTime time) {
+
+        // 시간이 null인 경우
+        if (time == null) {
+            return null;
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        return time.format(formatter);
     }
 }
