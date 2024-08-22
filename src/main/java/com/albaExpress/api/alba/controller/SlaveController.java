@@ -1,5 +1,6 @@
 package com.albaExpress.api.alba.controller;
 
+import com.albaExpress.api.alba.dto.request.SlaveModifyRequestDto;
 import com.albaExpress.api.alba.dto.request.SlaveRegistRequestDto;
 import com.albaExpress.api.alba.dto.response.SlaveAddCountSlaveListResponseDto;
 import com.albaExpress.api.alba.dto.response.SlaveAllSlaveListResponseDto;
@@ -31,7 +32,7 @@ public class SlaveController {
     public ResponseEntity<?> registSlave (@RequestBody SlaveRegistRequestDto dto) {
 
         // 클라이언트에서 입력한 직원입력정보 조회하기
-         log.info("regist slave Info - {}", dto);
+        log.info("regist slave Info - {}", dto);
 
         // slaveService 로 정보처리 위임하기
         try {
@@ -132,34 +133,19 @@ public class SlaveController {
     }
 
     // 직원 수정하기
-//    @PostMapping("/modifySlave")
-//    public ResponseEntity<Slave> modifyEmployee(@RequestBody SlaveRegistRequestDto dto) {
-//
-//        // 클라이언트에서 입력한 직원입력정보 조회하기
-//        log.info("modify slave Info - {}", dto);
-//
-//        try {
-//            Slave updatedEmployee = slaveService.updateEmployee(dto.getSlavePhoneNumber(), dto);
-//            return ResponseEntity.ok(updatedEmployee);
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body(null);
-//        }
-//    }
+    @PostMapping("/slave-modify/modifySlave")
+    public ResponseEntity<?> modifySlave (@RequestBody SlaveModifyRequestDto dto) {
 
-    // 직원 수정하기
-//    @PostMapping("/modifySlave")
-//    public ResponseEntity<?> modifySlave (@RequestBody SlaveRegistRequestDto dto) {
-//
-//        // 클라이언트에서 입력한 직원입력정보 조회하기
-//        log.info("regist slave Info - {}", dto);
-//
-//        // slaveService 로 정보처리 위임하기
-//        try {
-//            slaveService.serviceRegistSlave(dto);
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//
-//        return ResponseEntity.ok().body("{\"message\":\"Regist slave success\"}");
-//    }
+        // 클라이언트에서 입력한 직원입력정보 조회하기
+        log.info("modify slave Info - {}", dto);
+
+        // slaveService 로 정보처리 위임하기
+        try {
+            slaveService.serviceModifySlave(dto);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+        return ResponseEntity.ok().body("{\"message\":\"Modify slave success\"}");
+    }
 }

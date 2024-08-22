@@ -1,10 +1,14 @@
 package com.albaExpress.api.alba.dto.response;
 
+import com.albaExpress.api.alba.dto.request.SlaveRegistScheduleListRequestDto;
 import com.albaExpress.api.alba.entity.Schedule;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @ToString
@@ -13,22 +17,28 @@ import java.time.format.DateTimeFormatter;
 @NoArgsConstructor
 @Builder
 public class SlaveScheduleResponseDto {
-    
-    private String slaveScheduleId; // 근무시간 id
 
-    private String scheduleDay; // 근무요일
-    // 근무요일 (월=1, 화=2, 수=3, 목=4, 금=5, 토=6, 일=0)
+    private boolean scheduleType; // 근무타입 (고정시간 / 변동시간)
+
+    private String ScheduleId; // 근무시간 id
+
+    private String scheduleDay; // 근무요일 (월=1, 화=2, 수=3, 목=4, 금=5, 토=6, 일=7)
 
     private String scheduleStart; // 근무시작시간
 
     private String scheduleEnd; // 근무종료시간;
 
-    // Entity Schedule --> SlaveScheduleResponseDto 로 변환하기
+    private LocalDate scheduleEndDate; // 근무정보리스트 유효만료
+
+    // Schedule 리스트를 받아서 ID만 추출해 scheduleListId에 저장하는 생성자
     public SlaveScheduleResponseDto(Schedule schedule) {
-        this.slaveScheduleId = schedule.getId();
+        this.scheduleType = schedule.isScheduleType();
+        this.ScheduleId = schedule.getId();
         this.scheduleDay = setScheduleDay(schedule); // setter 함수
         this.scheduleStart = formatTimeHourToMinute(schedule.getScheduleStart());
         this.scheduleEnd = formatTimeHourToMinute(schedule.getScheduleEnd());
+
+        this.scheduleEndDate = schedule.getScheduleEndDate();
     }
 
     // DB에 숫자타입으로 저장된 요일값을 문자열로 변환하기

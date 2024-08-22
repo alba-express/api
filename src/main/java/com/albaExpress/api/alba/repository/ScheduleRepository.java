@@ -22,4 +22,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, String>, Sch
     @Query("SELECT s FROM Schedule s WHERE s.slave.id = :slaveId AND s.scheduleDay = :day")
     List<Schedule> findBySlaveIdAndScheduleDay(@Param("slaveId") String slaveId, @Param("day") int day);
 
+    // slaveId를 통해 Schedule 목록을 찾는 쿼리 메서드
+    @Query("SELECT s FROM Schedule s WHERE s.slave.id = :slaveId")
+    List<Schedule> findBySlaveId(@Param("slaveId") String slaveId);
+
 }

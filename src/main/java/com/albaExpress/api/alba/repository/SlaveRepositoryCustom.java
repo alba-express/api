@@ -6,4 +6,6 @@ public interface SlaveRepositoryCustom {
 
     Slave getSlaveById(String id);
     Slave getSlaveByPhoneNumber(String phoneNumber, String workplaceId);
+
+
 }

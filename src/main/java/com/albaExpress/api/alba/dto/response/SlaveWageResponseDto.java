@@ -3,6 +3,8 @@ package com.albaExpress.api.alba.dto.response;
 import com.albaExpress.api.alba.entity.Wage;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Getter
 @ToString
 @EqualsAndHashCode
@@ -19,6 +21,8 @@ public class SlaveWageResponseDto {
 
     private int slaveWageAmount; // 시급 = 시급금액, 월급 = 월급금액
 
+    private LocalDate wageEndDate; // // 급여정보리스트 유효만료
+
     // Entity Wage --> SlaveWageResponseDto 로 변환하기
     public SlaveWageResponseDto (Wage wage) {
         this.slaveWageId = wage.getId();
@@ -30,5 +34,7 @@ public class SlaveWageResponseDto {
         this.slaveWageType = wage.isWageType() ? "시급" : "월급";
 
         this.slaveWageAmount = wage.getWageAmount();
+
+        this.wageEndDate = wage.getWageEndDate();
     }
 }
