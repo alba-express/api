@@ -81,16 +81,25 @@ public class ScheduleLogService {
         return schedules.stream().anyMatch(schedule -> schedule.getScheduleEndDate() == null);
     }
 
-    public List<SlaveDto> getTodayEmployees(String workplaceId) {
-        int today = LocalDate.now().getDayOfWeek().getValue();
-        List<Schedule> schedules = scheduleRepository.findByScheduleDay(today, workplaceId);
+
+    public Optional<ScheduleLog> findCurrentLog(String slaveId) {
+        LocalDate today = LocalDate.now();
+        return scheduleLogRepository.findFirstBySlaveIdAndScheduleLogStartBetween(
+                slaveId,
+                today.atStartOfDay(),
+                today.plusDays(1).atStartOfDay()
+        );
+    }
+    public List<SlaveDto> getEmployeesByDate(String workplaceId, LocalDate date) {
+        int dayOfWeek = date.getDayOfWeek().getValue();
+        List<Schedule> schedules = scheduleRepository.findByScheduleDay(dayOfWeek, workplaceId);
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
         return schedules.stream()
                 .filter(schedule -> schedule.getScheduleEndDate() == null)
                 .filter(schedule -> schedule.getSlave().getSlaveFiredDate() == null)
                 .map(schedule -> {
-                    Optional<ScheduleLog> log = findCurrentLog(schedule.getSlave().getId());
+                    Optional<ScheduleLog> log = findLogForDate(schedule.getSlave().getId(), date);
                     String status;
                     if (log.isPresent()) {
                         if (log.get().getScheduleLogEnd() != null) {
@@ -114,12 +123,12 @@ public class ScheduleLogService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<ScheduleLog> findCurrentLog(String slaveId) {
-        LocalDate today = LocalDate.now();
+    public Optional<ScheduleLog> findLogForDate(String slaveId, LocalDate date) {
         return scheduleLogRepository.findFirstBySlaveIdAndScheduleLogStartBetween(
                 slaveId,
-                today.atStartOfDay(),
-                today.plusDays(1).atStartOfDay()
+                date.atStartOfDay(),
+                date.plusDays(1).atStartOfDay()
         );
     }
+
 }
