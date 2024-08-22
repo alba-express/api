@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Builder
 public class SlaveOneSlaveInfoResponseDto {
-    
+
     private String workPlaceNumber; // 직원이 속한 사업장번호
 
     private String slaveId; // 직원 id
@@ -54,15 +54,4 @@ public class SlaveOneSlaveInfoResponseDto {
         // SlaveScheduleLogResponseDto를 SlaveOneSlaveInfoResponseDto 의 scheduleLogList 로 변환하기
         this.scheduleLogList = slave.getScheduleLogList().stream().map(SlaveScheduleLogResponseDto::new).collect(Collectors.toList());
     }
-
-//    // LocalDateTime 년:월:일 시:분:초 형식에서 --> yyyy년 MM월 dd일 형식으로 변환
-//    private static String formatTimeYearToDate(LocalDateTime date) {
-//        if (date == null) {
-//            return "";
-//        }
-//
-//        // 꺼내온 시간의 형식을 아래와 같이 변환
-//        DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-//        return date.format(formatterDate);
-//    }
 }

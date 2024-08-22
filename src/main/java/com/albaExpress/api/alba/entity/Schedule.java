@@ -26,6 +26,9 @@ public class Schedule {
     @Column(name = "schedule_id")
     private String id;
 
+    @Column(name = "schedule_type")
+    private boolean scheduleType;
+
     @Column(name = "schedule_day")
     private int scheduleDay;
 
@@ -35,6 +38,8 @@ public class Schedule {
     private LocalTime scheduleEnd;
     @Column(name = "schedule_update_date")
     private LocalDate scheduleUpdateDate;
+
+    @Setter
     @Column(name = "schedule_end_date")
     private LocalDate scheduleEndDate;
 

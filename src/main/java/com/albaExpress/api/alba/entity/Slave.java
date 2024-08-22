@@ -26,12 +26,15 @@ public class Slave {
     @Column(name = "slave_id")
     private String id;
 
+    @Setter
     @Column(name = "slave_name")
     private String slaveName;
 
+    @Setter
     @Column(name = "slave_phone_number")
     private String slavePhoneNumber;
 
+    @Setter
     @Column(name = "slave_birthday")
     private LocalDate slaveBirthday;
 
@@ -41,6 +44,7 @@ public class Slave {
     @Column(name = "slave_fired_date")
     private LocalDateTime slaveFiredDate;
 
+    @Setter
     @Column(name = "slave_position")
     private String slavePosition;
 

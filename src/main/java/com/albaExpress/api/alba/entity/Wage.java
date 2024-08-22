@@ -36,6 +36,7 @@ public class Wage {
     @Column(name = "wage_update_date")
     private LocalDate wageUpdateDate;
 
+    @Setter
     @Column(name = "wage_end_date")
     private LocalDate wageEndDate;
 
