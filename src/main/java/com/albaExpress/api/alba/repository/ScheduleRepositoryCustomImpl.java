@@ -37,7 +37,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .leftJoin(schedule)
                 .on(slave.id.eq(schedule.slave.id))
                 .where(slave.workplace.id.eq(workplaceId)
-                        .and(slave.slaveFiredDate.isNotNull())
+                        .and(slave.slaveFiredDate.isNull())
                         .and(schedule.scheduleDay.eq(dayOfWeek))
                         .and(schedule.scheduleUpdateDate.before(date).or(schedule.scheduleUpdateDate.eq(date)))
                         .and(schedule.scheduleEndDate.after(date).or(schedule.scheduleEndDate.isNull())))
@@ -104,7 +104,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .select(slave.id, slave.slaveName, slave.slavePosition)
                 .from(slave)
                 .where(slave.workplace.id.eq(workplaceId)
-                        .and(slave.slaveFiredDate.isNotNull()))
+                        .and(slave.slaveFiredDate.isNull()))
                 .fetch();
 
         List<ScheduleSlaveResponseDto> dtoList = tupleList.stream()
