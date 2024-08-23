@@ -273,6 +273,7 @@ public class SlaveService {
             // 해당 날짜의 출퇴근 기록 찾기
             Optional<ScheduleLog> findThisDateScheduleLog = oneSlaveScheduleLogList.stream()
                     .filter(log -> log.getScheduleLogStart().toLocalDate().equals(currentDate))
+                    .filter(log -> log.getScheduleLogEnd() != null)
                     .findFirst();
 
             // 출퇴근 기록에 따른 근무 현황 상태 설정
