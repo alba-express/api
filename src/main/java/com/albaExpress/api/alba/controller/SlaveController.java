@@ -2,11 +2,8 @@ package com.albaExpress.api.alba.controller;
 
 import com.albaExpress.api.alba.dto.request.SlaveModifyRequestDto;
 import com.albaExpress.api.alba.dto.request.SlaveRegistRequestDto;
-import com.albaExpress.api.alba.dto.response.SlaveAddCountSlaveListResponseDto;
-import com.albaExpress.api.alba.dto.response.SlaveAllSlaveListResponseDto;
-import com.albaExpress.api.alba.dto.response.SlaveOneSlaveInfoResponseDto;
-import com.albaExpress.api.alba.dto.response.SlaveSearchSlaveInfoResponseDto;
-import com.albaExpress.api.alba.entity.Slave;
+import com.albaExpress.api.alba.dto.response.*;
+        import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.service.SlaveService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
+        import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -161,5 +158,18 @@ public class SlaveController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("탈퇴일자 업데이트 실패");
         }
+    }
+
+    // 특정 직원의 근무현황을 조회하기
+    @GetMapping("/status/{slaveId}")
+    public ResponseEntity<List<SlaveScheduleLogStatusResponseDto>> oneSlaveCommuteStatus (@PathVariable String slaveId) {
+
+        log.info("slaveId조회되고있니 - {}", slaveId);
+
+        List<SlaveScheduleLogStatusResponseDto> statusList = slaveService.serviceFindAllSlaveCommuteStatus(slaveId);
+
+        log.info("직원근태현황 - {}", statusList);
+
+        return ResponseEntity.ok(statusList);  // 200 OK 상태와 함께 JSON 데이터를 반환
     }
 }

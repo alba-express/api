@@ -4,13 +4,12 @@ import com.albaExpress.api.alba.dto.request.SlaveModifyRequestDto;
 import com.albaExpress.api.alba.dto.request.SlaveModifyScheduleRequestDto;
 import com.albaExpress.api.alba.dto.request.SlaveModifyWageRequestDto;
 import com.albaExpress.api.alba.dto.request.SlaveRegistRequestDto;
-import com.albaExpress.api.alba.dto.response.SlaveAddCountSlaveListResponseDto;
-import com.albaExpress.api.alba.dto.response.SlaveAllSlaveListResponseDto;
-import com.albaExpress.api.alba.dto.response.SlaveOneSlaveInfoResponseDto;
-import com.albaExpress.api.alba.dto.response.SlaveSearchSlaveInfoResponseDto;
+import com.albaExpress.api.alba.dto.response.*;
 import com.albaExpress.api.alba.entity.Schedule;
+import com.albaExpress.api.alba.entity.ScheduleLog;
 import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.entity.Wage;
+import com.albaExpress.api.alba.repository.ScheduleLogRepository;
 import com.albaExpress.api.alba.repository.ScheduleRepository;
 import com.albaExpress.api.alba.repository.SlaveRepository;
 import com.albaExpress.api.alba.repository.WageRepository;
@@ -20,8 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,6 +42,9 @@ public class SlaveService {
 
     @Autowired
     private final ScheduleRepository scheduleRepository;
+
+    @Autowired
+    private final ScheduleLogRepository scheduleLogRepository;
 
     public void serviceRegistSlave(SlaveRegistRequestDto dto) {
 
@@ -136,7 +141,7 @@ public class SlaveService {
     public void serviceModifySlave(SlaveModifyRequestDto dto) {
 
         // 기존 직원정보를 slaveId 를 통해 조회하기
-        Slave prevSlave = slaveRepository.findById(dto.getSlaveId()).orElseThrow(()-> new IllegalArgumentException("해당 직원이 없음 " + dto.getSlaveId()));
+        Slave prevSlave = slaveRepository.findById(dto.getSlaveId()).orElseThrow(() -> new IllegalArgumentException("해당 직원이 없음 " + dto.getSlaveId()));
 
         // 기존 직원정보를 새로 받은 정보로 업데이트하기 (이름, 전화번호, 생일, 직책)
         prevSlave.setSlaveName(dto.getSlaveName());
@@ -196,5 +201,116 @@ public class SlaveService {
         // 탈퇴일자를 현재 시간으로 설정
         firedSlave.setSlaveFiredDate(LocalDateTime.now());
         slaveRepository.save(firedSlave);
+    }
+
+    // DayOfWeek를 int로 변환하는 유틸리티 함수
+    private int convertDayOfWeekToInt(DayOfWeek dayOfWeek) {
+        switch (dayOfWeek) {
+            case SUNDAY:
+                return 0;
+            case MONDAY:
+                return 1;
+            case TUESDAY:
+                return 2;
+            case WEDNESDAY:
+                return 3;
+            case THURSDAY:
+                return 4;
+            case FRIDAY:
+                return 5;
+            case SATURDAY:
+                return 6;
+            default:
+                throw new IllegalArgumentException("Invalid DayOfWeek: " + dayOfWeek);
+        }
+    }
+
+    public List<SlaveScheduleLogStatusResponseDto> serviceFindAllSlaveCommuteStatus(String slaveId) {
+
+        // 직원아이디를 통해 직원 한 명을 조회하기
+        Slave oneSlave = slaveRepository.findById(slaveId).orElseThrow(() -> new RuntimeException("직원을 찾을 수 없음"));
+
+        // 입사일부터 퇴사일 이전까지의 출퇴근 기록을 조회
+        LocalDate startDate = oneSlave.getSlaveCreatedAt().toLocalDate();
+        LocalDateTime oneSlaveFiredDate = oneSlave.getSlaveFiredDate();
+        LocalDate endDate = (oneSlaveFiredDate != null) ? oneSlaveFiredDate.toLocalDate().minusDays(1) : LocalDate.now();
+
+        // 직원의 근무정보 조회하기
+        List<Schedule> oneSlaveScheduleList = scheduleRepository.findBySlaveId(slaveId);
+
+        // 직원의 출퇴근정보 조회하기
+        List<ScheduleLog> oneSlaveScheduleLogList = scheduleLogRepository.findBySlave_Id(slaveId);
+
+        // 결과 리스트 초기화
+        List<SlaveScheduleLogStatusResponseDto> statusList = new ArrayList<>();
+
+        // 입사일부터 퇴사일(또는 오늘)까지 반복
+        while (!startDate.isAfter(endDate)) {
+
+            // 현재 날짜를 람다식에서 사용하기 위해 로컬 변수에 저장
+            LocalDate currentDate = startDate;
+
+            // 현재 날짜의 요일을 가져오기
+            DayOfWeek day = currentDate.getDayOfWeek();
+            int dayOfWeekInt = convertDayOfWeekToInt(day);
+
+            // 해당 날짜의 근무 정보 찾기
+            Optional<Schedule> findThisDateSchedule = oneSlaveScheduleList.stream()
+                    .filter(schedule -> schedule.getScheduleDay() == dayOfWeekInt && schedule.getScheduleEndDate() == null)
+                    .findFirst();
+
+            // 근무 정보가 없는 경우 다음 날짜로 넘어가기
+            if (!findThisDateSchedule.isPresent()) {
+                startDate = startDate.plusDays(1); // 날짜를 하루 증가시킴
+                continue;
+            }
+
+            // 근무 정보 가져오기
+            Schedule findSchedule = findThisDateSchedule.get();
+            LocalTime scheduleStart = findSchedule.getScheduleStart();
+            LocalTime scheduleEnd = findSchedule.getScheduleEnd();
+
+            // 해당 날짜의 출퇴근 기록 찾기
+            Optional<ScheduleLog> findThisDateScheduleLog = oneSlaveScheduleLogList.stream()
+                    .filter(log -> log.getScheduleLogStart().toLocalDate().equals(currentDate))
+                    .findFirst();
+
+            // 출퇴근 기록에 따른 근무 현황 상태 설정
+            ScheduleLogStatus status;
+            LocalTime actualStartTime = null;
+            LocalTime actualEndTime = null;
+
+            if (!findThisDateScheduleLog.isPresent()) {
+                status = ScheduleLogStatus.ABSENT;
+            } else {
+                ScheduleLog log = findThisDateScheduleLog.get();
+                actualStartTime = log.getScheduleLogStart().toLocalTime();
+                actualEndTime = log.getScheduleLogEnd().toLocalTime();
+
+                if (actualStartTime.isAfter(scheduleStart)) {
+                    status = ScheduleLogStatus.LATE;
+                } else if (actualEndTime.isBefore(scheduleEnd)) {
+                    status = ScheduleLogStatus.EARLYLEAVE;
+                } else {
+                    status = ScheduleLogStatus.NORMAL;
+                }
+            }
+
+            // 결과 리스트에 추가 - 생성자에 모든 정보를 전달
+            statusList.add(new SlaveScheduleLogStatusResponseDto(
+                    currentDate,
+                    status,
+                    scheduleStart,
+                    scheduleEnd,
+                    actualStartTime,
+                    actualEndTime
+            ));
+
+            // 날짜를 하루 증가시킴
+            startDate = startDate.plusDays(1);
+        }
+
+        // 결과 리스트 반환
+        return statusList;
     }
 }
