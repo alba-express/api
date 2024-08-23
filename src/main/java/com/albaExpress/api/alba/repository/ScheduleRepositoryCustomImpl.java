@@ -159,7 +159,8 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                         scheduleLog.scheduleLogEnd,
                         schedule.scheduleStart,
                         schedule.scheduleEnd,
-                        schedule.slave.slaveName)
+                        schedule.slave.slaveName,
+                        schedule.slave.slavePosition)
                 .from(schedule)
                 .leftJoin(scheduleLog)
                 .on(scheduleLog.slave.id.eq(schedule.slave.id)
@@ -175,6 +176,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 )
                 .groupBy(
                         schedule.slave.slaveName,
+                        schedule.slave.slavePosition,
                         schedule.scheduleStart,
                         schedule.scheduleEnd,
                         scheduleLog.scheduleLogStart,
@@ -200,6 +202,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                     .scheduleStart(tuple.get(schedule.scheduleStart))
                     .scheduleEnd(tuple.get(schedule.scheduleEnd))
                     .slaveName(tuple.get(schedule.slave.slaveName))
+                    .slavePosition(tuple.get(schedule.slave.slavePosition))
                     .build();
         }).collect(Collectors.toList());
 
