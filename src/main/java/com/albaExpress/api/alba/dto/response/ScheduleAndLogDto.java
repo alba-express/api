@@ -17,6 +17,7 @@ public class ScheduleAndLogDto {
     private LocalTime scheduleStart;
     private LocalTime scheduleEnd;
     private String slaveName;
+    private String slavePosition;
     @Setter
     private String dailyAtt;
 }
