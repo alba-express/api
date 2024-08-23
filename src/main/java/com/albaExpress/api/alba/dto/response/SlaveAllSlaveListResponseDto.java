@@ -42,14 +42,13 @@ public class SlaveAllSlaveListResponseDto {
         this.slavePosition = slave.getSlavePosition();
 
         // SlaveWageResponseDto를 SlaveActiveSlaveListResponseDto 의 slaveWageList 로 변환하기
-        this.slaveWageList = slave.getWageList().stream().map(SlaveWageResponseDto::new).collect(Collectors.toList());
+        this.slaveWageList = slave.getWageList().stream().filter(wage -> wage.getWageEndDate() == null).map(SlaveWageResponseDto::new).collect(Collectors.toList());
         // SlaveScheduleResponseDto를 SlaveActiveSlaveListResponseDto 의 slaveScheduleList 로 변환하기
-        this.slaveScheduleList = slave.getScheduleList().stream().map(SlaveScheduleResponseDto::new).collect(Collectors.toList());
+        this.slaveScheduleList = slave.getScheduleList().stream().filter(schedule -> schedule.getScheduleEndDate() == null).map(SlaveScheduleResponseDto::new).collect(Collectors.toList());
 
         this.slaveCreatedAt = formatSlaveLocalDateTime(slave.getSlaveCreatedAt());
         this.slaveFiredDate = formatSlaveLocalDateTime(slave.getSlaveFiredDate());
     }
-
     // LocalDateTime 년:월:일 시:분:초 형식에서 --> 년:월:일 형식으로 꺼내오기
     public static String formatSlaveLocalDateTime(LocalDateTime time) {
 
