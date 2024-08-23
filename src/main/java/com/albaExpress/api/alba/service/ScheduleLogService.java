@@ -98,7 +98,7 @@ public class ScheduleLogService {
     // 특정 날짜에 해당하는 근무자 리스트 가져오기
     public List<SlaveDto> getEmployeesByDate(String workplaceId, LocalDate date) {
         int dayOfWeek = date.getDayOfWeek().getValue();
-        List<Schedule> schedules = scheduleRepository.findByScheduleDay(dayOfWeek, workplaceId);
+        List<Schedule> schedules = scheduleRepository.findByScheduleDay(dayOfWeek, workplaceId, date);
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
         return schedules.stream()

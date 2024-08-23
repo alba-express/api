@@ -15,7 +15,7 @@ public interface ScheduleRepositoryCustom {
     List<ScheduleSlaveResponseDto> findSlaveBySchedule(String workplaceId, LocalDate date, int dayOfWeek);
 
     // 지효씨의 추가메서드 컨플릭트시 추가만하면됨
-    List<Schedule> findByScheduleDay(int day, String workplaceId);
+    List<Schedule> findByScheduleDay(int day, String workplaceId, LocalDate date);
 
     List<ExtraScheduleRequestDto> getExtraSchedule(String workplaceId, LocalDate date);
 

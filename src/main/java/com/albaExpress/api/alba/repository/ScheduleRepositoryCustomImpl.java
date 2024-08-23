@@ -3,6 +3,7 @@ package com.albaExpress.api.alba.repository;
 import com.albaExpress.api.alba.dto.request.ExtraScheduleRequestDto;
 import com.albaExpress.api.alba.dto.response.ScheduleAndLogDto;
 import com.albaExpress.api.alba.dto.response.ScheduleSlaveResponseDto;
+import com.albaExpress.api.alba.entity.ExtraSchedule;
 import com.albaExpress.api.alba.entity.Schedule;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,6 +15,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -143,13 +145,47 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
 
     // 지효씨의 추가메서드 컨플릭트시 추가만하면됨
     @Override
-    public List<Schedule> findByScheduleDay(int day, String workplaceId) {
+    public List<Schedule> findByScheduleDay(int day, String workplaceId, LocalDate date) {
 
-        return factory.select(schedule)
+        List<Schedule> scheduleList = factory.select(schedule)
                 .from(schedule)
                 .where(schedule.scheduleDay.eq(day)
                         .and(schedule.slave.workplace.id.eq(workplaceId)))
                 .fetch();
+        List<ExtraSchedule> extraList = factory.select(extraSchedule)
+                .from(extraSchedule)
+                .where(extraSchedule.extraScheduleDate.eq(date)
+                        .and(extraSchedule.slave.workplace.id.eq(workplaceId)))
+                .fetch();
+        List<Schedule> collect = extraList.stream().map(extra -> {
+
+                    return Schedule.builder()
+                            .slave(extra.getSlave())
+                            .scheduleStart(extra.getExtraScheduleStart())
+                            .scheduleEnd(extra.getExtraScheduleEnd())
+                            .build();
+                }
+        ).collect(Collectors.toList());
+//        List<Schedule> additionalSchedule = new ArrayList<>();
+        for (Schedule extra : collect) {
+            for (Schedule schedule : scheduleList) {
+                if(schedule.getSlave().getId().equals(extra.getSlave().getId())) {
+                    if(schedule.getScheduleStart().equals(extra.getScheduleEnd())) {
+                        schedule.setScheduleStart(extra.getScheduleStart());
+                    } else if(schedule.getScheduleEnd().equals(extra.getScheduleStart())) {
+                        schedule.setScheduleEnd(extra.getScheduleEnd());
+                    }
+                }
+            }
+        }
+        List<Schedule> collect1 = collect.stream().filter(extra -> {
+            return scheduleList.stream().noneMatch(origin -> origin.getSlave().getId().equals(extra.getSlave().getId()));
+        }).collect(Collectors.toList());
+        scheduleList.addAll(collect1);
+
+
+
+        return scheduleList;
     }
     @Override
     public List<ScheduleAndLogDto> getScheduleAndScheduleLog(String workplaceId, LocalDate date) {
