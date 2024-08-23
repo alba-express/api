@@ -126,9 +126,9 @@ public class ScheduleService {
                     dto.setDailyAtt("근무중");
                 } else if(dto.getScheduleLogStart() == null && dto.getScheduleEnd().isAfter(LocalTime.now())) {
                     dto.setDailyAtt("출근예정");
-                } else if(dto.getScheduleEnd().isBefore(LocalTime.now()) && (dto.getScheduleStart() == null) || (dto.getScheduleLogEnd() != null && dto.getScheduleLogEnd().isBefore(dto.getScheduleStart()))) {
+                } else if(dto.getScheduleEnd().isBefore(LocalTime.now()) && (dto.getScheduleLogStart() == null) || (dto.getScheduleLogEnd() != null && dto.getScheduleLogEnd().isBefore(dto.getScheduleStart()))) {
                     dto.setDailyAtt("결근");
-                } else if(dto.getScheduleStart().isBefore(LocalTime.now()) && (dto.getScheduleLogStart() == null || dto.getScheduleLogStart().isAfter(dto.getScheduleStart()))) {
+                } else if(dto.getScheduleStart().isBefore(LocalTime.now()) && (dto.getScheduleLogStart() != null && dto.getScheduleLogStart().isAfter(dto.getScheduleStart()))) {
                     dto.setDailyAtt("지각");
                 } else if(dto.getScheduleEnd().isBefore(LocalTime.now()) && (dto.getScheduleLogEnd() != null && dto.getScheduleLogEnd().isBefore(dto.getScheduleEnd()))) {
                     dto.setDailyAtt("조퇴");

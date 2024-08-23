@@ -108,6 +108,7 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
                         .and(scheduleLog.scheduleLogStart.year().eq(ym.getYear()))
                         .and(scheduleLog.scheduleLogStart.month().eq(ym.getMonthValue()))
                         .and(scheduleLog.scheduleLogEnd.isNotNull())) // scheduleLogEnd 가 null 이 아닌 조건 추가
+                .orderBy(scheduleLog.scheduleLogStart.asc())
                 .fetch();
 
         // 3. ScheduleLog 정보로 DTO 리스트 채우기
