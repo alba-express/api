@@ -20,7 +20,6 @@ public class SlaveScheduleLogResponseDto {
     private LocalDateTime scheduleLogEnd; // 퇴근시간
 
     // Entity ScheduleLog --> SlaveScheduleLogResponseDto 로 변환하기
-
     public SlaveScheduleLogResponseDto (ScheduleLog scheduleLog) {
         this.scheduleLogId = scheduleLog.getId();
         this.scheduleLogStart = scheduleLog.getScheduleLogStart();
