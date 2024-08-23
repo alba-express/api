@@ -25,6 +25,7 @@ public class ScheduleLogController {
 
     private final ScheduleLogService scheduleLogService;
 
+    // 전화번호로 근무자 확인
     @GetMapping("/verify-phone-number")
     public ResponseEntity<?> verifyPhoneNumber(@RequestParam String phoneNumber, @RequestParam String workplaceId) {
         Slave slave = scheduleLogService.verifyPhoneNumber(phoneNumber, workplaceId);
@@ -34,6 +35,7 @@ public class ScheduleLogController {
         return ResponseEntity.ok().body(Collections.singletonMap("slaveId", slave.getId()));
     }
 
+    // 출근 기록 생성
     @PostMapping("/checkin")
     public ResponseEntity<?> checkIn(@RequestBody CheckInRequestDto request) {
         try {
@@ -47,6 +49,7 @@ public class ScheduleLogController {
         }
     }
 
+    // 퇴근 기록 업데이트
     @PostMapping("/checkout")
     public ResponseEntity<?> checkOut(@RequestBody Map<String, String> request) {
         String logId = request.get("logId");
@@ -61,6 +64,7 @@ public class ScheduleLogController {
         }
     }
 
+    // 특정 날짜에 해당하는 근무자 리스트 가져오기
     @GetMapping("/employees")
     public ResponseEntity<List<SlaveDto>> getEmployeesByDate(
             @RequestParam(name = "workplaceId") String workplaceId,
@@ -81,7 +85,7 @@ public class ScheduleLogController {
         return ResponseEntity.ok(employees);
     }
 
-
+    // 특정 근무자의 현재 스케줄 로그 가져오기
     @GetMapping("/current-log")
     public ResponseEntity<?> getCurrentLog(@RequestParam String slaveId) {
         Optional<ScheduleLog> currentLog = scheduleLogService.findCurrentLog(slaveId);
@@ -92,6 +96,7 @@ public class ScheduleLogController {
         }
     }
 
+    // 서버의 현재 시간 가져오기
     @GetMapping("/server-time")
     public ResponseEntity<LocalDateTime> getServerTime() {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));

@@ -31,6 +31,7 @@ public class ScheduleLogService {
 
     private final WageService wageService;
 
+    // 전화번호로 근무자 확인
     public Slave verifyPhoneNumber(String phoneNumber, String workplaceId) {
         Slave slave = slaveRepository.getSlaveByPhoneNumber(phoneNumber, workplaceId);
         if (slave != null && isWorkingToday(slave.getId())) {
@@ -40,6 +41,7 @@ public class ScheduleLogService {
         }
     }
 
+    // 출근 기록 생성
     public ScheduleLog checkIn(String slaveId) throws Exception {
         if (findCurrentLog(slaveId).isPresent()) {
             throw new Exception("이미 출근 기록이 있습니다.");
@@ -56,6 +58,7 @@ public class ScheduleLogService {
         }
     }
 
+    // 퇴근 기록 업데이트
     public ScheduleLog checkOut(String logId) throws Exception {
         ScheduleLog findScheduleLog = scheduleLogRepository.findById(logId).orElse(null);
         if (findScheduleLog != null) {
@@ -71,6 +74,7 @@ public class ScheduleLogService {
         }
     }
 
+    // 오늘 근무 중인지 확인
     private boolean isWorkingToday(String slaveId) {
         int today = LocalDate.now().getDayOfWeek().getValue();
         Slave slave = slaveRepository.findById(slaveId).orElse(null);
@@ -81,7 +85,7 @@ public class ScheduleLogService {
         return schedules.stream().anyMatch(schedule -> schedule.getScheduleEndDate() == null);
     }
 
-
+    // 특정 근무자의 현재 스케줄 로그 가져오기
     public Optional<ScheduleLog> findCurrentLog(String slaveId) {
         LocalDate today = LocalDate.now();
         return scheduleLogRepository.findFirstBySlaveIdAndScheduleLogStartBetween(
@@ -90,6 +94,8 @@ public class ScheduleLogService {
                 today.plusDays(1).atStartOfDay()
         );
     }
+
+    // 특정 날짜에 해당하는 근무자 리스트 가져오기
     public List<SlaveDto> getEmployeesByDate(String workplaceId, LocalDate date) {
         int dayOfWeek = date.getDayOfWeek().getValue();
         List<Schedule> schedules = scheduleRepository.findByScheduleDay(dayOfWeek, workplaceId);
@@ -123,6 +129,7 @@ public class ScheduleLogService {
                 .collect(Collectors.toList());
     }
 
+    // 특정 날짜에 해당하는 근무자의 스케줄 로그 가져오기
     public Optional<ScheduleLog> findLogForDate(String slaveId, LocalDate date) {
         return scheduleLogRepository.findFirstBySlaveIdAndScheduleLogStartBetween(
                 slaveId,
