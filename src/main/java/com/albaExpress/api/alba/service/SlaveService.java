@@ -151,22 +151,22 @@ public class SlaveService {
 
         //------------------------------------------
 
-        // 이전의 근무리스트 정보를 slaveId 를 통해 조회하기
+        // 이전의 급여리스트 정보를 slaveId 를 통해 조회하기
         List<Wage> prevWages = wageRepository.findBySlaveId(dto.getSlaveId());
 
         for (Wage prevWage : prevWages) {
-            // 이전 근무리스트 정보의 종료날짜를 오늘로 설정하기
+            // 이전 급여리스트 정보의 종료날짜를 오늘로 설정하기
             prevWage.setWageEndDate(LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth(), 1));
 
-            // 이전 근무리스트 정보 저장하기 (종료날짜 업데이트)
+            // 이전 급여리스트 정보 저장하기 (종료날짜 업데이트)
             wageRepository.save(prevWage);
         }
 
-        // 새로운 근무리스트 생성하기
-        for (SlaveModifyScheduleRequestDto scheduleDto : dto.getSlaveScheduleList()) {
-            List<Schedule> newSchedule = scheduleDto.dtoToScheduleEntity(prevSlave);
+        // 새로운 급여리스트 생성하기
+        for (SlaveModifyWageRequestDto wageResponseDto : dto.getSlaveWageList()) {
+            Wage newWage = wageResponseDto.dtoToWageEntity(prevSlave);
 
-            scheduleRepository.saveAll(newSchedule);
+            wageRepository.save(newWage);
         }
 
         //------------------------------------------
