@@ -27,13 +27,14 @@ public class WorkplaceController {
 
     // 사업장 전체조회 - (사장 아이디)
     @GetMapping("/list/{masterId}")
-    public ResponseEntity<?> workplaceList(@PathVariable("masterId") String masterId) {
+    public ResponseEntity<?> workplaceList(@PathVariable("masterId") String masterId,
+                                           @RequestParam(defaultValue = "0") int page, // 기본값 페이지 0
+                                           @RequestParam(defaultValue = "3") int size, // 기본 페이지 크기 3
+                                           @RequestParam(value = "search", required = false) String search
+    ) {
         log.info("/workplace/list/{} : GET", masterId);
 
-        // 특정 사업장 정보 조회하기 위해 사장 아이디 조회 필요 !
-
-
-        WorkplaceListDto workplaceList = workplaceService.findList(masterId);
+        WorkplaceListDto workplaceList = workplaceService.findList(masterId, page, size);
 
         return ResponseEntity.ok().body(workplaceList);
     }
