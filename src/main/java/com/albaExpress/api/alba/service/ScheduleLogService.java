@@ -77,6 +77,9 @@ public class ScheduleLogService {
     // 오늘 근무 중인지 확인
     private boolean isWorkingToday(String slaveId) {
         int today = LocalDate.now().getDayOfWeek().getValue();
+        if (today == 7) {
+            today = 0; // 일요일 처리
+        }
         Slave slave = slaveRepository.findById(slaveId).orElse(null);
         if (slave == null || slave.getSlaveFiredDate() != null) {
             return false;
