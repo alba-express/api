@@ -10,6 +10,9 @@ import com.albaExpress.api.alba.repository.MasterRepository;
 import com.albaExpress.api.alba.repository.WorkplaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -26,18 +29,16 @@ public class WorkplaceService {
     private final MasterRepository masterRepository;
 
     // 사장 아이디로 등록된 사업장 전체 조회 중간처리
-    public WorkplaceListDto findList(String masterId) {
-        // Master 엔티티 조회
+    public WorkplaceListDto findList(String masterId, int page, int size) {
         Master master = masterRepository.findById(masterId).orElse(null);
         if (master == null) {
             throw new IllegalArgumentException("Invalid masterId: " + masterId);
         }
 
-        // 사업장 정보 조회
-        List<Workplace> workplaces = workplaceRepository.findByMaster(master);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Workplace> workplacePage = workplaceRepository.findByMaster(master, pageable);
 
-        // Workplace 엔티티를 WorkplaceFindAllDto로 변환
-        List<WorkplaceFindAllDto> workplaceDto = workplaces.stream()
+        List<WorkplaceFindAllDto> workplaceDto = workplacePage.getContent().stream()
                 .map(w -> WorkplaceFindAllDto.builder()
                         .id(w.getId())
                         .workplaceName(w.getWorkplaceName())
@@ -50,10 +51,10 @@ public class WorkplaceService {
                         .build())
                 .collect(Collectors.toList());
 
-        // DTO를 포함한 WorkplaceListDto 반환
         return WorkplaceListDto.builder()
-                .masterId(masterId)
                 .workplaces(workplaceDto)
+                .totalPages(workplacePage.getTotalPages())
+                .currentPage(workplacePage.getNumber())
                 .build();
     }
 
@@ -114,7 +115,7 @@ public class WorkplaceService {
 
         workplaceRepository.save(existingWorkplace);
 
-        return findList(existingWorkplace.getMaster().getId());
+        return findList(existingWorkplace.getMaster().getId(), 0, 5); // 페이지 번호와 페이지 크기 기본값 설정
     }
 
     // 사업장 삭제 중간처리
@@ -135,14 +136,8 @@ public class WorkplaceService {
         workplaceRepository.deleteById(id);
 
         // 사업장 삭제 성공 시 해당 사장의 사업장 목록 반환
-        return findList(masterId);
+        return findList(masterId, 0, 5); // 페이지 번호, 크기 기본값 설정 !
     }
-
-//    public boolean isBusinessNoDuplicate(String businessNo) {
-//        String normalizedBusinessNo = businessNo.replace("-", ""); // 하이픈 제거
-//
-//        return workplaceRepository.existsByBusinessNo(normalizedBusinessNo);
-//    }
 
     // 사업장 간편비밀번호 인증 중간처리
     public boolean verifyPassword(String workplaceId, String inputPassword) {

@@ -1,10 +1,13 @@
 package com.albaExpress.api.alba.dto.response;
 
 import com.albaExpress.api.alba.entity.Master;
+import com.albaExpress.api.alba.entity.Workplace;
 import lombok.*;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -23,25 +26,27 @@ public class WorkplaceListDto {
     private LocalDateTime workplaceCreatedAt;
     private String masterId;
     private String businessNo;
-
     // 사업장 규모 5인 이상 true이면 '5인 이상 사업장' 찍어두면 좋을거 같아서 보류 😬
     private boolean workplaceSize;
-
     private List<WorkplaceFindAllDto> workplaces;
 
-    // 나중에 로그인한 사장 정보 가져와 사업장 정보 조회하기 위해 필요하니 넣을거임
-//    @Setter
-//    private LoginUserInfoDto loginUserInfoDto;
+    private int totalPages;
+    private int currentPage;
 
-    public WorkplaceListDto(WorkplaceFindAllDto w) {
-        this.id = w.getId();
-        this.businessNo = w.getBusinessNo();
-        this.workplaceName = w.getWorkplaceName();
-        this.workplaceAddressCity = w.getWorkplaceAddressCity();
-        this.workplaceAddressStreet = w.getWorkplaceAddressStreet();
-        this.workplaceAddressDetail = w.getWorkplaceAddressDetail();
-        this.workplaceCreatedAt = w.getWorkplaceCreatedAt();
-        this.masterId = w.getMasterId();
-//        this.workplaceSize = w.isWorkplaceSize();
+    public WorkplaceListDto(Page<Workplace> workplacePage) {
+        this.workplaces = workplacePage.getContent().stream()
+                .map(w -> WorkplaceFindAllDto.builder()
+                        .id(w.getId())
+                        .businessNo(w.getBusinessNo())
+                        .workplaceName(w.getWorkplaceName())
+                        .workplaceAddressCity(w.getWorkplaceAddressCity())
+                        .workplaceAddressStreet(w.getWorkplaceAddressStreet())
+                        .workplaceAddressDetail(w.getWorkplaceAddressDetail())
+                        .workplaceCreatedAt(w.getWorkplaceCreatedAt())
+                        .masterId(w.getMaster().getId())
+                        .build())
+                .collect(Collectors.toList());
+        this.totalPages = workplacePage.getTotalPages();
+        this.currentPage = workplacePage.getNumber() + 1; // 페이지 번호는 1부터 시작하도록 조정
     }
 }
