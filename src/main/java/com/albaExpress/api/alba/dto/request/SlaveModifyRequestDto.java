@@ -39,8 +39,6 @@ public class SlaveModifyRequestDto {
 
     private List<SlaveModifyWageRequestDto> slaveWageList; // 급여리스트
 
-    private boolean slaveScheduleType; // 근무시간타입 (true, 1 = 고정시간, false, 0 = 변동시간)
-
     private List<SlaveModifyScheduleRequestDto> slaveScheduleList; // 근무정보 (근무요일, 근무시작시간, 근무종료시간)
 
     // SlaveModifyRequestDto --> Entity Slave 로 변환하기

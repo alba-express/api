@@ -48,9 +48,17 @@ public class SlaveOneSlaveInfoResponseDto {
         this.slaveCreatedAt = formatSlaveLocalDateTime(slave.getSlaveCreatedAt());
 
         // SlaveWageResponseDto를 SlaveOneSlaveInfoResponseDto 의 wageList 로 변환하기
-        this.wageList = slave.getWageList().stream().map(SlaveWageResponseDto::new).collect(Collectors.toList());
+        this.wageList = slave.getWageList().stream()
+                .filter(wage -> wage.getWageEndDate() == null)
+                .map(SlaveWageResponseDto::new)
+                .collect(Collectors.toList());
+
         // SlaveScheduleResponseDto를 SlaveOneSlaveInfoResponseDto 의 scheduleList 로 변환하기
-        this.scheduleList = slave.getScheduleList().stream().map(SlaveScheduleResponseDto::new).collect(Collectors.toList());
+        this.scheduleList = slave.getScheduleList().stream()
+                .filter(schedule -> schedule.getScheduleEndDate() == null).
+                map(SlaveScheduleResponseDto::new)
+                .collect(Collectors.toList());
+
         // SlaveScheduleLogResponseDto를 SlaveOneSlaveInfoResponseDto 의 scheduleLogList 로 변환하기
         this.scheduleLogList = slave.getScheduleLogList().stream().map(SlaveScheduleLogResponseDto::new).collect(Collectors.toList());
     }

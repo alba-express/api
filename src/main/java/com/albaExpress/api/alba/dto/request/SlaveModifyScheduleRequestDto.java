@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 @Builder
 public class SlaveModifyScheduleRequestDto {
 
-    private String modifyId; // 이전의 근무리스트 id
-
     //----------------------------------------------------------------------
 
     private boolean slaveScheduleType; // 근무시간타입 (true, 1 = 고정시간, false, 0 = 변동시간)
