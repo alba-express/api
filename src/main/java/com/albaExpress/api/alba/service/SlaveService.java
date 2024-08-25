@@ -51,18 +51,23 @@ public class SlaveService {
         // 클라이언트에서 입력한 정보를 하나의 직원정보로 만들기
         Slave oneSlave = dto.dtoToSlaveEntity();
 
-        // 전화번호를 통해 DB에 직원 정보가 있는지 찾기
-        Optional<Slave> findSlave = slaveRepository.findBySlavePhoneNumber(dto.getSlavePhoneNumber());
+        List<Slave> slaveList = slaveRepository.findByWorkplace_id(dto.getWorkPlaceNumber());
 
-        // DB에 해당 전화번호를 가진 직원이 존재하는경우
-        if (findSlave.isPresent()) {
-            log.info("직원이 이미 존재합니다: {}", dto.getSlavePhoneNumber());
+        slaveRepository.save(oneSlave);
+        log.info("새로운 직원이 등록되었습니다: {}", dto.getSlavePhoneNumber());
 
-            // DB에 해당 전화번호를 가진 직원이 존재하지 않는경우 --> 직원등록
-        } else {
-            slaveRepository.save(oneSlave);
-            log.info("새로운 직원이 등록되었습니다: {}", dto.getSlavePhoneNumber());
-        }
+//        // 전화번호를 통해 DB에 직원 정보가 있는지 찾기
+//        Optional<Slave> findSlave = slaveRepository.findBySlavePhoneNumber(dto.getSlavePhoneNumber());
+//
+//        // DB에 해당 전화번호를 가진 직원이 존재하는경우
+//        if (findSlave.isPresent()) {
+//            log.info("직원이 이미 존재합니다: {}", dto.getSlavePhoneNumber());
+//
+//            // DB에 해당 전화번호를 가진 직원이 존재하지 않는경우 --> 직원등록
+//        } else {
+//            slaveRepository.save(oneSlave);
+//            log.info("새로운 직원이 등록되었습니다: {}", dto.getSlavePhoneNumber());
+//        }
     }
 
     // 모든 근무중인 직원 목록 & 근무중인 직원 개수 조회하기
@@ -140,6 +145,9 @@ public class SlaveService {
     @Transactional
     public void serviceModifySlave(SlaveModifyRequestDto dto) {
 
+        // 다음 달의 첫 번째 날 구하기 (종료일자)
+        LocalDate firstDayOfNextMonth = LocalDate.now().plusMonths(1).withDayOfMonth(1);
+
         // 기존 직원정보를 slaveId 를 통해 조회하기
         Slave prevSlave = slaveRepository.findById(dto.getSlaveId()).orElseThrow(() -> new IllegalArgumentException("해당 직원이 없음 " + dto.getSlaveId()));
 
@@ -151,12 +159,15 @@ public class SlaveService {
 
         //------------------------------------------
 
+        // 현재 날짜
+        LocalDate now = LocalDate.now();
+
         // 이전의 급여리스트 정보를 slaveId 를 통해 조회하기
         List<Wage> prevWages = wageRepository.findBySlaveId(dto.getSlaveId());
 
         for (Wage prevWage : prevWages) {
             // 이전 급여리스트 정보의 종료날짜를 오늘로 설정하기
-            prevWage.setWageEndDate(LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth(), 1));
+            prevWage.setWageEndDate(firstDayOfNextMonth);
 
             // 이전 급여리스트 정보 저장하기 (종료날짜 업데이트)
             wageRepository.save(prevWage);
@@ -175,8 +186,8 @@ public class SlaveService {
         List<Schedule> prevSchedules = scheduleRepository.findBySlaveId(dto.getSlaveId());
 
         for (Schedule prevSchedule : prevSchedules) {
-            // 이전 근무리스트 정보의 종료날짜를 오늘로 설정하기
-            prevSchedule.setScheduleEndDate(LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth(), 1));
+            // 이전 근무리스트 정보의 종료날짜를 다음달 1일로 설정하기
+            prevSchedule.setScheduleEndDate(firstDayOfNextMonth);
 
             // 이전 근무리스트 정보 저장하기 (종료날짜 업데이트)
             scheduleRepository.save(prevSchedule);

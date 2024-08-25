@@ -14,9 +14,7 @@ import java.time.LocalDate;
 @Builder
 public class SlaveModifyWageRequestDto {
 
-    private String modifyId ; // 이전의 급여리스트 id
-
-    //----------------------------------------------------------------------
+    private String slaveWageId; // 이전의 급여리스트 id
 
     private boolean slaveWageType; // 급여타입 (true, 1 = 시급, false, 0 = 월급)
 
@@ -27,6 +25,7 @@ public class SlaveModifyWageRequestDto {
     // SlaveRegistWageRequestDto --> Entity Wage 로 변환하기
     public Wage dtoToWageEntity (Slave slave) {
         return Wage.builder()
+                .id(this.slaveWageId)
                 .wageType(this.slaveWageType)
                 .wageAmount(this.slaveWageAmount)
                 .wageInsurance(this.slaveWageInsurance)
