@@ -98,6 +98,10 @@ public class ScheduleLogService {
     // 특정 날짜에 해당하는 근무자 리스트 가져오기
     public List<SlaveDto> getEmployeesByDate(String workplaceId, LocalDate date) {
         int dayOfWeek = date.getDayOfWeek().getValue();
+        if (dayOfWeek == 7) { // 자바의 일요일(7)을 데이터베이스의 일요일(0)로 변환
+            dayOfWeek = 0;
+        }
+
         List<Schedule> schedules = scheduleRepository.findByScheduleDay(dayOfWeek, workplaceId, date);
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -128,6 +132,7 @@ public class ScheduleLogService {
                 .sorted(Comparator.comparing(SlaveDto::getScheduleStart))
                 .collect(Collectors.toList());
     }
+
 
     // 특정 날짜에 해당하는 근무자의 스케줄 로그 가져오기
     public Optional<ScheduleLog> findLogForDate(String slaveId, LocalDate date) {
