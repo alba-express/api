@@ -238,41 +238,34 @@ public class SlaveService {
 
     public List<SlaveScheduleLogStatusResponseDto> serviceFindAllSlaveCommuteStatus(String slaveId) {
 
-        // 직원아이디를 통해 직원 한 명을 조회하기
+        // 직원 정보를 조회
         Slave oneSlave = slaveRepository.findById(slaveId).orElseThrow(() -> new RuntimeException("직원을 찾을 수 없음"));
 
-        // 입사일부터 퇴사일 이전까지의 출퇴근 기록을 조회
-        LocalDate startDate = oneSlave.getSlaveCreatedAt().toLocalDate();
-        LocalDateTime oneSlaveFiredDate = oneSlave.getSlaveFiredDate();
-        LocalDate endDate = (oneSlaveFiredDate != null) ? oneSlaveFiredDate.toLocalDate().minusDays(1) : LocalDate.now();
-
-        // 직원의 근무정보 조회하기
+        // 근무정보와 출퇴근 기록 조회
         List<Schedule> oneSlaveScheduleList = scheduleRepository.findBySlaveId(slaveId);
-
-        // 직원의 출퇴근정보 조회하기
         List<ScheduleLog> oneSlaveScheduleLogList = scheduleLogRepository.findBySlave_Id(slaveId);
 
         // 결과 리스트 초기화
         List<SlaveScheduleLogStatusResponseDto> statusList = new ArrayList<>();
 
-        // 입사일부터 퇴사일(또는 오늘)까지 반복
+        // 입사일부터 퇴사일(또는 현재)까지 반복
+        LocalDate startDate = oneSlave.getSlaveCreatedAt().toLocalDate();
+        LocalDateTime oneSlaveFiredDate = oneSlave.getSlaveFiredDate();
+        LocalDate endDate = (oneSlaveFiredDate != null) ? oneSlaveFiredDate.toLocalDate().minusDays(1) : LocalDate.now();
+
         while (!startDate.isAfter(endDate)) {
-
-            // 현재 날짜를 람다식에서 사용하기 위해 로컬 변수에 저장
             LocalDate currentDate = startDate;
+            DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
+            int dayOfWeekAsInt = convertDayOfWeekToInt(currentDayOfWeek);
 
-            // 현재 날짜의 요일을 가져오기
-            DayOfWeek day = currentDate.getDayOfWeek();
-            int dayOfWeekInt = convertDayOfWeekToInt(day);
-
-            // 해당 날짜의 근무 정보 찾기
+            // 현재 날짜의 요일과 일치하는 근무 정보를 찾음
             Optional<Schedule> findThisDateSchedule = oneSlaveScheduleList.stream()
-                    .filter(schedule -> schedule.getScheduleDay() == dayOfWeekInt && schedule.getScheduleEndDate() == null)
+                    .filter(schedule -> schedule.getScheduleDay() == dayOfWeekAsInt)
                     .findFirst();
 
-            // 근무 정보가 없는 경우 다음 날짜로 넘어가기
+            // 근무 정보가 없는 경우 다음 날짜로 넘어감
             if (!findThisDateSchedule.isPresent()) {
-                startDate = startDate.plusDays(1); // 날짜를 하루 증가시킴
+                startDate = startDate.plusDays(1);
                 continue;
             }
 
@@ -299,6 +292,7 @@ public class SlaveService {
                 actualStartTime = log.getScheduleLogStart().toLocalTime();
                 actualEndTime = log.getScheduleLogEnd().toLocalTime();
 
+                // 근무 시간과 출퇴근 시간을 비교하여 상태를 결정
                 if (actualStartTime.isAfter(scheduleStart)) {
                     status = ScheduleLogStatus.LATE;
                 } else if (actualEndTime.isBefore(scheduleEnd)) {
@@ -308,7 +302,7 @@ public class SlaveService {
                 }
             }
 
-            // 결과 리스트에 추가 - 생성자에 모든 정보를 전달
+            // 결과 리스트에 추가
             statusList.add(new SlaveScheduleLogStatusResponseDto(
                     currentDate,
                     status,
@@ -318,7 +312,7 @@ public class SlaveService {
                     actualEndTime
             ));
 
-            // 날짜를 하루 증가시킴
+            // 다음 날짜로 이동
             startDate = startDate.plusDays(1);
         }
 
