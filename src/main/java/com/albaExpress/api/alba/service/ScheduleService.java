@@ -109,38 +109,42 @@ public class ScheduleService {
         List<ScheduleAndLogDto> dtoList = scheduleRepository.getScheduleAndScheduleLog(workplaceId, date);
 
         for (ScheduleAndLogDto dto : dtoList) {
-            if(date.isBefore(LocalDate.now())) {
-                if(dto.getScheduleLogStart() == null || (dto.getScheduleLogEnd() != null && dto.getScheduleStart().isAfter(dto.getScheduleLogEnd())) || dto.getScheduleEnd().isBefore(dto.getScheduleLogStart())) {
-                    dto.setDailyAtt("결근");
-                } else if (dto.getScheduleStart().isBefore(dto.getScheduleLogStart())) {
-                    dto.setDailyAtt("지각");
-                } else if (dto.getScheduleLogEnd() != null && dto.getScheduleEnd().isAfter(dto.getScheduleLogEnd())) {
-                    dto.setDailyAtt("조퇴");
-                } else if (!dto.getScheduleLogStart().isAfter(dto.getScheduleStart()) && (dto.getScheduleLogEnd() != null && !dto.getScheduleLogEnd().isBefore(dto.getScheduleEnd()))) {
-                    dto.setDailyAtt("정상근무");
-                } else {
-                    dto.setDailyAtt("과거오류");
-                }
-            } else if(date.isEqual(LocalDate.now())) {
-                if(dto.getScheduleLogStart() != null && dto.getScheduleLogEnd() == null) {
-                    dto.setDailyAtt("근무중");
-                } else if(dto.getScheduleLogStart() == null && dto.getScheduleEnd().isAfter(LocalTime.now())) {
+            if(dto.getSlaveFiredDate() == null){
+                if (date.isBefore(LocalDate.now())) {
+                    if (dto.getScheduleLogStart() == null || (dto.getScheduleLogEnd() != null && dto.getScheduleStart().isAfter(dto.getScheduleLogEnd())) || dto.getScheduleEnd().isBefore(dto.getScheduleLogStart())) {
+                        dto.setDailyAtt("결근");
+                    } else if (dto.getScheduleStart().isBefore(dto.getScheduleLogStart())) {
+                        dto.setDailyAtt("지각");
+                    } else if (dto.getScheduleLogEnd() != null && dto.getScheduleEnd().isAfter(dto.getScheduleLogEnd())) {
+                        dto.setDailyAtt("조퇴");
+                    } else if (!dto.getScheduleLogStart().isAfter(dto.getScheduleStart()) && (dto.getScheduleLogEnd() != null && !dto.getScheduleLogEnd().isBefore(dto.getScheduleEnd()))) {
+                        dto.setDailyAtt("정상근무");
+                    } else {
+                        dto.setDailyAtt("과거오류");
+                    }
+                } else if (date.isEqual(LocalDate.now())) {
+                    if (dto.getScheduleLogStart() != null && dto.getScheduleLogEnd() == null) {
+                        dto.setDailyAtt("근무중");
+                    } else if (dto.getScheduleLogStart() == null && dto.getScheduleEnd().isAfter(LocalTime.now())) {
+                        dto.setDailyAtt("출근예정");
+                    } else if (dto.getScheduleEnd().isBefore(LocalTime.now()) && (dto.getScheduleLogStart() == null) || (dto.getScheduleLogEnd() != null && dto.getScheduleLogEnd().isBefore(dto.getScheduleStart()))) {
+                        dto.setDailyAtt("결근");
+                    } else if (dto.getScheduleStart().isBefore(LocalTime.now()) && (dto.getScheduleLogStart() != null && dto.getScheduleLogStart().isAfter(dto.getScheduleStart()))) {
+                        dto.setDailyAtt("지각");
+                    } else if (dto.getScheduleEnd().isBefore(LocalTime.now()) && (dto.getScheduleLogEnd() != null && dto.getScheduleLogEnd().isBefore(dto.getScheduleEnd()))) {
+                        dto.setDailyAtt("조퇴");
+                    } else if (!(dto.getScheduleLogStart() != null && dto.getScheduleLogStart().isAfter(dto.getScheduleStart())) && (dto.getScheduleLogEnd() != null && !dto.getScheduleLogEnd().isBefore(dto.getScheduleEnd()))) {
+                        dto.setDailyAtt("정상근무");
+                    } else {
+                        dto.setDailyAtt("당일오류");
+                    }
+                } else if (date.isAfter(LocalDate.now())) {
                     dto.setDailyAtt("출근예정");
-                } else if(dto.getScheduleEnd().isBefore(LocalTime.now()) && (dto.getScheduleLogStart() == null) || (dto.getScheduleLogEnd() != null && dto.getScheduleLogEnd().isBefore(dto.getScheduleStart()))) {
-                    dto.setDailyAtt("결근");
-                } else if(dto.getScheduleStart().isBefore(LocalTime.now()) && (dto.getScheduleLogStart() != null && dto.getScheduleLogStart().isAfter(dto.getScheduleStart()))) {
-                    dto.setDailyAtt("지각");
-                } else if(dto.getScheduleEnd().isBefore(LocalTime.now()) && (dto.getScheduleLogEnd() != null && dto.getScheduleLogEnd().isBefore(dto.getScheduleEnd()))) {
-                    dto.setDailyAtt("조퇴");
-                } else if(!(dto.getScheduleLogStart() != null && dto.getScheduleLogStart().isAfter(dto.getScheduleStart())) && (dto.getScheduleLogEnd() != null && !dto.getScheduleLogEnd().isBefore(dto.getScheduleEnd()))) {
-                    dto.setDailyAtt("정상근무");
                 } else {
-                    dto.setDailyAtt("당일오류");
+                    dto.setDailyAtt("최종오류");
                 }
-            } else if (date.isAfter(LocalDate.now())) {
-                dto.setDailyAtt("출근예정");
-            } else {
-                dto.setDailyAtt("최종오류");
+            }else{
+                 dto.setDailyAtt("최종오류");
             }
         }
 

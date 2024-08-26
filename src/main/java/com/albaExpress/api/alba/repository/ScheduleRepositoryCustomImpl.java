@@ -211,6 +211,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                         schedule.scheduleStart,
                         schedule.scheduleEnd,
                         schedule.slave.slaveName,
+                        schedule.slave.slaveFiredDate, // 추가
                         schedule.slave.slavePosition)
                 .from(schedule)
                 .leftJoin(scheduleLog)
@@ -228,6 +229,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .groupBy(
                         schedule.slave.slaveName,
                         schedule.slave.slavePosition,
+                        schedule.slave.slaveFiredDate,
                         schedule.scheduleStart,
                         schedule.scheduleEnd,
                         scheduleLog.scheduleLogStart,
@@ -254,6 +256,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                     .scheduleEnd(tuple.get(schedule.scheduleEnd))
                     .slaveName(tuple.get(schedule.slave.slaveName))
                     .slavePosition(tuple.get(schedule.slave.slavePosition))
+                    .slaveFiredDate(tuple.get(schedule.slave.slaveFiredDate))
                     .build();
         }).collect(Collectors.toList());
 
