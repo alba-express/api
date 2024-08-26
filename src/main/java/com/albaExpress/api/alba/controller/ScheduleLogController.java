@@ -5,12 +5,14 @@ import com.albaExpress.api.alba.dto.response.SlaveDto;
 import com.albaExpress.api.alba.entity.ScheduleLog;
 import com.albaExpress.api.alba.entity.Slave;
 import com.albaExpress.api.alba.service.ScheduleLogService;
+import com.albaExpress.api.alba.service.TimeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -24,6 +26,7 @@ import java.util.*;
 public class ScheduleLogController {
 
     private final ScheduleLogService scheduleLogService;
+    private final TimeService timeService;
 
     // 전화번호로 근무자 확인
     @GetMapping("/verify-phone-number")
@@ -99,7 +102,12 @@ public class ScheduleLogController {
     // 서버의 현재 시간 가져오기
     @GetMapping("/server-time")
     public ResponseEntity<LocalDateTime> getServerTime() {
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-        return ResponseEntity.ok(now);
+        try {
+            LocalDateTime now = timeService.getSeoulTime();
+            return ResponseEntity.ok(now);
+        } catch (IOException e) {
+            log.error("Error fetching server time: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }
