@@ -109,7 +109,7 @@ public class ScheduleLogService {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
         return schedules.stream()
-                .filter(schedule -> schedule.getScheduleEndDate() == null)
+                .filter(schedule -> schedule.getScheduleEndDate() == null || schedule.getScheduleEndDate().isAfter(date))
                 .filter(schedule -> schedule.getSlave().getSlaveFiredDate() == null)
                 .map(schedule -> {
                     Optional<ScheduleLog> log = findLogForDate(schedule.getSlave().getId(), date);

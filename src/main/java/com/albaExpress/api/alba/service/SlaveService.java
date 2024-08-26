@@ -197,6 +197,10 @@ public class SlaveService {
         for (SlaveModifyScheduleRequestDto scheduleDto : dto.getSlaveScheduleList()) {
             List<Schedule> newSchedule = scheduleDto.dtoToScheduleEntity(prevSlave);
 
+            for (Schedule schedule : newSchedule) {
+                schedule.setScheduleUpdateDate(LocalDate.now().plusMonths(1).withDayOfMonth(1));
+            }
+
             scheduleRepository.saveAll(newSchedule);
         }
 
