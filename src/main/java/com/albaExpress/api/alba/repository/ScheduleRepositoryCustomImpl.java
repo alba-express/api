@@ -147,11 +147,23 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
     @Override
     public List<Schedule> findByScheduleDay(int day, String workplaceId, LocalDate date) {
 
-        List<Schedule> scheduleList = factory.select(schedule)
-                .from(schedule)
-                .where(schedule.scheduleDay.eq(day)
-                        .and(schedule.slave.workplace.id.eq(workplaceId)))
+//        List<Schedule> scheduleList = factory.select(schedule)
+//                .from(schedule)
+//                .where(schedule.scheduleDay.eq(day)
+//                        .and(schedule.slave.workplace.id.eq(workplaceId))
+//                        .and(schedule.scheduleEndDate.after(date).or(schedule.scheduleEndDate.isNull()))
+//                        .and(schedule.scheduleUpdateDate.before(date).or(schedule.scheduleUpdateDate.eq(date)))
+//                        )
+//                .fetch();
+        List<Schedule> scheduleList = factory.selectFrom(schedule)
+                .where(schedule.slave.workplace.id.eq(workplaceId)
+                        .and(schedule.scheduleDay.eq(day))
+                        .and(schedule.scheduleEndDate.goe(date)
+                                .or(schedule.scheduleEndDate.isNull()))
+                        .and(schedule.scheduleUpdateDate.loe(date))
+                )
                 .fetch();
+
         List<ExtraSchedule> extraList = factory.select(extraSchedule)
                 .from(extraSchedule)
                 .where(extraSchedule.extraScheduleDate.eq(date)
@@ -183,6 +195,9 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
         }).collect(Collectors.toList());
         scheduleList.addAll(collect1);
 
+        for (Schedule schedule : scheduleList) {
+            log.info("대체 뭐가 나오길래 그러는거야? :{}, {}", schedule.getSlave().getSlaveName(), schedule.getScheduleStart());
+        }
 
 
         return scheduleList;

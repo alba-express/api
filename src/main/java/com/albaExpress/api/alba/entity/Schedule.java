@@ -39,6 +39,7 @@ public class Schedule {
     @Setter
     @Column(name = "schedule_end")
     private LocalTime scheduleEnd;
+    @Setter
     @Column(name = "schedule_update_date")
     private LocalDate scheduleUpdateDate;
 
