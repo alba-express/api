@@ -42,7 +42,7 @@ public class SlaveAllSlaveListResponseDto {
         this.slavePosition = slave.getSlavePosition();
 
         // SlaveWageResponseDto를 SlaveActiveSlaveListResponseDto 의 slaveWageList 로 변환하기
-        this.slaveWageList = slave.getWageList().stream().filter(wage -> wage.getWageEndDate() == null).map(SlaveWageResponseDto::new).collect(Collectors.toList());
+        this.slaveWageList = slave.getWageList().stream().filter(wage -> wage.getWageUpdateDate().isBefore(LocalDate.now()) && (wage.getWageEndDate() == null || wage.getWageEndDate().isAfter(LocalDate.now()))).map(SlaveWageResponseDto::new).collect(Collectors.toList());
         // SlaveScheduleResponseDto를 SlaveActiveSlaveListResponseDto 의 slaveScheduleList 로 변환하기
         this.slaveScheduleList = slave.getScheduleList().stream().filter(schedule -> schedule.getScheduleEndDate() == null).map(SlaveScheduleResponseDto::new).collect(Collectors.toList());
 
