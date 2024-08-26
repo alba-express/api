@@ -29,7 +29,7 @@ public class SlaveModifyWageRequestDto {
                 .wageType(this.slaveWageType)
                 .wageAmount(this.slaveWageAmount)
                 .wageInsurance(this.slaveWageInsurance)
-                .wageUpdateDate(LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth(), 1))
+                .wageUpdateDate(LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue() + 1, 1))
                 .slave(slave)
                 .build();
     }
