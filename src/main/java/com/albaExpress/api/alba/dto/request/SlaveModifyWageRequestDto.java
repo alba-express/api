@@ -25,7 +25,6 @@ public class SlaveModifyWageRequestDto {
     // SlaveRegistWageRequestDto --> Entity Wage 로 변환하기
     public Wage dtoToWageEntity (Slave slave) {
         return Wage.builder()
-                .id(this.slaveWageId)
                 .wageType(this.slaveWageType)
                 .wageAmount(this.slaveWageAmount)
                 .wageInsurance(this.slaveWageInsurance)

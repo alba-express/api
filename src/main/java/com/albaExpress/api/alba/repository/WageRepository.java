@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface WageRepository extends JpaRepository<Wage, String>, WageRepositoryCustom {
 
-    @Query("SELECT s FROM Wage s WHERE s.slave.id = :slaveId")
+    @Query("SELECT s FROM Wage s WHERE s.slave.id = :slaveId AND s.wageEndDate IS NULL")
     List<Wage> findBySlaveId(@Param("slaveId") String slaveId);
 }
