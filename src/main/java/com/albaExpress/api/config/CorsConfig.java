@@ -13,6 +13,8 @@ public class CorsConfig {
             "http://localhost:3001",
             "http://localhost:3002",
             "http://localhost:3003",
+            "http://albunny.store",
+            "http://43.202.122.135",
     };
 
     @Bean
