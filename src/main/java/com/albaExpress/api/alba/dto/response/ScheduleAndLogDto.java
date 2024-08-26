@@ -18,6 +18,7 @@ public class ScheduleAndLogDto {
     private LocalTime scheduleEnd;
     private String slaveName;
     private String slavePosition;
+    private LocalDateTime slaveFiredDate;
     @Setter
     private String dailyAtt;
 }
