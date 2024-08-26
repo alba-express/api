@@ -187,7 +187,7 @@ public class SlaveService {
 
         for (Schedule prevSchedule : prevSchedules) {
             // 이전 근무리스트 정보의 종료날짜를 다음달 1일로 설정하기
-            prevSchedule.setScheduleEndDate(firstDayOfNextMonth);
+            prevSchedule.setScheduleEndDate(LocalDate.now());
 
             // 이전 근무리스트 정보 저장하기 (종료날짜 업데이트)
             scheduleRepository.save(prevSchedule);
@@ -196,10 +196,6 @@ public class SlaveService {
         // 새로운 근무리스트 생성하기
         for (SlaveModifyScheduleRequestDto scheduleDto : dto.getSlaveScheduleList()) {
             List<Schedule> newSchedule = scheduleDto.dtoToScheduleEntity(prevSlave);
-
-            for (Schedule schedule : newSchedule) {
-                schedule.setScheduleUpdateDate(LocalDate.now().plusMonths(1).withDayOfMonth(1));
-            }
 
             scheduleRepository.saveAll(newSchedule);
         }
