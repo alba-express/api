@@ -48,26 +48,10 @@ public class SlaveService {
 
     public void serviceRegistSlave(SlaveRegistRequestDto dto) {
 
-        // 클라이언트에서 입력한 정보를 하나의 직원정보로 만들기
         Slave oneSlave = dto.dtoToSlaveEntity();
-
-        List<Slave> slaveList = slaveRepository.findByWorkplace_id(dto.getWorkPlaceNumber());
 
         slaveRepository.save(oneSlave);
         log.info("새로운 직원이 등록되었습니다: {}", dto.getSlavePhoneNumber());
-
-//        // 전화번호를 통해 DB에 직원 정보가 있는지 찾기
-//        Optional<Slave> findSlave = slaveRepository.findBySlavePhoneNumber(dto.getSlavePhoneNumber());
-//
-//        // DB에 해당 전화번호를 가진 직원이 존재하는경우
-//        if (findSlave.isPresent()) {
-//            log.info("직원이 이미 존재합니다: {}", dto.getSlavePhoneNumber());
-//
-//            // DB에 해당 전화번호를 가진 직원이 존재하지 않는경우 --> 직원등록
-//        } else {
-//            slaveRepository.save(oneSlave);
-//            log.info("새로운 직원이 등록되었습니다: {}", dto.getSlavePhoneNumber());
-//        }
     }
 
     // 모든 근무중인 직원 목록 & 근무중인 직원 개수 조회하기
@@ -136,9 +120,13 @@ public class SlaveService {
                 .collect(Collectors.toList());
     }
 
-    public boolean isPhoneNumberValid(String slavePhoneNumber) {
+    public boolean isPhoneNumberValid(String inputPhoneNumber, String workPlaceId) {
 
-        return slaveRepository.findBySlavePhoneNumber(slavePhoneNumber).isPresent();
+        // 해당 workplace에 속한 모든 직원의 전화번호 목록을 가져옴
+        List<Slave> allSlaves = slaveRepository.findByWorkplace_id(workPlaceId);
+        boolean isValid = allSlaves.stream().map(Slave::getSlavePhoneNumber).anyMatch(phoneNumber -> phoneNumber.equals(inputPhoneNumber));
+
+        return isValid;
     }
 
     // 해당 직원의 정보를 수정하기

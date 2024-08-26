@@ -119,14 +119,14 @@ public class SlaveController {
         }
     }
 
-    // 해당 사업장의 직원 한 명 이름으로 조회하기
     @PostMapping("/validPhoneNumber")
-    public Map<String, Boolean> validatePhoneNumber(@RequestBody String phoneNumber) {
-        boolean isValid = slaveService.isPhoneNumberValid(phoneNumber);
+    public boolean validatePhoneNumber(@RequestBody Map<String, String> requestData) {
+        String inputPhoneNumber = requestData.get("inputPhoneNumber");
+        String workPlaceId = requestData.get("workPlaceId");
 
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("isValid", isValid);
-        return response;
+        boolean isValid = slaveService.isPhoneNumberValid(inputPhoneNumber, workPlaceId);
+
+        return isValid;
     }
 
     // 직원 수정하기
