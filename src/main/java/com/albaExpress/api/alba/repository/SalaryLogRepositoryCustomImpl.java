@@ -140,12 +140,26 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
                 .collect(Collectors.toList());
 
         // 4. SalaryLogDetailResponseDto 반환
+        if(slaveInfo != null) {
+
         return SalaryLogDetailResponseDto.builder()
                 .slaveId(slaveInfo.get(slave.id))
                 .slaveName(slaveInfo.get(slave.slaveName))
                 .wageInsurance(slaveInfo.get(wage.wageInsurance))
                 .dtoList(dtoList)
                 .build();
+        } else {
+            String slaveName = factory.select(slave.slaveName)
+                    .from(slave)
+                    .where(slave.id.eq(slaveId))
+                    .fetchOne();
+            return SalaryLogDetailResponseDto.builder()
+                .slaveId(slaveId)
+                .slaveName(slaveName)
+                .wageInsurance(false)
+                .dtoList(dtoList)
+                .build();
+        }
     }
     @Override
     public SalaryLog addBonus(BonusRequestDto reqDto) {
