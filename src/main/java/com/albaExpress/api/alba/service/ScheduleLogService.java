@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -28,8 +29,8 @@ public class ScheduleLogService {
     private final ScheduleLogRepository scheduleLogRepository;
     private final SlaveRepository slaveRepository;
     private final ScheduleRepository scheduleRepository;
-
     private final WageService wageService;
+    private final TimeService timeService;
 
     // 전화번호로 근무자 확인
     public Slave verifyPhoneNumber(String phoneNumber, String workplaceId) {
@@ -48,8 +49,9 @@ public class ScheduleLogService {
         }
         Slave findSlave = slaveRepository.findById(slaveId).orElse(null);
         if (findSlave != null) {
+            LocalDateTime now = timeService.getSeoulTime();
             ScheduleLog scheduleLog = ScheduleLog.builder()
-                    .scheduleLogStart(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
+                    .scheduleLogStart(now)
                     .slave(findSlave)
                     .build();
             return scheduleLogRepository.save(scheduleLog);
@@ -62,7 +64,8 @@ public class ScheduleLogService {
     public ScheduleLog checkOut(String logId) throws Exception {
         ScheduleLog findScheduleLog = scheduleLogRepository.findById(logId).orElse(null);
         if (findScheduleLog != null) {
-            findScheduleLog.setScheduleLogEnd(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
+            LocalDateTime now = timeService.getSeoulTime();
+            findScheduleLog.setScheduleLogEnd(now);
             ScheduleLog save = scheduleLogRepository.save(findScheduleLog);
 
             log.info("스케쥴서비스 퇴근등록시 : {}", save);
