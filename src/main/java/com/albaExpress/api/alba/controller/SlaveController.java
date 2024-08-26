@@ -129,6 +129,17 @@ public class SlaveController {
         return isValid;
     }
 
+    @PostMapping("/modifyValidPhoneNumber")
+    public boolean modifyValidatePhoneNumber(@RequestBody Map<String, String> requestData) {
+        String inputPhoneNumber = requestData.get("inputPhoneNumber");
+        String workPlaceId = requestData.get("workPlaceId");
+        String slaveId = requestData.get("slaveId");
+
+        boolean isValid = slaveService.modifyIsPhoneNumberValid(inputPhoneNumber, workPlaceId, slaveId);
+
+        return isValid;
+    }
+
     // 직원 수정하기
     @PostMapping("/slave-modify/modifySlave")
     public ResponseEntity<?> modifySlave (@RequestBody SlaveModifyRequestDto dto) {

@@ -129,6 +129,17 @@ public class SlaveService {
         return isValid;
     }
 
+    public boolean modifyIsPhoneNumberValid(String inputPhoneNumber, String workPlaceId, String slaveId) {
+
+        // 해당 workplace에 속한 모든 직원의 전화번호 목록을 가져옴
+        List<Slave> allSlaves = slaveRepository.findByWorkplace_id(workPlaceId);
+        boolean isValid = allSlaves.stream()
+                .filter(slave -> !slave.getId().equals(slaveId))
+                .map(Slave::getSlavePhoneNumber).anyMatch(phoneNumber -> phoneNumber.equals(inputPhoneNumber));
+
+        return isValid;
+    }
+
     // 해당 직원의 정보를 수정하기
     @Transactional
     public void serviceModifySlave(SlaveModifyRequestDto dto) {
