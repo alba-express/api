@@ -22,6 +22,7 @@ public class WorkplaceModifyDto {
     private String workplaceAddressDetail;
     private String workplacePassword;
     private boolean workplaceSize;
+    private int workplaceTotalSlaveSize;
 
     private String masterId;
 
