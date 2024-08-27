@@ -19,4 +19,6 @@ public interface SalaryLogRepositoryCustom {
     public SalaryLog addBonus(BonusRequestDto reqDto);
 
     public List<WorkingTimeDto> calcWorkingTime(String workplaceId, YearMonth ym);
+
+    public SalaryLog getSalaryLog(String slaveId, YearMonth ym);
 }

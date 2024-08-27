@@ -210,4 +210,13 @@ public class SalaryLogRepositoryCustomImpl implements SalaryLogRepositoryCustom 
         return date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
     }
 
+    @Override
+    public SalaryLog getSalaryLog(String slaveId, YearMonth ym) {
+
+        return factory.select(salaryLog)
+                .from(salaryLog)
+                .where(salaryLog.slave.id.eq(slaveId)
+                        .and(salaryLog.salaryMonth.between(LocalDate.of(ym.getYear(), ym.getMonthValue(), 1), LocalDate.of(ym.getYear(), ym.getMonthValue() + 1, 1).minusDays(1)))
+                ).fetchOne();
+    }
 }
