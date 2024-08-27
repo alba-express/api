@@ -292,7 +292,11 @@ public class SlaveService {
                 actualEndTime = log.getScheduleLogEnd().toLocalTime();
 
                 // 근무 시간과 출퇴근 시간을 비교하여 상태를 결정
-                if (actualStartTime.isAfter(scheduleStart)) {
+
+                if (actualStartTime.isAfter(scheduleEnd) || actualEndTime.isBefore(scheduleStart)) {
+                    // 출근 시간이 근무 종료 후이거나 퇴근 시간이 근무 시작 전이면 결근으로 간주
+                    status = ScheduleLogStatus.ABSENT;
+                } else if (actualStartTime.isAfter(scheduleStart)) {
                     status = ScheduleLogStatus.LATE;
                 } else if (actualEndTime.isBefore(scheduleEnd)) {
                     status = ScheduleLogStatus.EARLYLEAVE;
