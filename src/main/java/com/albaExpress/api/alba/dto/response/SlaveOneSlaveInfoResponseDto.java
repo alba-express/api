@@ -47,9 +47,11 @@ public class SlaveOneSlaveInfoResponseDto {
         this.slaveBirthday = slave.getSlaveBirthday();
         this.slaveCreatedAt = formatSlaveLocalDateTime(slave.getSlaveCreatedAt());
 
+        LocalDate today = LocalDate.now();
+
         // SlaveWageResponseDto를 SlaveOneSlaveInfoResponseDto 의 wageList 로 변환하기
         this.wageList = slave.getWageList().stream()
-                .filter(wage -> wage.getWageEndDate() == null)
+                .filter(wage -> wage.getWageUpdateDate().isBefore(today) && (wage.getWageEndDate() == null || wage.getWageEndDate().isAfter(today)))
                 .map(SlaveWageResponseDto::new)
                 .collect(Collectors.toList());
 
