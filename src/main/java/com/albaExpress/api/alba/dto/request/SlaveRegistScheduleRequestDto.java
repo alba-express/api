@@ -25,6 +25,7 @@ public class SlaveRegistScheduleRequestDto {
     public List<Schedule> dtoToScheduleEntity (Slave slave) {
         return this.slaveScheduleList.stream().map(scheduleList ->
                 Schedule.builder()
+                        .scheduleType(slaveScheduleType)
                         .scheduleDay(scheduleList.getScheduleDay())
                         .scheduleStart(scheduleList.getStartSchedule())
                         .scheduleEnd(scheduleList.getEndSchedule())
