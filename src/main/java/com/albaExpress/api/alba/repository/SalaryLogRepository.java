@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SalaryLogRepository extends JpaRepository<SalaryLog, String>, SalaryLogRepositoryCustom {
 
+
 }
