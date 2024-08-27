@@ -16,6 +16,7 @@ import javax.validation.Valid;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/workplace")
@@ -54,6 +55,7 @@ public class WorkplaceController {
                     .workplaceAddressDetail(workplace.getWorkplaceAddressDetail())
                     .workplacePassword(workplace.getWorkplacePassword())
                     .workplaceSize(workplace.isWorkplaceSize())
+                    .workplaceTotalSlaveSize((int) workplace.getSlaveList().stream().filter(slave -> slave.getSlaveFiredDate() == null).count())
 //                    .workplaceCreatedAt(workplace.getWorkplaceCreatedAt())
                     .masterId(workplace.getMaster().getId())
                     .build();
