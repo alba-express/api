@@ -197,6 +197,11 @@ public class WageService {
 //            scheduleEnd = extraSchedule.getExtraScheduleEnd();
         }
 
+
+        if((start.isAfter(scheduleEnd) && end.isAfter(scheduleEnd)) || (start.isBefore(scheduleStart) && end.isBefore(scheduleStart))) {
+            return;
+        }
+
         if (start.isBefore(scheduleStart)) {
             start = scheduleStart;
         }
