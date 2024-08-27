@@ -169,8 +169,9 @@ public class WageService {
         LocalDateTime logEnd = save.getScheduleLogEnd();
         LocalDate logDate = LocalDate.of(logStart.getYear(), logStart.getMonth(), logStart.getDayOfMonth());
         String slaveId = save.getSlave().getId();
+        int dayOfWeek = logDate.getDayOfWeek().getValue() == 7 ? 0 : logDate.getDayOfWeek().getValue();
         ExtraSchedule extraSchedule = extraScheduleRepository.findByExtraScheduleDateAndSlaveId(logDate, slaveId);
-        Schedule schedule = scheduleRepository.findBySlaveIdAndScheduleDay(slaveId, logDate.getDayOfWeek().getValue()).get(0);
+        Schedule schedule = scheduleRepository.findBySlaveIdAndScheduleDay(slaveId, dayOfWeek).get(0);
         Wage wage = wageRepository.getWageBySlaveAndDate(slaveId, logDate);
         if (wage == null) {
             //wage 가 null 이거나 월급제라면 return 하기
@@ -195,7 +196,7 @@ public class WageService {
         }
 
 
-        log.info("wage서비스에서 schedule뽑기: {}", schedule);
+
 
         LocalTime start = LocalTime.of(logStart.getHour(), logStart.getMinute(), logStart.getSecond());
         LocalTime end = LocalTime.of(logEnd.getHour(), logEnd.getMinute(), logEnd.getSecond());
