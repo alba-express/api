@@ -77,6 +77,7 @@ public class ScheduleRepositoryCustomImpl implements ScheduleRepositoryCustom {
                 .leftJoin(extraSchedule)
                 .on(slave.id.eq(extraSchedule.slave.id))
                 .where(slave.workplace.id.eq(workplaceId)
+                        .and(slave.slaveFiredDate.isNull())
                         .and(extraSchedule.extraScheduleDate.eq(date))
                 )
                 .orderBy(extraSchedule.extraScheduleStart.asc())
